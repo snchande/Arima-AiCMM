@@ -1,0 +1,85 @@
+{
+  "schemaVersion": "0.1.0",
+  "agent": {
+    "name": "GitHub Copilot CLI",
+    "version": "1.0.40",
+    "vendor": "GitHub / Microsoft",
+    "description": "Terminal-native AI coding assistant with agentic capabilities for building, editing, debugging, and understanding code through natural language",
+    "category": "digital",
+    "url": "https://docs.github.com/copilot/concepts/agents/about-copilot-cli"
+  },
+  "capabilityProfile": {
+    "autonomy": {
+      "score": 4,
+      "evidence": "Can decompose complex goals into sub-tasks, delegate to sub-agents, schedule multi-step work, but respects human approval gates for file modifications and tool execution"
+    },
+    "reasoning": {
+      "score": 4,
+      "evidence": "Plans multi-step implementations, compares approaches, handles branching logic, repairs plans when builds/tests fail. Can orchestrate parallel sub-agents for complex investigations"
+    },
+    "learning": {
+      "score": 2,
+      "evidence": "Adapts within session via context and conversation history. Incorporates custom instructions and skills. No cross-session learning or model fine-tuning from user feedback"
+    },
+    "memory": {
+      "score": 3,
+      "evidence": "Session-level memory with context compaction. Cross-session store for history retrieval. Custom instructions persist. No long-term preference learning across sessions"
+    },
+    "toolUse": {
+      "score": 5,
+      "evidence": "Orchestrates 30+ tools (grep, glob, view, edit, shell, git, GitHub MCP, SQL, web search/fetch, sub-agents). Handles failures, retries, parallel execution, and tool chaining"
+    },
+    "collaboration": {
+      "score": 3,
+      "evidence": "Delegates to specialized sub-agents (explore, task, research, code-review). Coordinates with GitHub (PRs, issues). Human-in-the-loop approval model. No multi-user agent coordination"
+    },
+    "embodiment": {
+      "score": 0,
+      "evidence": "Purely digital agent operating within a terminal environment. No physical sensors, actuators, or spatial awareness"
+    },
+    "domainAlignment": {
+      "score": 4,
+      "evidence": "Permission system with explicit approval gates. Content exclusion policies. Trusted folder model. Audit trail via session history. Respects organizational policies. No formal certification"
+    }
+  },
+  "operationalConstraints": {
+    "domain": "Software Engineering",
+    "safetyClass": "Low physical risk (digital-only)",
+    "approvalRequirements": [
+      "File modification approval",
+      "Shell command execution approval",
+      "Directory trust confirmation"
+    ]
+  },
+  "capabilityResume": [
+    {
+      "version": "1.0.40",
+      "date": "2026-05-23",
+      "scores": {
+        "autonomy": 4,
+        "reasoning": 4,
+        "learning": 2,
+        "memory": 3,
+        "toolUse": 5,
+        "collaboration": 3,
+        "embodiment": 0,
+        "domainAlignment": 4
+      },
+      "notes": "Initial assessment based on documented capabilities and observed behavior"
+    }
+  ],
+  "integration": {
+    "a2aCompatible": true,
+    "mcpEndpoints": ["github-mcp-server"]
+  },
+  "assessmentMetadata": {
+    "assessedBy": "Suresh Chande",
+    "assessedDate": "2026-05-23",
+    "methodology": "AiCMM v0.1 - Evidence-based scoring from documentation and runtime observation",
+    "evidenceSources": [
+      "GitHub Copilot CLI README and help documentation",
+      "Runtime tool capabilities observed in session",
+      "Permission model and approval workflow behavior"
+    ]
+  }
+}

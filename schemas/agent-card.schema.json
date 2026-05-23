@@ -1,0 +1,159 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aicmm.org/schemas/agent-card.schema.json",
+  "title": "AiCMM Agent Card",
+  "description": "Schema for an AiCMM Agent Capability Card describing an AI agent's capability fingerprint",
+  "type": "object",
+  "required": ["schemaVersion", "agent", "capabilityProfile"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "0.1.0",
+      "description": "Version of the AiCMM Agent Card schema"
+    },
+    "agent": {
+      "type": "object",
+      "required": ["name", "version"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the agent"
+        },
+        "version": {
+          "type": "string",
+          "description": "Version of the agent being evaluated"
+        },
+        "vendor": {
+          "type": "string",
+          "description": "Organization or individual that created the agent"
+        },
+        "description": {
+          "type": "string",
+          "description": "Brief description of the agent's purpose"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["digital", "embodied", "hybrid"],
+          "description": "Primary category of the agent"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL for more information about the agent"
+        }
+      }
+    },
+    "capabilityProfile": {
+      "type": "object",
+      "required": ["autonomy", "reasoning", "learning", "memory", "toolUse", "collaboration", "embodiment", "domainAlignment"],
+      "properties": {
+        "autonomy": { "$ref": "#/$defs/dimensionScore" },
+        "reasoning": { "$ref": "#/$defs/dimensionScore" },
+        "learning": { "$ref": "#/$defs/dimensionScore" },
+        "memory": { "$ref": "#/$defs/dimensionScore" },
+        "toolUse": { "$ref": "#/$defs/dimensionScore" },
+        "collaboration": { "$ref": "#/$defs/dimensionScore" },
+        "embodiment": { "$ref": "#/$defs/dimensionScore" },
+        "domainAlignment": { "$ref": "#/$defs/dimensionScore" }
+      }
+    },
+    "operationalConstraints": {
+      "type": "object",
+      "properties": {
+        "domain": {
+          "type": "string",
+          "description": "Operating domain (e.g., healthcare, logistics, finance)"
+        },
+        "safetyClass": {
+          "type": "string",
+          "description": "Safety classification level"
+        },
+        "approvalRequirements": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Human approval gates required"
+        },
+        "regulatoryFrameworks": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Applicable regulatory frameworks (e.g., HIPAA, ISO 26262)"
+        }
+      }
+    },
+    "capabilityResume": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["version", "date", "scores"],
+        "properties": {
+          "version": { "type": "string" },
+          "date": { "type": "string", "format": "date" },
+          "scores": { "$ref": "#/$defs/scoreSet" },
+          "notes": { "type": "string" }
+        }
+      },
+      "description": "Historical capability scores across versions"
+    },
+    "integration": {
+      "type": "object",
+      "properties": {
+        "a2aCompatible": {
+          "type": "boolean",
+          "description": "Whether this card is embeddable in A2A protocol"
+        },
+        "mcpEndpoints": {
+          "type": "array",
+          "items": { "type": "string", "format": "uri" },
+          "description": "MCP server endpoints for this agent"
+        }
+      }
+    },
+    "assessmentMetadata": {
+      "type": "object",
+      "properties": {
+        "assessedBy": { "type": "string" },
+        "assessedDate": { "type": "string", "format": "date" },
+        "methodology": { "type": "string" },
+        "evidenceSources": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "dimensionScore": {
+      "type": "object",
+      "required": ["score"],
+      "properties": {
+        "score": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5,
+          "description": "Capability score (0=absent, 5=state of the art)"
+        },
+        "evidence": {
+          "type": "string",
+          "description": "Observable evidence justifying this score"
+        },
+        "constraints": {
+          "type": "string",
+          "description": "Intentional constraints on this dimension"
+        }
+      }
+    },
+    "scoreSet": {
+      "type": "object",
+      "properties": {
+        "autonomy": { "type": "integer", "minimum": 0, "maximum": 5 },
+        "reasoning": { "type": "integer", "minimum": 0, "maximum": 5 },
+        "learning": { "type": "integer", "minimum": 0, "maximum": 5 },
+        "memory": { "type": "integer", "minimum": 0, "maximum": 5 },
+        "toolUse": { "type": "integer", "minimum": 0, "maximum": 5 },
+        "collaboration": { "type": "integer", "minimum": 0, "maximum": 5 },
+        "embodiment": { "type": "integer", "minimum": 0, "maximum": 5 },
+        "domainAlignment": { "type": "integer", "minimum": 0, "maximum": 5 }
+      }
+    }
+  }
+}
