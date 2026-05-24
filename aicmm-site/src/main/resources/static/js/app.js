@@ -1,11 +1,15 @@
 /**
  * AiCMM Site - Client-side JavaScript
- * Handles radar chart rendering and avatar visualization for Agent Cards.
+ * Handles radar chart rendering, avatar visualization, and card creation.
  */
 document.addEventListener('DOMContentLoaded', () => {
     // Render radar charts for agent cards
     const radarCharts = document.querySelectorAll('.radar-chart[data-profile]');
     radarCharts.forEach(renderRadarChart);
+
+    // Render mini radar charts in catalog
+    const miniRadars = document.querySelectorAll('.mini-radar-chart[data-profile]');
+    miniRadars.forEach(el => renderRadarChart(el, true));
 
     // Render avatar visuals
     const avatarVisuals = document.querySelectorAll('.avatar-visual[data-profile]');
@@ -94,7 +98,7 @@ function renderAvatarVisual(container) {
 /**
  * Renders a simple SVG radar chart for an agent capability profile.
  */
-function renderRadarChart(container) {
+function renderRadarChart(container, mini = false) {
     const profile = JSON.parse(container.getAttribute('data-profile'));
     const dimensions = [
         { key: 'autonomy', label: 'Autonomy' },
@@ -107,9 +111,9 @@ function renderRadarChart(container) {
         { key: 'domainAlignment', label: 'Domain Align.' }
     ];
 
-    const size = 400;
+    const size = mini ? 200 : 400;
     const center = size / 2;
-    const maxRadius = center - 60;
+    const maxRadius = center - (mini ? 30 : 60);
     const levels = 5;
 
     let svg = `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
@@ -119,7 +123,7 @@ function renderRadarChart(container) {
     for (let i = 1; i <= levels; i++) {
         const r = (maxRadius / levels) * i;
         svg += `<circle cx="${center}" cy="${center}" r="${r}" fill="none" stroke="#e2e8f0" stroke-width="1"/>`;
-        svg += `<text x="${center + 4}" y="${center - r + 4}" font-size="9" fill="#94a3b8">${i}</text>`;
+        if (!mini) svg += `<text x="${center + 4}" y="${center - r + 4}" font-size="9" fill="#94a3b8">${i}</text>`;
     }
 
     // Draw axes and labels
@@ -130,14 +134,15 @@ function renderRadarChart(container) {
         const y = center + maxRadius * Math.sin(angle);
         svg += `<line x1="${center}" y1="${center}" x2="${x}" y2="${y}" stroke="#e2e8f0" stroke-width="1"/>`;
 
-        // Label position
-        const labelR = maxRadius + 35;
-        const lx = center + labelR * Math.cos(angle);
-        const ly = center + labelR * Math.sin(angle);
-        svg += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" font-size="11" font-weight="500" fill="#475569">${dim.label}</text>`;
+        if (!mini) {
+            const labelR = maxRadius + 35;
+            const lx = center + labelR * Math.cos(angle);
+            const ly = center + labelR * Math.sin(angle);
+            svg += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" font-size="11" font-weight="500" fill="#475569">${dim.label}</text>`;
+        }
     });
 
-    // Draw the capability polygon with gradient fill
+    // Draw the capability polygon
     let points = [];
     dimensions.forEach((dim, i) => {
         const score = profile[dim.key]?.score ?? 0;
@@ -148,25 +153,180 @@ function renderRadarChart(container) {
         points.push(`${x},${y}`);
     });
 
-    svg += `<polygon points="${points.join(' ')}" fill="rgba(37, 99, 235, 0.15)" stroke="#2563eb" stroke-width="2.5"/>`;
+    svg += `<polygon points="${points.join(' ')}" fill="rgba(37, 99, 235, 0.15)" stroke="#2563eb" stroke-width="${mini ? 1.5 : 2.5}"/>`;
 
-    // Draw score dots with labels
-    dimensions.forEach((dim, i) => {
-        const score = profile[dim.key]?.score ?? 0;
-        const angle = angleStep * i - Math.PI / 2;
-        const r = (maxRadius / levels) * score;
-        const x = center + r * Math.cos(angle);
-        const y = center + r * Math.sin(angle);
-        svg += `<circle cx="${x}" cy="${y}" r="5" fill="#2563eb" stroke="white" stroke-width="2"/>`;
-        svg += `<text x="${x}" y="${y - 12}" text-anchor="middle" font-size="12" font-weight="bold" fill="#1d4ed8">${score}</text>`;
-    });
+    // Draw score dots
+    if (!mini) {
+        dimensions.forEach((dim, i) => {
+            const score = profile[dim.key]?.score ?? 0;
+            const angle = angleStep * i - Math.PI / 2;
+            const r = (maxRadius / levels) * score;
+            const x = center + r * Math.cos(angle);
+            const y = center + r * Math.sin(angle);
+            svg += `<circle cx="${x}" cy="${y}" r="5" fill="#2563eb" stroke="white" stroke-width="2"/>`;
+            svg += `<text x="${x}" y="${y - 12}" text-anchor="middle" font-size="12" font-weight="bold" fill="#1d4ed8">${score}</text>`;
+        });
+    }
 
     // Total score in center
     const total = dimensions.reduce((sum, dim) => sum + (profile[dim.key]?.score ?? 0), 0);
     const avg = (total / dimensions.length).toFixed(1);
-    svg += `<text x="${center}" y="${center - 6}" text-anchor="middle" font-size="20" font-weight="bold" fill="#1e293b">${total}</text>`;
-    svg += `<text x="${center}" y="${center + 12}" text-anchor="middle" font-size="10" fill="#64748b">/ 40 (avg ${avg})</text>`;
+    const fontSize = mini ? 14 : 20;
+    const subSize = mini ? 8 : 10;
+    svg += `<text x="${center}" y="${center - 4}" text-anchor="middle" font-size="${fontSize}" font-weight="bold" fill="#1e293b">${total}</text>`;
+    svg += `<text x="${center}" y="${center + (mini ? 8 : 12)}" text-anchor="middle" font-size="${subSize}" fill="#64748b">${mini ? avg : `/ 40 (avg ${avg})`}</text>`;
 
     svg += '</svg>';
     container.innerHTML = svg;
+}
+
+// === Create Card Form Functions ===
+
+function updateScoreDisplay(input) {
+    const dimKey = input.id.replace('score-', '');
+    document.getElementById('display-' + dimKey).textContent = input.value;
+}
+
+function getFormScores() {
+    const dims = ['autonomy', 'reasoning', 'learning', 'memory', 'toolUse', 'collaboration', 'embodiment', 'domainAlignment'];
+    const profile = {};
+    dims.forEach(dim => {
+        const el = document.getElementById('score-' + dim);
+        profile[dim] = { score: el ? parseInt(el.value) : 0 };
+    });
+    return profile;
+}
+
+function previewRadar() {
+    const profile = getFormScores();
+    const preview = document.getElementById('preview-area');
+    preview.style.display = 'block';
+
+    const radarEl = document.getElementById('preview-radar');
+    radarEl.setAttribute('data-profile', JSON.stringify(profile));
+    renderRadarChart(radarEl);
+}
+
+function generateCard() {
+    const form = document.getElementById('agent-card-form');
+    const formData = new FormData(form);
+
+    const profile = getFormScores();
+    const total = Object.values(profile).reduce((s, d) => s + d.score, 0);
+
+    const card = {
+        schemaVersion: "0.1.0",
+        agent: {
+            name: formData.get('name') || 'Unnamed Agent',
+            version: formData.get('version') || '1.0.0',
+            vendor: formData.get('vendor') || '',
+            description: formData.get('description') || '',
+            category: formData.get('category') || 'digital',
+            url: formData.get('url') || ''
+        },
+        capabilityProfile: profile,
+        tools: splitComma(formData.get('tools')),
+        skills: splitComma(formData.get('skills')),
+        plugins: splitComma(formData.get('plugins')),
+        mcpConnections: splitComma(formData.get('mcps')),
+        agentRelationships: {
+            delegatesTo: splitComma(formData.get('delegatesTo')),
+            usedBy: splitComma(formData.get('usedBy')),
+            dependsOn: splitComma(formData.get('dependsOn'))
+        },
+        sourceUrl: formData.get('agentUrl') || '',
+        governanceCompliant: profile.autonomy.score <= (profile.domainAlignment.score + 1),
+        totalScore: total,
+        averageScore: parseFloat((total / 8).toFixed(2)),
+        assessmentMetadata: {
+            assessedBy: "Manual (via AiCMM Create Card)",
+            assessedDate: new Date().toISOString().split('T')[0],
+            methodology: "manual-expert",
+            evidenceSources: formData.get('agentUrl') ? [formData.get('agentUrl')] : ["manual-input"]
+        }
+    };
+
+    // Show preview
+    const preview = document.getElementById('preview-area');
+    preview.style.display = 'block';
+
+    const radarEl = document.getElementById('preview-radar');
+    radarEl.setAttribute('data-profile', JSON.stringify(profile));
+    renderRadarChart(radarEl);
+
+    const jsonEl = document.getElementById('preview-json');
+    jsonEl.querySelector('code').textContent = JSON.stringify(card, null, 2);
+
+    // Store for download
+    window._generatedCard = card;
+}
+
+function downloadCard() {
+    if (!window._generatedCard) return;
+    const blob = new Blob([JSON.stringify(window._generatedCard, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const name = (window._generatedCard.agent.name || 'agent').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    a.href = url;
+    a.download = name + '-agent-card.json';
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+function copyCard() {
+    if (!window._generatedCard) return;
+    navigator.clipboard.writeText(JSON.stringify(window._generatedCard, null, 2));
+    alert('Agent Card copied to clipboard!');
+}
+
+function splitComma(str) {
+    if (!str) return [];
+    return str.split(',').map(s => s.trim()).filter(s => s.length > 0);
+}
+
+/**
+ * Catalog search and filter — filters the catalog table and card grid in real-time.
+ */
+function filterCatalog() {
+    const query = (document.getElementById('catalog-search')?.value || '').toLowerCase();
+    const categoryFilter = document.getElementById('filter-category')?.value || '';
+    const minScore = parseInt(document.getElementById('filter-min-score')?.value || '0');
+
+    const table = document.querySelector('.catalog-table');
+    if (!table) return;
+
+    const rows = table.querySelectorAll('tbody tr');
+    let visibleCount = 0;
+
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        const cells = row.querySelectorAll('td');
+        const category = cells[2]?.textContent.trim().toLowerCase() || '';
+        const avgCell = cells[cells.length - 1];
+        const avg = parseFloat(avgCell?.textContent || '0');
+
+        const matchesQuery = !query || text.includes(query);
+        const matchesCategory = !categoryFilter || category.includes(categoryFilter);
+        const matchesScore = avg >= minScore;
+
+        if (matchesQuery && matchesCategory && matchesScore) {
+            row.style.display = '';
+            visibleCount++;
+        } else {
+            row.style.display = 'none';
+        }
+    });
+
+    // Also filter visual profile cards
+    const cards = document.querySelectorAll('.catalog-card');
+    const cardNames = Array.from(rows).filter(r => r.style.display !== 'none').map(r => r.querySelector('td a')?.textContent.toLowerCase());
+    cards.forEach(card => {
+        const name = card.querySelector('h3 a')?.textContent.toLowerCase() || '';
+        card.style.display = cardNames.includes(name) ? '' : 'none';
+    });
+
+    const countEl = document.getElementById('search-results-count');
+    if (countEl) {
+        countEl.textContent = visibleCount + ' of ' + rows.length + ' agents shown';
+    }
 }

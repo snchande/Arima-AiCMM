@@ -34,6 +34,10 @@ public class AgentCardController {
             StringBuilder html = new StringBuilder();
             html.append("<h1>Agent Cards</h1>");
             html.append("<p class='subtitle'>AiCMM capability fingerprints for evaluated agents</p>");
+            html.append("<div class='catalog-actions'>");
+            html.append("<a href='/create-card' class='btn btn-primary'>+ Create New Agent Card</a>");
+            html.append("<a href='/catalog' class='btn btn-secondary'>View Full Catalog</a>");
+            html.append("</div>");
             html.append("<div class='card-grid'>");
 
             for (Map<String, Object> card : cards) {
@@ -47,6 +51,7 @@ public class AgentCardController {
                 html.append("<p class='vendor'>").append(card.getOrDefault("vendor", "")).append("</p>");
                 html.append("<p class='description'>").append(card.getOrDefault("description", "")).append("</p>");
                 if (profile != null) {
+                    html.append("<div class='mini-radar' data-profile='").append(miniProfileJson(profile)).append("'></div>");
                     html.append("<div class='scores'>");
                     for (Map.Entry<String, Object> entry : profile.entrySet()) {
                         if (entry.getValue() instanceof Map) {
@@ -68,6 +73,221 @@ public class AgentCardController {
         } catch (IOException e) {
             ctx.status(500).result("Error loading cards: " + e.getMessage());
         }
+    }
+
+    public void catalog(Context ctx) {
+        try {
+            List<Map<String, Object>> cards = loadAllCards();
+            StringBuilder html = new StringBuilder();
+
+            // Catalog header with stats
+            html.append("<div class='catalog-header'>");
+            html.append("<h1>Agent Card Catalog</h1>");
+            html.append("<p class='subtitle'>Central registry of all evaluated AI agents and tools</p>");
+            html.append("<div class='catalog-stats'>");
+            html.append("<div class='stat'><span class='stat-value'>").append(cards.size()).append("</span><span class='stat-label'>Agents Evaluated</span></div>");
+
+            // Count by category
+            long digital = cards.stream().filter(c -> "digital".equals(c.get("category"))).count();
+            long embodied = cards.stream().filter(c -> "embodied".equals(c.get("category"))).count();
+            long hybrid = cards.stream().filter(c -> "hybrid".equals(c.get("category"))).count();
+            html.append("<div class='stat'><span class='stat-value'>").append(digital).append("</span><span class='stat-label'>Digital</span></div>");
+            html.append("<div class='stat'><span class='stat-value'>").append(embodied).append("</span><span class='stat-label'>Embodied</span></div>");
+            html.append("<div class='stat'><span class='stat-value'>").append(hybrid).append("</span><span class='stat-label'>Hybrid</span></div>");
+            html.append("</div>"); // catalog-stats
+            html.append("<div class='catalog-actions'>");
+            html.append("<a href='/create-card' class='btn btn-primary'>+ Create New Agent Card</a>");
+            html.append("</div>");
+            html.append("</div>"); // catalog-header
+
+            // Search and filter bar
+            html.append("<div class='catalog-search'>");
+            html.append("<input type='text' id='catalog-search' class='form-input' placeholder='Search agents by name, vendor, category, tools...' oninput='filterCatalog()'/>");
+            html.append("<div class='filter-row'>");
+            html.append("<select id='filter-category' class='form-input filter-select' onchange='filterCatalog()'>");
+            html.append("<option value=''>All Categories</option>");
+            html.append("<option value='digital'>Digital</option>");
+            html.append("<option value='embodied'>Embodied</option>");
+            html.append("<option value='hybrid'>Hybrid</option>");
+            html.append("</select>");
+            html.append("<select id='filter-min-score' class='form-input filter-select' onchange='filterCatalog()'>");
+            html.append("<option value='0'>Min Avg Score: Any</option>");
+            html.append("<option value='1'>Min Avg >= 1</option>");
+            html.append("<option value='2'>Min Avg >= 2</option>");
+            html.append("<option value='3'>Min Avg >= 3</option>");
+            html.append("<option value='4'>Min Avg >= 4</option>");
+            html.append("</select>");
+            html.append("<span id='search-results-count' class='search-count'></span>");
+            html.append("</div>");
+            html.append("</div>");
+
+            // Catalog table
+            html.append("<div class='catalog-table-wrap'>");
+            html.append("<table class='catalog-table'>");
+            html.append("<thead><tr>");
+            html.append("<th>Agent</th><th>Vendor</th><th>Category</th>");
+            html.append("<th>A</th><th>R</th><th>L</th><th>M</th><th>T</th><th>C</th><th>E</th><th>D</th>");
+            html.append("<th>Total</th><th>Avg</th>");
+            html.append("</tr></thead><tbody>");
+
+            for (Map<String, Object> card : cards) {
+                String name = (String) card.get("name");
+                String fileName = (String) card.get("fileName");
+                String vendor = (String) card.getOrDefault("vendor", "");
+                String category = (String) card.getOrDefault("category", "");
+                @SuppressWarnings("unchecked")
+                Map<String, Object> profile = (Map<String, Object>) card.get("capabilityProfile");
+
+                html.append("<tr>");
+                html.append("<td><a href='/agent-cards/").append(fileName).append("'>").append(escapeHtml(name)).append("</a></td>");
+                html.append("<td>").append(escapeHtml(vendor)).append("</td>");
+                html.append("<td><span class='badge category'>").append(escapeHtml(category.toUpperCase())).append("</span></td>");
+
+                int total = 0;
+                String[] dims = {"autonomy", "reasoning", "learning", "memory", "toolUse", "collaboration", "embodiment", "domainAlignment"};
+                for (String dim : dims) {
+                    int val = getScoreFromProfile(profile, dim);
+                    total += val;
+                    String colorClass = val >= 4 ? "high" : val >= 2 ? "mid" : "low";
+                    html.append("<td class='score-cell ").append(colorClass).append("'>").append(val).append("</td>");
+                }
+                double avg = total / 8.0;
+                html.append("<td class='total-cell'><strong>").append(total).append("</strong></td>");
+                html.append("<td>").append(String.format("%.1f", avg)).append("</td>");
+                html.append("</tr>");
+            }
+
+            html.append("</tbody></table>");
+            html.append("</div>");
+
+            // Card grid with radar charts
+            html.append("<h2 style='margin-top:2rem'>Visual Profiles</h2>");
+            html.append("<div class='card-grid'>");
+            for (Map<String, Object> card : cards) {
+                String name = (String) card.get("name");
+                String fileName = (String) card.get("fileName");
+                @SuppressWarnings("unchecked")
+                Map<String, Object> profile = (Map<String, Object>) card.get("capabilityProfile");
+
+                html.append("<div class='agent-card catalog-card'>");
+                html.append("<h3><a href='/agent-cards/").append(fileName).append("'>").append(escapeHtml(name)).append("</a></h3>");
+                html.append("<p class='vendor'>").append(escapeHtml((String) card.getOrDefault("vendor", ""))).append("</p>");
+                if (profile != null) {
+                    html.append("<div class='radar-chart mini-radar-chart' data-profile='").append(miniProfileJson(profile)).append("'></div>");
+                }
+                html.append("</div>");
+            }
+            html.append("</div>");
+
+            ctx.html(wrapInLayout("Agent Card Catalog", html.toString(), "catalog"));
+        } catch (IOException e) {
+            ctx.status(500).result("Error: " + e.getMessage());
+        }
+    }
+
+    public void createCardForm(Context ctx) {
+        StringBuilder html = new StringBuilder();
+        html.append("<h1>Create Agent Card</h1>");
+        html.append("<p class='subtitle'>Point to an AI agent or tool to generate its a-CMM Agent Card</p>");
+
+        html.append("<div class='create-card-form'>");
+        html.append("<form id='agent-card-form'>");
+
+        // Agent URL / Description input
+        html.append("<fieldset class='form-section'>");
+        html.append("<legend>Agent Source</legend>");
+        html.append("<p class='form-help'>Provide a URL to the agent's documentation, homepage, or API spec. The system will analyze it and generate a capability profile.</p>");
+        html.append("<div class='form-group'>");
+        html.append("<label for='agent-url'>Agent URL or Documentation Link</label>");
+        html.append("<input type='url' id='agent-url' name='agentUrl' placeholder='https://docs.example.com/my-agent' class='form-input'/>");
+        html.append("</div>");
+        html.append("<div class='form-group'>");
+        html.append("<label for='agent-desc'>Or paste agent description</label>");
+        html.append("<textarea id='agent-desc' name='agentDescription' rows='6' class='form-input' placeholder='Describe the agent capabilities, tools it uses, how it works...'></textarea>");
+        html.append("</div>");
+        html.append("</fieldset>");
+
+        // Agent Identity
+        html.append("<fieldset class='form-section'>");
+        html.append("<legend>Agent Identity</legend>");
+        html.append("<div class='form-row'>");
+        html.append("<div class='form-group'><label for='name'>Name *</label><input type='text' id='name' name='name' required class='form-input'/></div>");
+        html.append("<div class='form-group'><label for='version'>Version</label><input type='text' id='version' name='version' placeholder='1.0.0' class='form-input'/></div>");
+        html.append("</div>");
+        html.append("<div class='form-row'>");
+        html.append("<div class='form-group'><label for='vendor'>Creator / Vendor *</label><input type='text' id='vendor' name='vendor' required class='form-input'/></div>");
+        html.append("<div class='form-group'><label for='category'>Category</label><select id='category' name='category' class='form-input'><option value='digital'>Digital</option><option value='embodied'>Embodied</option><option value='hybrid'>Hybrid</option></select></div>");
+        html.append("</div>");
+        html.append("<div class='form-group'><label for='description'>Description</label><textarea id='description' name='description' rows='3' class='form-input'></textarea></div>");
+        html.append("<div class='form-group'><label for='url'>Homepage URL</label><input type='url' id='url' name='url' class='form-input'/></div>");
+        html.append("</fieldset>");
+
+        // Tools, Skills, Plugins
+        html.append("<fieldset class='form-section'>");
+        html.append("<legend>Capabilities</legend>");
+        html.append("<div class='form-group'><label for='tools'>Tools (comma-separated)</label><input type='text' id='tools' name='tools' placeholder='shell, file-edit, web-search, git...' class='form-input'/></div>");
+        html.append("<div class='form-group'><label for='skills'>Skills (comma-separated)</label><input type='text' id='skills' name='skills' placeholder='code-generation, debugging, documentation...' class='form-input'/></div>");
+        html.append("<div class='form-group'><label for='plugins'>Plugins / Extensions (comma-separated)</label><input type='text' id='plugins' name='plugins' placeholder='code-interpreter, image-gen...' class='form-input'/></div>");
+        html.append("<div class='form-group'><label for='mcps'>MCP Connections (comma-separated)</label><input type='text' id='mcps' name='mcps' placeholder='github-mcp, filesystem-mcp...' class='form-input'/></div>");
+        html.append("</fieldset>");
+
+        // Agent Relationships
+        html.append("<fieldset class='form-section'>");
+        html.append("<legend>Agent Relationships</legend>");
+        html.append("<div class='form-group'><label for='delegates-to'>Delegates To (other agents)</label><input type='text' id='delegates-to' name='delegatesTo' placeholder='sub-agent-1, research-agent...' class='form-input'/></div>");
+        html.append("<div class='form-group'><label for='used-by'>Used By (other agents)</label><input type='text' id='used-by' name='usedBy' placeholder='orchestrator-agent, pipeline...' class='form-input'/></div>");
+        html.append("<div class='form-group'><label for='depends-on'>Depends On (services/models)</label><input type='text' id='depends-on' name='dependsOn' placeholder='GPT-4, Claude, vector-db...' class='form-input'/></div>");
+        html.append("</fieldset>");
+
+        // Scoring
+        html.append("<fieldset class='form-section'>");
+        html.append("<legend>a-CMM Scores (0-5)</legend>");
+        html.append("<p class='form-help'>Score each dimension based on observable evidence. Leave at 0 if unsure — the system will suggest scores from the agent description.</p>");
+        html.append("<div class='score-inputs'>");
+        String[][] dims = {
+            {"autonomy", "Autonomy", "Self-directed action without human intervention"},
+            {"reasoning", "Reasoning & Planning", "Structured problem-solving under uncertainty"},
+            {"learning", "Learning & Adaptation", "Ability to improve from experience"},
+            {"memory", "Memory & Context", "Information retention and temporal awareness"},
+            {"toolUse", "Tool Use & Integration", "Orchestrating external tools and APIs"},
+            {"collaboration", "Collaboration", "Coordination with humans and other agents"},
+            {"embodiment", "Embodiment", "Physical/virtual presence (0 for software-only)"},
+            {"domainAlignment", "Domain Alignment", "Policy compliance, safety, auditability"}
+        };
+        for (String[] dim : dims) {
+            html.append("<div class='score-input-row'>");
+            html.append("<label for='score-").append(dim[0]).append("'>").append(dim[1]).append("</label>");
+            html.append("<input type='range' id='score-").append(dim[0]).append("' name='score_").append(dim[0]).append("' min='0' max='5' value='0' oninput='updateScoreDisplay(this)'/>");
+            html.append("<span class='score-display' id='display-").append(dim[0]).append("'>0</span>");
+            html.append("<span class='score-hint'>").append(dim[2]).append("</span>");
+            html.append("</div>");
+        }
+        html.append("</div>");
+        html.append("</fieldset>");
+
+        // Preview & Generate
+        html.append("<div class='form-actions'>");
+        html.append("<button type='button' class='btn btn-primary' onclick='generateCard()'>Generate Agent Card</button>");
+        html.append("<button type='button' class='btn btn-secondary' onclick='previewRadar()'>Preview Radar Chart</button>");
+        html.append("</div>");
+        html.append("</form>");
+
+        // Preview area
+        html.append("<div id='preview-area' class='preview-area' style='display:none'>");
+        html.append("<h2>Generated Agent Card</h2>");
+        html.append("<div class='preview-split'>");
+        html.append("<div class='radar-chart' id='preview-radar'></div>");
+        html.append("<pre class='json-view' id='preview-json'><code></code></pre>");
+        html.append("</div>");
+        html.append("<div class='preview-actions'>");
+        html.append("<button class='btn btn-primary' onclick='downloadCard()'>Download JSON</button>");
+        html.append("<button class='btn btn-secondary' onclick='copyCard()'>Copy to Clipboard</button>");
+        html.append("</div>");
+        html.append("</div>");
+
+        html.append("</div>"); // create-card-form
+
+        ctx.html(wrapInLayout("Create Agent Card", html.toString(), "create"));
     }
 
     public void viewCard(Context ctx) {
@@ -308,8 +528,34 @@ public class AgentCardController {
         };
     }
 
+    private int getScoreFromProfile(Map<String, Object> profile, String dim) {
+        if (profile == null) return 0;
+        Object val = profile.get(dim);
+        if (val instanceof Map) {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> scoreMap = (Map<String, Object>) val;
+            Object score = scoreMap.get("score");
+            return score instanceof Number ? ((Number) score).intValue() : 0;
+        }
+        return val instanceof Number ? ((Number) val).intValue() : 0;
+    }
+
+    private String miniProfileJson(Map<String, Object> profile) {
+        StringBuilder json = new StringBuilder("{");
+        String[] dims = {"autonomy", "reasoning", "learning", "memory", "toolUse", "collaboration", "embodiment", "domainAlignment"};
+        boolean first = true;
+        for (String dim : dims) {
+            if (!first) json.append(",");
+            first = false;
+            int score = getScoreFromProfile(profile, dim);
+            json.append("\"").append(dim).append("\":{\"score\":").append(score).append("}");
+        }
+        json.append("}");
+        return escapeHtml(json.toString());
+    }
+
     private String escapeHtml(String text) {
-        return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+        return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;").replace("'", "&#39;");
     }
 
     private String wrapInLayout(String title, String content, String activePage) {
@@ -334,8 +580,10 @@ public class AgentCardController {
                             <a href="/" class="%s">Home</a>
                             <a href="/framework" class="%s">Framework</a>
                             <a href="/architecture" class="%s">Architecture</a>
-                            <a href="/docs/articles/introduction-linkedin.md" class="%s">Introduction</a>
-                            <a href="/agent-cards" class="%s">Agent Cards</a>
+                            <a href="/catalog" class="%s">Catalog</a>
+                            <a href="/create-card" class="%s">Create Card</a>
+                            <a href="/user-guide" class="%s">Guide</a>
+                            <a href="/release-notes" class="%s">Releases</a>
                             <a href="/schema" class="%s">Schema</a>
                             <div class="nav-external">
                                 <a href="https://medium.com/@sureshchande/agent-capability-maturity-model-a-unified-framework-for-evaluating-modern-ai-agents-bcb5b7a64bd7" target="_blank" title="Read on Medium">📝 Medium</a>
@@ -361,8 +609,10 @@ public class AgentCardController {
                 "home".equals(activePage) ? "active" : "",
                 "framework".equals(activePage) ? "active" : "",
                 "architecture".equals(activePage) ? "active" : "",
-                "docs".equals(activePage) ? "active" : "",
-                "cards".equals(activePage) ? "active" : "",
+                "catalog".equals(activePage) || "cards".equals(activePage) ? "active" : "",
+                "create".equals(activePage) ? "active" : "",
+                "user-guide".equals(activePage) ? "active" : "",
+                "release-notes".equals(activePage) ? "active" : "",
                 "schema".equals(activePage) ? "active" : "",
                 content
         );

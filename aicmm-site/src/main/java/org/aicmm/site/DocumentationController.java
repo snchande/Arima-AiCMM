@@ -74,6 +74,36 @@ public class DocumentationController {
         }
     }
 
+    public void releaseNotes(Context ctx) {
+        Path releaseDoc = docsPath.resolve("RELEASE-NOTES.md");
+        if (releaseDoc.toFile().exists()) {
+            try {
+                String content = Files.readString(releaseDoc);
+                String html = renderer.render(content);
+                ctx.html(wrapInLayout("Release Notes", html, "release-notes"));
+            } catch (IOException e) {
+                ctx.status(500).result("Error: " + e.getMessage());
+            }
+        } else {
+            ctx.status(404).result("Release notes not found");
+        }
+    }
+
+    public void userGuide(Context ctx) {
+        Path guideDoc = docsPath.resolve("guides").resolve("user-guide.md");
+        if (guideDoc.toFile().exists()) {
+            try {
+                String content = Files.readString(guideDoc);
+                String html = renderer.render(content);
+                ctx.html(wrapInLayout("User Guide", html, "user-guide"));
+            } catch (IOException e) {
+                ctx.status(500).result("Error: " + e.getMessage());
+            }
+        } else {
+            ctx.status(404).result("User guide not found");
+        }
+    }
+
     public void renderDoc(Context ctx) {
         String path = ctx.pathParam("path");
         Path docFile = docsPath.resolve(path);
@@ -164,8 +194,10 @@ public class DocumentationController {
                             <a href="/" class="%s">Home</a>
                             <a href="/framework" class="%s">Framework</a>
                             <a href="/architecture" class="%s">Architecture</a>
-                            <a href="/docs/articles/introduction-linkedin.md" class="%s">Introduction</a>
-                            <a href="/agent-cards" class="%s">Agent Cards</a>
+                            <a href="/catalog" class="%s">Catalog</a>
+                            <a href="/create-card" class="%s">Create Card</a>
+                            <a href="/user-guide" class="%s">Guide</a>
+                            <a href="/release-notes" class="%s">Releases</a>
                             <a href="/schema" class="%s">Schema</a>
                             <div class="nav-external">
                                 <a href="https://medium.com/@sureshchande/agent-capability-maturity-model-a-unified-framework-for-evaluating-modern-ai-agents-bcb5b7a64bd7" target="_blank" title="Read on Medium">📝 Medium</a>
@@ -191,8 +223,10 @@ public class DocumentationController {
                 "home".equals(activePage) ? "active" : "",
                 "framework".equals(activePage) ? "active" : "",
                 "architecture".equals(activePage) ? "active" : "",
-                "docs".equals(activePage) ? "active" : "",
-                "cards".equals(activePage) ? "active" : "",
+                "catalog".equals(activePage) || "cards".equals(activePage) ? "active" : "",
+                "create".equals(activePage) ? "active" : "",
+                "user-guide".equals(activePage) ? "active" : "",
+                "release-notes".equals(activePage) ? "active" : "",
                 "schema".equals(activePage) ? "active" : "",
                 content
         );

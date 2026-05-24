@@ -54,9 +54,13 @@ public class AicmmSite {
         app.get("/docs/<path>", docsController::renderDoc);
         app.get("/framework", docsController::framework);
         app.get("/architecture", docsController::architecture);
+        app.get("/catalog", cardController::catalog);
+        app.get("/create-card", cardController::createCardForm);
         app.get("/agent-cards", cardController::listCards);
         app.get("/agent-cards/{name}", cardController::viewCard);
         app.get("/schema", cardController::viewSchema);
+        app.get("/release-notes", docsController::releaseNotes);
+        app.get("/user-guide", docsController::userGuide);
         app.get("/api/docs", docsController::listDocs);
         app.get("/api/agent-cards", cardController::listCardsJson);
 

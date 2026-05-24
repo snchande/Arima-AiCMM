@@ -117,6 +117,39 @@
       "notes": "Initial assessment based on documented capabilities and observed behavior"
     }
   ],
+  "tools": [
+    "grep", "glob", "view", "edit", "create",
+    "powershell", "git", "web_search", "web_fetch",
+    "sql", "github-mcp-server", "task (sub-agents)"
+  ],
+  "skills": [
+    "Code Generation", "Code Refactoring", "Debugging",
+    "Test Writing", "Documentation", "Architecture Design",
+    "Dependency Management", "CI/CD Configuration"
+  ],
+  "plugins": [
+    "GitHub MCP Server (repos, PRs, issues, actions)",
+    "Session Store (cross-session memory)",
+    "Custom Skills (user-defined ~/.copilot/skills/)"
+  ],
+  "agentRelationships": {
+    "delegatesTo": [
+      "explore-agent (codebase research)",
+      "task-agent (builds, tests, lints)",
+      "code-review-agent (PR review)",
+      "research-agent (web research)",
+      "general-purpose-agent (complex subtasks)"
+    ],
+    "usedBy": [
+      "GitHub Copilot Workspace",
+      "VS Code Copilot Chat (agent mode)"
+    ],
+    "dependsOn": [
+      "Claude (Anthropic) — primary reasoning model",
+      "GitHub MCP Server — repository operations",
+      "Ripgrep — code search engine"
+    ]
+  },
   "assessmentMetadata": {
     "assessedBy": "Suresh Chande",
     "assessedDate": "2026-05-23",
