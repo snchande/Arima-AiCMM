@@ -51,7 +51,7 @@ graph TB
     Loader --> REST_EXT
     Loader --> FS
 
-    CardGen --> |"Agent Card JSON"| Output["📄 Agent Cards"]
+    CardGen --> |"Agent Card JSON"| Output["Agent Cards"]
 ```
 
 ---
@@ -213,20 +213,20 @@ flowchart TD
     Profile["Capability Profile<br/>[4,4,2,4,5,3,0,4]"] --> Rules
 
     subgraph Rules["Governance Rule Evaluation"]
-        R1{"Autonomy ≤<br/>Alignment + 1?"}
-        R2{"Embodiment ≥ 3 →<br/>Alignment ≥ 3?"}
-        R3{"High Autonomy →<br/>Reasoning ≥ 3?"}
-        R4{"Tool Use ≥ 4 →<br/>Alignment ≥ 3?"}
+        R1{"Autonomy lte<br/>Alignment + 1?"}
+        R2{"Embodiment gte 3 then<br/>Alignment gte 3?"}
+        R3{"High Autonomy then<br/>Reasoning gte 3?"}
+        R4{"Tool Use gte 4 then<br/>Alignment gte 3?"}
     end
 
     R1 -->|Pass| Check2
-    R1 -->|Fail| Violation["⚠️ GOVERNANCE VIOLATION<br/>Agent non-compliant"]
+    R1 -->|Fail| Violation["GOVERNANCE VIOLATION<br/>Agent non-compliant"]
 
     R2 --> Check2{All Rules<br/>Passed?}
     R3 --> Check2
     R4 --> Check2
 
-    Check2 -->|Yes| Compliant["✅ COMPLIANT<br/>Generate Agent Card"]
+    Check2 -->|Yes| Compliant["COMPLIANT<br/>Generate Agent Card"]
     Check2 -->|No| Violation
 
     Violation --> Remediate["Remediation Required<br/>Increase Alignment or<br/>Reduce Autonomy"]
@@ -301,9 +301,9 @@ sequenceDiagram
     alt Compliant
         Pipeline->>Output: generateCard(profile, metadata)
         Output-->>CLI: AgentCard (JSON)
-        CLI-->>User: ✅ Agent Card generated
+        CLI-->>User: Agent Card generated
     else Non-compliant
-        Pipeline-->>CLI: ⚠️ Governance violations
+        Pipeline-->>CLI: Governance violations
         CLI-->>User: Violations + remediation steps
     end
 ```

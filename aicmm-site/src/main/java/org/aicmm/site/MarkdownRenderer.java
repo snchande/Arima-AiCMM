@@ -41,25 +41,30 @@ public class MarkdownRenderer {
 
     /**
      * Render Markdown content to HTML.
-     * Mermaid code blocks (```mermaid) are converted to <div class="mermaid"> elements.
+     * Mermaid code blocks (```mermaid) are extracted before parsing to prevent
+     * CommonMark from HTML-encoding their content (which breaks Mermaid syntax).
      */
     public String render(String markdown) {
-        // Pre-process: convert ```mermaid blocks to a special marker
-        String processed = markdown.replaceAll(
-                "```mermaid\\s*\\n(.*?)```",
-                "<div class=\"mermaid\">\n$1</div>"
-        );
+        // Extract mermaid blocks and replace with placeholders
+        java.util.List<String> mermaidBlocks = new java.util.ArrayList<>();
+        String processed = extractMermaidBlocks(markdown, mermaidBlocks);
 
-        // Handle case where regex didn't match due to line endings
-        if (processed.contains("```mermaid")) {
-            processed = processMermaidBlocks(processed);
+        // Parse remaining markdown normally
+        Node document = parser.parse(processed);
+        String html = renderer.render(document);
+
+        // Re-insert raw mermaid blocks into the rendered HTML
+        for (int i = 0; i < mermaidBlocks.size(); i++) {
+            String placeholder = "<!--MERMAID_PLACEHOLDER_" + i + "-->";
+            String mermaidDiv = "<div class=\"mermaid\">\n" + mermaidBlocks.get(i) + "</div>\n";
+            html = html.replace("<p>" + placeholder + "</p>", mermaidDiv);
+            html = html.replace(placeholder, mermaidDiv);
         }
 
-        Node document = parser.parse(processed);
-        return renderer.render(document);
+        return html;
     }
 
-    private String processMermaidBlocks(String content) {
+    private String extractMermaidBlocks(String content, java.util.List<String> blocks) {
         StringBuilder result = new StringBuilder();
         String[] lines = content.split("\n");
         boolean inMermaid = false;
@@ -69,11 +74,10 @@ public class MarkdownRenderer {
             if (line.trim().startsWith("```mermaid")) {
                 inMermaid = true;
                 mermaidContent = new StringBuilder();
-                result.append("<div class=\"mermaid\">\n");
             } else if (inMermaid && line.trim().equals("```")) {
                 inMermaid = false;
-                result.append(mermaidContent);
-                result.append("</div>\n");
+                blocks.add(mermaidContent.toString());
+                result.append("<!--MERMAID_PLACEHOLDER_").append(blocks.size() - 1).append("-->\n");
             } else if (inMermaid) {
                 mermaidContent.append(line).append("\n");
             } else {

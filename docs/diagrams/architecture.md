@@ -7,7 +7,7 @@ This document provides architectural diagrams for the Agent Capability Maturity 
 ```mermaid
 graph TB
     subgraph "AiCMM Framework"
-        Core["aicmm-core<br/>Domain Models &amp; Scoring"]
+        Core["aicmm-core<br/>Domain Models & Scoring"]
         Inspector["aicmm-inspector<br/>Agent Investigation"]
         CLI["aicmm-cli<br/>Command Line"]
         Site["aicmm-site<br/>Documentation Server"]
@@ -47,10 +47,10 @@ graph TB
 graph LR
     subgraph "Capability Dimensions (0-5)"
         A[Autonomy]
-        R[Reasoning &amp; Planning]
-        L[Learning &amp; Adaptation]
-        M[Memory &amp; Context]
-        T[Tool Use &amp; Integration]
+        R[Reasoning & Planning]
+        L[Learning & Adaptation]
+        M[Memory & Context]
+        T[Tool Use & Integration]
         C[Collaboration]
         E[Embodiment]
         D[Domain Alignment]
@@ -95,8 +95,8 @@ flowchart TD
     Improve --> Score
 
     subgraph "Key Governance Rules"
-        Rule1["Autonomy ≤ Domain Alignment + 1"]
-        Rule2["Embodiment ≥ 3 → Alignment ≥ 3"]
+        Rule1["Autonomy must not exceed Domain Alignment + 1"]
+        Rule2["Embodiment at 3+ requires Alignment at 3+"]
         Rule3["High Autonomy → Strong Controls"]
     end
 ```

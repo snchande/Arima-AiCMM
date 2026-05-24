@@ -59,6 +59,21 @@ public class DocumentationController {
         }
     }
 
+    public void architecture(Context ctx) {
+        Path archDoc = docsPath.resolve("architecture").resolve("platform-architecture.md");
+        if (archDoc.toFile().exists()) {
+            try {
+                String content = Files.readString(archDoc);
+                String html = renderer.render(content);
+                ctx.html(wrapInLayout("Platform Architecture", html, "architecture"));
+            } catch (IOException e) {
+                ctx.status(500).result("Error: " + e.getMessage());
+            }
+        } else {
+            ctx.status(404).result("Architecture documentation not found");
+        }
+    }
+
     public void renderDoc(Context ctx) {
         String path = ctx.pathParam("path");
         Path docFile = docsPath.resolve(path);
@@ -148,6 +163,7 @@ public class DocumentationController {
                         <div class="nav-links">
                             <a href="/" class="%s">Home</a>
                             <a href="/framework" class="%s">Framework</a>
+                            <a href="/architecture" class="%s">Architecture</a>
                             <a href="/docs/articles/introduction-linkedin.md" class="%s">Introduction</a>
                             <a href="/agent-cards" class="%s">Agent Cards</a>
                             <a href="/schema" class="%s">Schema</a>
@@ -174,6 +190,7 @@ public class DocumentationController {
                 title,
                 "home".equals(activePage) ? "active" : "",
                 "framework".equals(activePage) ? "active" : "",
+                "architecture".equals(activePage) ? "active" : "",
                 "docs".equals(activePage) ? "active" : "",
                 "cards".equals(activePage) ? "active" : "",
                 "schema".equals(activePage) ? "active" : "",
