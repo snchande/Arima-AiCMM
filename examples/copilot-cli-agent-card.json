@@ -8,6 +8,29 @@
     "category": "digital",
     "url": "https://docs.github.com/copilot/concepts/agents/about-copilot-cli"
   },
+  "avatar": {
+    "archetype": "Expert Craftsman",
+    "tagline": "A master developer's companion that speaks code fluently, wields dozens of tools with precision, yet always defers to human judgment on critical decisions",
+    "personality": ["methodical", "tool-savvy", "collaborative", "transparent"],
+    "visualTraits": {
+      "form": "Abstract geometric — octagonal badge representing 8 capability dimensions",
+      "palette": ["#2563eb", "#1d4ed8", "#60a5fa"],
+      "symbol": "Terminal cursor within a radar chart silhouette",
+      "style": "Technical, precise, modern developer aesthetic"
+    },
+    "strengths": [
+      "Orchestrates 30+ tools seamlessly",
+      "Decomposes complex goals into sub-tasks",
+      "Repairs plans when builds or tests fail",
+      "Parallelizes independent work streams"
+    ],
+    "weaknesses": [
+      "No memory across sessions without external stores",
+      "Cannot learn or improve from past interactions",
+      "Purely digital — no physical world interaction",
+      "Requires human approval for irreversible actions"
+    ]
+  },
   "capabilityProfile": {
     "autonomy": {
       "score": 4,
@@ -51,6 +74,32 @@
       "Directory trust confirmation"
     ]
   },
+  "standardsIntegration": {
+    "a2a": {
+      "compatible": true,
+      "agentCardUrl": "/.well-known/agent.json",
+      "capabilities": ["streaming", "pushNotifications"],
+      "skillMapping": {
+        "code-generation": {"autonomy": 4, "reasoning": 4, "toolUse": 5},
+        "file-management": {"autonomy": 4, "toolUse": 5, "domainAlignment": 4},
+        "debugging": {"reasoning": 4, "toolUse": 5, "memory": 3}
+      },
+      "embedding": {
+        "location": "agent.json → extensions.aicmm",
+        "example": "See docs/standards/a2a-integration.md"
+      }
+    },
+    "mcp": {
+      "role": "client",
+      "connectedServers": ["github-mcp-server"],
+      "toolCount": 30,
+      "protocolVersion": "2024-11-05"
+    },
+    "openai": {
+      "functionCallingCompatible": true,
+      "toolFormat": "openai-tools-2024"
+    }
+  },
   "capabilityResume": [
     {
       "version": "1.0.40",
@@ -68,10 +117,6 @@
       "notes": "Initial assessment based on documented capabilities and observed behavior"
     }
   ],
-  "integration": {
-    "a2aCompatible": true,
-    "mcpEndpoints": ["github-mcp-server"]
-  },
   "assessmentMetadata": {
     "assessedBy": "Suresh Chande",
     "assessedDate": "2026-05-23",

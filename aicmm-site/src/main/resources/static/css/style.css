@@ -350,4 +350,186 @@ body {
     .card-grid {
         grid-template-columns: 1fr;
     }
+    .avatar-card {
+        flex-direction: column;
+    }
+    .standards-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Agent Card Detail View */
+.card-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid var(--border);
+}
+
+.card-header h1 {
+    margin-bottom: 0.5rem;
+}
+
+.card-meta {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.badge {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.badge.vendor {
+    background: #dbeafe;
+    color: var(--primary-dark);
+}
+
+.badge.category {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.card-description {
+    color: var(--text-muted);
+    font-size: 1.05rem;
+}
+
+.card-section {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+}
+
+.card-section h2 {
+    margin-bottom: 1rem;
+    color: var(--text);
+}
+
+/* Avatar Section */
+.avatar-card {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+    background: linear-gradient(135deg, #f8fafc, #eff6ff);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+.avatar-visual {
+    flex-shrink: 0;
+    width: 200px;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.avatar-details {
+    flex: 1;
+}
+
+.avatar-details h3 {
+    color: var(--primary-dark);
+    margin-bottom: 0.5rem;
+    font-size: 1.2rem;
+}
+
+.avatar-details .tagline {
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+}
+
+.traits {
+    margin-bottom: 0.75rem;
+}
+
+.trait-tag {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    margin: 0.2rem;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    background: #e0e7ff;
+    color: #3730a3;
+}
+
+.strengths, .weaknesses {
+    margin-top: 0.75rem;
+}
+
+.strengths ul, .weaknesses ul {
+    margin-left: 1.2rem;
+    margin-top: 0.3rem;
+}
+
+.strengths li {
+    color: #065f46;
+    font-size: 0.9rem;
+    margin-bottom: 0.2rem;
+}
+
+.weaknesses li {
+    color: #92400e;
+    font-size: 0.9rem;
+    margin-bottom: 0.2rem;
+}
+
+/* Standards Integration */
+.standards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.standard-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem;
+    transition: box-shadow 0.2s;
+}
+
+.standard-card:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.standard-card h3 {
+    color: var(--primary-dark);
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.standard-card p {
+    font-size: 0.9rem;
+    margin-bottom: 0.4rem;
+}
+
+.standard-card .compat strong {
+    color: var(--success);
+}
+
+.standard-card details {
+    margin-top: 0.75rem;
+}
+
+.standard-card summary {
+    cursor: pointer;
+    color: var(--primary);
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.standard-card pre {
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
 }

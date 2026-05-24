@@ -87,19 +87,150 @@ public class AgentCardController {
 
             StringBuilder html = new StringBuilder();
             String agentName = node.has("agent") ? node.get("agent").path("name").asText("Unknown") : "Unknown";
-            html.append("<h1>Agent Card: ").append(agentName).append("</h1>");
+            String category = node.has("agent") ? node.get("agent").path("category").asText("") : "";
+            String vendor = node.has("agent") ? node.get("agent").path("vendor").asText("") : "";
+            String description = node.has("agent") ? node.get("agent").path("description").asText("") : "";
 
-            // Radar chart placeholder using Mermaid
+            // Header with agent identity
+            html.append("<div class='card-header'>");
+            html.append("<h1>").append(escapeHtml(agentName)).append("</h1>");
+            html.append("<div class='card-meta'>");
+            if (!vendor.isEmpty()) html.append("<span class='badge vendor'>").append(escapeHtml(vendor)).append("</span>");
+            if (!category.isEmpty()) html.append("<span class='badge category'>").append(escapeHtml(category.toUpperCase())).append("</span>");
+            html.append("</div>");
+            if (!description.isEmpty()) html.append("<p class='card-description'>").append(escapeHtml(description)).append("</p>");
+            html.append("</div>");
+
+            // Avatar section
+            if (node.has("avatar")) {
+                JsonNode avatar = node.get("avatar");
+                html.append("<section class='card-section avatar-section'>");
+                html.append("<h2>Agent Avatar</h2>");
+                html.append("<div class='avatar-card'>");
+
+                // SVG Avatar visualization
+                html.append("<div class='avatar-visual' id='avatar-visual' data-profile='")
+                        .append(node.has("capabilityProfile") ? mapper.writeValueAsString(node.get("capabilityProfile")) : "{}")
+                        .append("' data-name='").append(escapeHtml(agentName))
+                        .append("' data-archetype='").append(escapeHtml(avatar.path("archetype").asText("")))
+                        .append("'></div>");
+
+                html.append("<div class='avatar-details'>");
+                html.append("<h3>").append(escapeHtml(avatar.path("archetype").asText("Unknown Archetype"))).append("</h3>");
+                html.append("<p class='tagline'><em>").append(escapeHtml(avatar.path("tagline").asText(""))).append("</em></p>");
+
+                // Personality traits
+                if (avatar.has("personality")) {
+                    html.append("<div class='traits'><strong>Personality:</strong> ");
+                    avatar.get("personality").forEach(t -> html.append("<span class='trait-tag'>").append(escapeHtml(t.asText())).append("</span>"));
+                    html.append("</div>");
+                }
+
+                // Strengths
+                if (avatar.has("strengths")) {
+                    html.append("<div class='strengths'><strong>Strengths:</strong><ul>");
+                    avatar.get("strengths").forEach(s -> html.append("<li>").append(escapeHtml(s.asText())).append("</li>"));
+                    html.append("</ul></div>");
+                }
+
+                // Weaknesses
+                if (avatar.has("weaknesses")) {
+                    html.append("<div class='weaknesses'><strong>Limitations:</strong><ul>");
+                    avatar.get("weaknesses").forEach(w -> html.append("<li>").append(escapeHtml(w.asText())).append("</li>"));
+                    html.append("</ul></div>");
+                }
+
+                html.append("</div>"); // avatar-details
+                html.append("</div>"); // avatar-card
+                html.append("</section>");
+            }
+
+            // Radar Chart
             if (node.has("capabilityProfile")) {
+                html.append("<section class='card-section'>");
                 html.append("<h2>Capability Fingerprint</h2>");
                 html.append("<div class='radar-chart' id='radar-chart' data-profile='")
                         .append(mapper.writeValueAsString(node.get("capabilityProfile")))
                         .append("'></div>");
+                html.append("</section>");
             }
 
-            // Card details
-            html.append("<h2>Full Agent Card</h2>");
+            // Standards Integration
+            if (node.has("standardsIntegration")) {
+                JsonNode standards = node.get("standardsIntegration");
+                html.append("<section class='card-section'>");
+                html.append("<h2>Standards Integration</h2>");
+                html.append("<p>How this agent can be incorporated into industry protocols:</p>");
+                html.append("<div class='standards-grid'>");
+
+                // A2A
+                if (standards.has("a2a")) {
+                    JsonNode a2a = standards.get("a2a");
+                    html.append("<div class='standard-card'>");
+                    html.append("<h3>Google A2A (Agent-to-Agent)</h3>");
+                    html.append("<p class='compat'>Compatible: <strong>").append(a2a.path("compatible").asBoolean() ? "Yes" : "No").append("</strong></p>");
+                    if (a2a.has("agentCardUrl")) {
+                        html.append("<p>Discovery: <code>").append(escapeHtml(a2a.path("agentCardUrl").asText())).append("</code></p>");
+                    }
+                    if (a2a.has("capabilities")) {
+                        html.append("<p>Capabilities: ");
+                        a2a.get("capabilities").forEach(c -> html.append("<span class='trait-tag'>").append(escapeHtml(c.asText())).append("</span>"));
+                        html.append("</p>");
+                    }
+                    if (a2a.has("embedding")) {
+                        html.append("<p><strong>How to embed:</strong> Place a-CMM profile at <code>")
+                                .append(escapeHtml(a2a.get("embedding").path("location").asText()))
+                                .append("</code></p>");
+                    }
+                    html.append("<details><summary>A2A Embedding Example</summary>");
+                    html.append("<pre class='json-view'><code>");
+                    html.append(escapeHtml("{\n  \"name\": \"" + agentName + "\",\n  \"url\": \"https://agent.example.com\",\n  \"capabilities\": {...},\n  \"extensions\": {\n    \"aicmm\": {\n      \"schemaVersion\": \"0.1.0\",\n      \"capabilityProfile\": {...},\n      \"governanceCompliant\": true\n    }\n  }\n}"));
+                    html.append("</code></pre></details>");
+                    html.append("</div>");
+                }
+
+                // MCP
+                if (standards.has("mcp")) {
+                    JsonNode mcp = standards.get("mcp");
+                    html.append("<div class='standard-card'>");
+                    html.append("<h3>Anthropic MCP (Model Context Protocol)</h3>");
+                    html.append("<p>Role: <strong>").append(escapeHtml(mcp.path("role").asText("client"))).append("</strong></p>");
+                    if (mcp.has("connectedServers")) {
+                        html.append("<p>Connected Servers: ");
+                        mcp.get("connectedServers").forEach(s -> html.append("<code>").append(escapeHtml(s.asText())).append("</code> "));
+                        html.append("</p>");
+                    }
+                    html.append("<p>Tools available: <strong>").append(mcp.path("toolCount").asInt(0)).append("</strong></p>");
+                    html.append("<details><summary>MCP Manifest Annotation</summary>");
+                    html.append("<pre class='json-view'><code>");
+                    html.append(escapeHtml("{\n  \"tools\": [...],\n  \"metadata\": {\n    \"aicmm\": {\n      \"toolUse\": 5,\n      \"domainAlignment\": 4,\n      \"governanceCompliant\": true\n    }\n  }\n}"));
+                    html.append("</code></pre></details>");
+                    html.append("</div>");
+                }
+
+                // OpenAI
+                if (standards.has("openai")) {
+                    JsonNode openai = standards.get("openai");
+                    html.append("<div class='standard-card'>");
+                    html.append("<h3>OpenAI Function Calling</h3>");
+                    html.append("<p>Compatible: <strong>").append(openai.path("functionCallingCompatible").asBoolean() ? "Yes" : "No").append("</strong></p>");
+                    html.append("<p>Format: <code>").append(escapeHtml(openai.path("toolFormat").asText(""))).append("</code></p>");
+                    html.append("<details><summary>Function Metadata Extension</summary>");
+                    html.append("<pre class='json-view'><code>");
+                    html.append(escapeHtml("{\n  \"type\": \"function\",\n  \"function\": {\n    \"name\": \"agent_task\",\n    \"metadata\": {\n      \"aicmm_profile\": [4,4,2,3,5,3,0,4],\n      \"governance_compliant\": true\n    }\n  }\n}"));
+                    html.append("</code></pre></details>");
+                    html.append("</div>");
+                }
+
+                html.append("</div>"); // standards-grid
+                html.append("</section>");
+            }
+
+            // Full JSON
+            html.append("<section class='card-section'>");
+            html.append("<h2>Full Agent Card (JSON)</h2>");
             html.append("<pre class='json-view'><code>").append(escapeHtml(prettyJson)).append("</code></pre>");
+            html.append("</section>");
 
             ctx.html(wrapInLayout("Agent Card: " + agentName, html.toString(), "cards"));
         } catch (IOException e) {
@@ -202,6 +333,7 @@ public class AgentCardController {
                         <div class="nav-links">
                             <a href="/" class="%s">Home</a>
                             <a href="/framework" class="%s">Framework</a>
+                            <a href="/architecture" class="%s">Architecture</a>
                             <a href="/docs/articles/introduction-linkedin.md" class="%s">Introduction</a>
                             <a href="/agent-cards" class="%s">Agent Cards</a>
                             <a href="/schema" class="%s">Schema</a>
@@ -228,6 +360,7 @@ public class AgentCardController {
                 title,
                 "home".equals(activePage) ? "active" : "",
                 "framework".equals(activePage) ? "active" : "",
+                "architecture".equals(activePage) ? "active" : "",
                 "docs".equals(activePage) ? "active" : "",
                 "cards".equals(activePage) ? "active" : "",
                 "schema".equals(activePage) ? "active" : "",
