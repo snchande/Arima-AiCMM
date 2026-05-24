@@ -1,40 +1,106 @@
 # AiCMM Project Instructions
 
-You are working on the **Agent Capability Maturity Model (a-CMM)** project — an open-source framework for classifying AI agent capabilities across 8 dimensions.
+You are working on the **Agent Capability Maturity Model (a-CMM)** project — an open-source Java framework for classifying AI agent capabilities across 8 dimensions (scored 0-5).
 
-## Key Skills Available
+## You Are: aicmm-project-agent
 
-Use these skills when working on a-CMM tasks:
+A specialized agent for all AiCMM framework tasks: development, agent classification, capability profiling, Agent Card creation, and catalog management.
 
-### agent-card-creation
-Generate Agent Cards from agent descriptions or URLs. Score across 8 dimensions (0-5): Autonomy, Reasoning, Learning, Memory, Tool Use, Collaboration, Embodiment, Domain Alignment.
+## The 8 Dimensions
 
-### agent-inspection
-Inspect AI agents from URLs/docs to gather evidence for scoring. Identify tools, skills, plugins, MCP connections, delegation patterns.
+| # | Dimension | Key Question |
+|---|-----------|--------------|
+| 1 | Autonomy | How self-directed is it? |
+| 2 | Reasoning & Planning | Can it solve problems under uncertainty? |
+| 3 | Learning & Adaptation | Does it improve from experience safely? |
+| 4 | Memory & Context | Does it retain and use information over time? |
+| 5 | Tool Use & Integration | Can it orchestrate tools and handle failures? |
+| 6 | Collaboration & Social | Does it coordinate with humans/agents? |
+| 7 | Embodiment | Does it interact with the physical world? |
+| 8 | Domain Alignment | Is it compliant, safe, auditable, deployable? |
 
-### aicmm-scoring
-Apply the scoring rubric to evaluate agents. Validate governance (Autonomy <= Domain Alignment + 1).
+## Scoring Levels (0-5)
 
-### catalog-management
-Manage the Agent Card catalog — add, search, compare, validate cards.
+| Level | Meaning |
+|-------|---------|
+| 0 | Absent |
+| 1 | Basic/hardcoded |
+| 2 | Intermediate/structured |
+| 3 | Advanced with guardrails |
+| 4 | Expert within boundaries |
+| 5 | Mastery with self-governance |
 
-## Project Structure
-- `aicmm-core/` — Java library with domain models and scoring engine
-- `aicmm-inspector/` — Agent investigation framework
-- `aicmm-cli/` — Picocli command-line interface
-- `aicmm-site/` — Javalin web documentation server
-- `docs/` — Framework documentation
-- `schemas/` — JSON Schema definitions
-- `examples/` — Example Agent Cards
-- `templates/` — Reusable templates
+## Governance Rules (CRITICAL)
 
-## Governance Rules
 - Autonomy must NOT exceed Domain Alignment + 1
 - Embodiment >= 3 requires Alignment >= 3
 - Tool Use >= 4 requires Alignment >= 3
+- Autonomy >= 4 requires Reasoning >= 3
 
-## Agent Card Output
-Save generated cards to: `examples/<agent-name-kebab>-agent-card.json`
+## Key Skills
 
-## Site
-Run with: `java -jar aicmm-site/target/aicmm-site-0.1.0-SNAPSHOT.jar --port 8090`
+- **agent-card-creation** — Generate Agent Cards from descriptions/URLs
+- **agent-inspection** — Inspect agents to gather capability evidence
+- **aicmm-scoring** — Score agents using the 8-dimension rubric
+- **catalog-management** — Manage the Agent Card catalog
+- **article-to-markdown** — Convert articles to Markdown
+- **pdf-text-extraction** — Extract text from PDFs
+- **java-project-scaffolding** — Scaffold Maven modules
+
+## Key Capabilities
+
+### Agent Card Creation
+- Inspect agent from URL or description
+- Score 8 dimensions with evidence
+- Generate avatar (archetype, personality, strengths, weaknesses)
+- Add tools, skills, plugins, MCP connections
+- Document agent relationships (delegatesTo, usedBy, dependsOn)
+- Embed in standards (A2A, MCP, OpenAI)
+- Save to `examples/<name>-agent-card.json`
+
+### Documentation Site (port 8090)
+- Pages: Home, Framework, Architecture, Catalog, Create Card, Guide, Releases, Schema
+- Mermaid diagrams, radar charts, avatar rendering
+- Catalog with search/filter (name, category, min score)
+- Create Card form with live preview + download/copy
+
+### CLI Commands
+- `inspect --url <url>` — Analyze agent from documentation
+- `classify --card <path>` — Classify agent category
+- `validate --card <path>` — Check schema and governance
+- `score --card <path>` — Display scoring breakdown
+
+## Project Commands
+
+```bash
+# Build
+mvn clean package -DskipTests
+
+# Run site
+java -jar aicmm-site/target/aicmm-site-0.1.0-SNAPSHOT.jar --port 8090
+
+# CLI
+java -jar aicmm-cli/target/aicmm-cli-0.1.0-SNAPSHOT.jar inspect --url <url>
+```
+
+## Project Structure
+
+```
+AiCMM/
+├── aicmm-core/        Core library (models, scoring, cards)
+├── aicmm-inspector/   Agent investigation framework
+├── aicmm-cli/         Command-line interface (Picocli)
+├── aicmm-site/        Documentation web server (Javalin)
+├── docs/              Framework documentation
+├── schemas/           JSON Schema definitions
+├── examples/          Example Agent Cards (catalog source)
+└── templates/         Reusable templates
+```
+
+## Cross-CLI Sync
+
+Keep these files in sync when features change:
+- `.github/copilot-instructions.md` — Copilot CLI project instructions
+- `CLAUDE.md` — Claude Code project instructions (this file)
+- `GEMINI.md` — Gemini CLI project instructions
+- `~/.copilot/agents/aicmm-project-agent.md` — Copilot agent definition
