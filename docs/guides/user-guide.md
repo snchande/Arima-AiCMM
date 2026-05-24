@@ -17,10 +17,10 @@ mvn clean install
 ### 2. Start the Documentation Site
 
 ```bash
-java -jar aicmm-site/target/aicmm-site-0.1.0-SNAPSHOT.jar --port 8080
+java -jar aicmm-site/target/aicmm-site-0.1.0-SNAPSHOT.jar --port 8090
 ```
 
-Open **http://localhost:8080** in your browser.
+Open **http://localhost:8090** in your browser.
 
 ### 3. Create Your First Agent Card
 
@@ -29,7 +29,7 @@ Open **http://localhost:8080** in your browser.
 2. Enter the agent URL or paste its description
 3. Fill in identity fields (name, vendor, category)
 4. List tools, skills, plugins, and MCP connections
-5. Score each of the 8 dimensions (0-5)
+5. Score each of the 12 Level 0 dimensions (0-5)
 6. Click **"Generate Agent Card"**
 7. Download the JSON or copy to clipboard
 
@@ -70,8 +70,9 @@ The **Create Card** page at `/create-card` provides a form-based workflow:
 2. **Agent Identity** — Name, version, creator/vendor, category, homepage
 3. **Capabilities** — Tools, skills, plugins, MCP connections (comma-separated)
 4. **Agent Relationships** — What agents it delegates to, what uses it, dependencies
-5. **a-CMM Scores** — Slide each dimension 0-5 based on evidence
-6. **Generate** — Produces a full Agent Card JSON with radar chart preview
+5. **a-CMM Level 0 Scores** — Slide each universal dimension 0-5 based on evidence
+6. **Level 1 Domain Profile** — Add domain-specific scoring when the agent operates in healthcare, transportation, finance, manufacturing, or another specialized environment
+7. **Generate** — Produces a full Agent Card JSON with radar chart preview
 
 ### Method 2: CLI (Command Line)
 
@@ -115,7 +116,9 @@ Every Agent Card contains:
 | Section | Fields | Purpose |
 |---------|--------|---------|
 | **Identity** | name, version, vendor, category, description, url | Who is this agent? |
-| **Capability Profile** | 8 dimensions (0-5 each) with evidence | What can it do? |
+| **Capability Profile** | Autonomy, Reasoning, Memory, Learning, Tool Use, Collaboration, Embodiment, Explainability, Safety, Interoperability, Cost Efficiency, Domain Alignment (0-5 each) with position + confidence metadata | What can it do? |
+| **Level 1 Profile** | Domain-specific radar chart (8 dimensions per domain) | How does it perform in a specific sector? |
+| **Governance Validation** | 7 rule checks with violations/remediation | Is it deployable under the new architecture? |
 | **Avatar** | archetype, tagline, personality, strengths, weaknesses | Visual representation |
 | **Tools** | List of external tools it can invoke | What does it use? |
 | **Skills** | Core competencies without tools | What is it good at? |
@@ -228,7 +231,7 @@ These reusable skills are registered for cross-CLI use:
 |-------|---------|----------|
 | `agent-card-creation` | Generate Agent Cards from descriptions | `~/.copilot/skills/` |
 | `agent-inspection` | Inspect agents via URL/API | `~/.copilot/skills/` |
-| `aicmm-scoring` | Score agents across 8 dimensions | `~/.copilot/skills/` |
+| `aicmm-scoring` | Score agents across the 12-dimension rubric | `~/.copilot/skills/` |
 | `catalog-management` | Add/update/search catalog | `~/.copilot/skills/` |
 
 ---
@@ -237,9 +240,13 @@ These reusable skills are registered for cross-CLI use:
 
 Every generated card is automatically checked:
 
-1. **Autonomy <= Domain Alignment + 1** — No ungoverned autonomy
-2. **Embodiment >= 3 requires Alignment >= 3** — Physical agents need safety
-3. **Tool Use >= 4 requires Alignment >= 3** — Powerful tools need oversight
+1. **Autonomy >= 4 requires Reasoning >= 4** — advanced autonomy needs strong planning
+2. **Autonomy >= 4 requires Explainability >= 3** — high-autonomy systems must support review
+3. **Embodiment >= 3 requires Safety >= 4** — physical agents need robust containment
+4. **Collaboration >= 4 requires Interoperability >= 3** — strong coordination needs shared interfaces
+5. **Autonomy >= 4 requires Cost Efficiency >= 2** — advanced autonomy must be economically bounded
+6. **Autonomy >= 4 requires Domain Alignment >= 3** — deployment fit is mandatory
+7. **Autonomy >= 4 requires Reasoning >= 3** — baseline reasoning floor remains enforced
 
 Non-compliant cards are flagged with warnings and remediation steps.
 
@@ -248,13 +255,14 @@ Non-compliant cards are flagged with warnings and remediation steps.
 ## Workflow: End-to-End
 
 ```
-1. Discover Agent     →  URL, docs, or description
-2. Create Card        →  Web UI form or CLI command
-3. Score Dimensions   →  Evidence-based 0-5 per dimension
-4. Validate           →  Governance rules checked
-5. Generate           →  JSON Agent Card + Radar Chart
-6. Store              →  Save to examples/ or registry
-7. Catalog            →  Appears in searchable catalog
-8. Integrate          →  Embed in A2A, MCP, OpenAI protocols
-9. Monitor            →  Reassess when agent evolves
+1. Discover Agent      →  URL, docs, or description
+2. Create Card         →  Web UI form or CLI command
+3. Score Level 0       →  Evidence-based 0-5 across 12 universal dimensions
+4. Add Level 1         →  Domain-specific radar chart when deployment context requires it
+5. Validate            →  7 governance rules checked
+6. Generate            →  JSON Agent Card + Radar Charts
+7. Store               →  Save to examples/ or registry
+8. Catalog             →  Appears in searchable catalog
+9. Integrate           →  Embed in A2A, MCP, OpenAI protocols
+10. Monitor            →  Reassess when agent evolves
 ```

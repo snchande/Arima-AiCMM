@@ -11,6 +11,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const miniRadars = document.querySelectorAll('.mini-radar-chart[data-profile]');
     miniRadars.forEach(el => renderRadarChart(el, true));
 
+    // Render Level 1 domain radar charts
+    const l1Charts = document.querySelectorAll('.level1-radar-chart[data-level1]');
+    l1Charts.forEach(renderLevel1RadarChart);
+
     // Render avatar visuals
     const avatarVisuals = document.querySelectorAll('.avatar-visual[data-profile]');
     avatarVisuals.forEach(renderAvatarVisual);
@@ -26,7 +30,7 @@ const LEVEL_0_DIMENSIONS = [
     { position: 2,  key: 'memory',           label: 'Memory',           short: 'MEM', color: '#d97706' },
     { position: 3,  key: 'learning',         label: 'Learning',         short: 'LRN', color: '#059669' },
     { position: 4,  key: 'toolUse',          label: 'Tool Use',         short: 'TUL', color: '#dc2626' },
-    { position: 5,  key: 'collaboration',    label: 'Collaboration',    short: 'COL', color: '#0891b2' },
+    { position: 5,  key: 'collaboration',    label: 'Social Intelligence',    short: 'COL', color: '#0891b2' },
     { position: 6,  key: 'embodiment',       label: 'Embodiment',       short: 'EMB', color: '#4f46e5' },
     { position: 7,  key: 'explainability',   label: 'Explainability',   short: 'EXP', color: '#ea580c' },
     { position: 8,  key: 'safety',           label: 'Safety',           short: 'SAF', color: '#be123c' },
@@ -133,87 +137,133 @@ function renderAvatarVisual(container) {
 }
 
 /**
- * Renders a simple SVG radar chart for an agent capability profile.
- * Uses fixed dimension positions from LEVEL_0_DIMENSIONS.
+ * Dimension Groups — defines the three visual sectors on the radar chart.
+ * Each group gets a distinct background arc color and label.
+ */
+const DIMENSION_GROUPS = [
+    { name: 'Cognitive Core', positions: [0, 1, 2, 3], color: '#7c3aed', bgColor: 'rgba(124, 58, 237, 0.04)', borderColor: 'rgba(124, 58, 237, 0.25)' },
+    { name: 'Action & Integration', positions: [4, 5, 6], color: '#2563eb', bgColor: 'rgba(37, 99, 235, 0.04)', borderColor: 'rgba(37, 99, 235, 0.25)' },
+    { name: 'Trust & Deployment', positions: [7, 8, 9, 10, 11], color: '#059669', bgColor: 'rgba(5, 150, 105, 0.04)', borderColor: 'rgba(5, 150, 105, 0.25)' }
+];
+
+/**
+ * Renders a professional SVG radar chart with grouped dimension sectors.
+ * Features: colored group arcs, gradient polygon fill, score dots, group labels.
  */
 function renderRadarChart(container, mini = false) {
     const profile = JSON.parse(container.getAttribute('data-profile'));
     const dimensions = getActiveDimensions(profile);
     const numDims = dimensions.length;
+    const hasGroups = numDims >= 12;
 
-    const size = mini ? 200 : 400;
+    const size = mini ? 220 : 480;
     const center = size / 2;
-    const maxRadius = center - (mini ? 30 : 60);
+    const maxRadius = center - (mini ? 35 : 80);
     const levels = 5;
+    const uid = Math.random().toString(36).substr(2, 6);
 
     let svg = `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
-    svg += `<rect width="${size}" height="${size}" fill="#fafbfc" rx="8"/>`;
+    svg += `<rect width="${size}" height="${size}" fill="#ffffff" rx="12"/>`;
 
-    // Draw grid circles with level labels
-    for (let i = 1; i <= levels; i++) {
-        const r = (maxRadius / levels) * i;
-        svg += `<circle cx="${center}" cy="${center}" r="${r}" fill="none" stroke="#e2e8f0" stroke-width="1"/>`;
-        if (!mini) svg += `<text x="${center + 4}" y="${center - r + 4}" font-size="9" fill="#94a3b8">${i}</text>`;
+    // Gradient and filter definitions
+    svg += `<defs>`;
+    svg += `<radialGradient id="rg-${uid}"><stop offset="0%" stop-color="#2563eb" stop-opacity="0.22"/><stop offset="100%" stop-color="#7c3aed" stop-opacity="0.06"/></radialGradient>`;
+    svg += `<filter id="glow-${uid}"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`;
+    svg += `<filter id="sh-${uid}"><feDropShadow dx="0" dy="1" stdDeviation="2" flood-opacity="0.1"/></filter>`;
+    svg += `</defs>`;
+
+    // Group sector backgrounds (12-dim full chart only)
+    if (hasGroups && !mini) {
+        DIMENSION_GROUPS.forEach(group => {
+            const startPos = group.positions[0];
+            const endPos = group.positions[group.positions.length - 1];
+            const startAngle = getDimensionAngle(startPos, numDims) - (Math.PI / numDims);
+            const endAngle = getDimensionAngle(endPos, numDims) + (Math.PI / numDims);
+            const arcR = maxRadius + 18;
+
+            const x1 = center + arcR * Math.cos(startAngle);
+            const y1 = center + arcR * Math.sin(startAngle);
+            const x2 = center + arcR * Math.cos(endAngle);
+            const y2 = center + arcR * Math.sin(endAngle);
+            const largeArc = (endAngle - startAngle) > Math.PI ? 1 : 0;
+
+            svg += `<path d="M ${center} ${center} L ${x1} ${y1} A ${arcR} ${arcR} 0 ${largeArc} 1 ${x2} ${y2} Z" fill="${group.bgColor}" stroke="${group.borderColor}" stroke-width="1.5" stroke-dasharray="3 2"/>`;
+
+            // Group label
+            const midAngle = (startAngle + endAngle) / 2;
+            const labelR = maxRadius + 58;
+            const lx = center + labelR * Math.cos(midAngle);
+            const ly = center + labelR * Math.sin(midAngle);
+            svg += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" font-size="8.5" font-weight="700" fill="${group.color}" letter-spacing="0.8">${group.name.toUpperCase()}</text>`;
+        });
     }
 
-    // Draw axes and labels using fixed positions
+    // Grid circles
+    for (let i = 1; i <= levels; i++) {
+        const r = (maxRadius / levels) * i;
+        svg += `<circle cx="${center}" cy="${center}" r="${r}" fill="none" stroke="#e2e8f0" stroke-width="${i === levels ? 1.5 : 0.75}"/>`;
+        if (!mini) svg += `<text x="${center + 5}" y="${center - r + 4}" font-size="8" fill="#94a3b8" font-weight="500">${i}</text>`;
+    }
+
+    // Axes with colored endpoints
     dimensions.forEach((dim, i) => {
         const angle = getDimensionAngle(i, numDims);
         const x = center + maxRadius * Math.cos(angle);
         const y = center + maxRadius * Math.sin(angle);
-        svg += `<line x1="${center}" y1="${center}" x2="${x}" y2="${y}" stroke="#e2e8f0" stroke-width="1"/>`;
+        svg += `<line x1="${center}" y1="${center}" x2="${x}" y2="${y}" stroke="#e2e8f0" stroke-width="0.75"/>`;
 
         if (!mini) {
-            const labelR = maxRadius + 35;
+            const labelR = maxRadius + 30;
             const lx = center + labelR * Math.cos(angle);
             const ly = center + labelR * Math.sin(angle);
-            svg += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" font-size="11" font-weight="500" fill="#475569">${dim.label}</text>`;
+            svg += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" font-size="10" font-weight="600" fill="${dim.color}">${dim.label}</text>`;
+        } else {
+            const labelR = maxRadius + 14;
+            const lx = center + labelR * Math.cos(angle);
+            const ly = center + labelR * Math.sin(angle);
+            svg += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" font-size="7" font-weight="600" fill="${dim.color}">${dim.short}</text>`;
         }
     });
 
-    // Draw the capability polygon
+    // Capability polygon
     let points = [];
-    let nullPoints = []; // Track unscored dimensions for dashed display
     dimensions.forEach((dim, i) => {
         const val = profile[dim.key];
         const score = (val !== null && val !== undefined) ? (val.score ?? val) : null;
         const angle = getDimensionAngle(i, numDims);
-
-        if (score === null) {
-            // Unscored dimension — don't plot (leave at center)
-            const x = center;
-            const y = center;
-            points.push(`${x},${y}`);
-            nullPoints.push(i);
+        if (score === null || score === undefined) {
+            points.push(`${center},${center}`);
         } else {
             const r = (maxRadius / levels) * score;
-            const x = center + r * Math.cos(angle);
-            const y = center + r * Math.sin(angle);
-            points.push(`${x},${y}`);
+            points.push(`${center + r * Math.cos(angle)},${center + r * Math.sin(angle)}`);
         }
     });
 
-    svg += `<polygon points="${points.join(' ')}" fill="rgba(37, 99, 235, 0.15)" stroke="#2563eb" stroke-width="${mini ? 1.5 : 2.5}"/>`;
+    if (!mini) {
+        svg += `<polygon points="${points.join(' ')}" fill="none" stroke="rgba(37,99,235,0.08)" stroke-width="8" filter="url(#glow-${uid})"/>`;
+    }
+    svg += `<polygon points="${points.join(' ')}" fill="url(#rg-${uid})" stroke="#2563eb" stroke-width="${mini ? 1.5 : 2.5}" stroke-linejoin="round"/>`;
 
-    // Draw score dots
+    // Score dots with halos
     if (!mini) {
         dimensions.forEach((dim, i) => {
             const val = profile[dim.key];
             const score = (val !== null && val !== undefined) ? (val.score ?? val) : null;
-            if (score === null) return; // Skip unscored
+            if (score === null || score === undefined) return;
             const angle = getDimensionAngle(i, numDims);
             const r = (maxRadius / levels) * score;
             const x = center + r * Math.cos(angle);
             const y = center + r * Math.sin(angle);
-            svg += `<circle cx="${x}" cy="${y}" r="5" fill="${dim.color}" stroke="white" stroke-width="2"/>`;
-            svg += `<text x="${x}" y="${y - 12}" text-anchor="middle" font-size="12" font-weight="bold" fill="${dim.color}">${score}</text>`;
+            svg += `<circle cx="${x}" cy="${y}" r="8" fill="${dim.color}" opacity="0.12"/>`;
+            svg += `<circle cx="${x}" cy="${y}" r="4.5" fill="${dim.color}" stroke="white" stroke-width="2" filter="url(#sh-${uid})"/>`;
+            svg += `<text x="${x}" y="${y - 13}" text-anchor="middle" font-size="11" font-weight="700" fill="${dim.color}">${score}</text>`;
         });
     }
 
-    // Total score in center (only count scored dimensions)
+    // Center badge
     const scored = dimensions.filter(dim => {
         const val = profile[dim.key];
-        return val !== null && val !== undefined;
+        return val !== null && val !== undefined && (val.score ?? val) !== null;
     });
     const total = scored.reduce((sum, dim) => {
         const val = profile[dim.key];
@@ -221,10 +271,100 @@ function renderRadarChart(container, mini = false) {
     }, 0);
     const avg = scored.length > 0 ? (total / scored.length).toFixed(1) : '0.0';
     const maxTotal = scored.length * 5;
-    const fontSize = mini ? 14 : 20;
-    const subSize = mini ? 8 : 10;
-    svg += `<text x="${center}" y="${center - 4}" text-anchor="middle" font-size="${fontSize}" font-weight="bold" fill="#1e293b">${total}</text>`;
-    svg += `<text x="${center}" y="${center + (mini ? 8 : 12)}" text-anchor="middle" font-size="${subSize}" fill="#64748b">${mini ? avg : `/ ${maxTotal} (avg ${avg})`}</text>`;
+    const centerR = mini ? 22 : 30;
+    svg += `<circle cx="${center}" cy="${center}" r="${centerR}" fill="white" stroke="#e2e8f0" stroke-width="1.5" filter="url(#sh-${uid})"/>`;
+    const fontSize = mini ? 13 : 18;
+    const subSize = mini ? 7 : 9;
+    svg += `<text x="${center}" y="${center - (mini ? 2 : 4)}" text-anchor="middle" font-size="${fontSize}" font-weight="800" fill="#1e293b">${total}</text>`;
+    svg += `<text x="${center}" y="${center + (mini ? 8 : 11)}" text-anchor="middle" font-size="${subSize}" fill="#64748b" font-weight="500">${mini ? `/${maxTotal}` : `/ ${maxTotal} (avg ${avg})`}</text>`;
+
+    svg += '</svg>';
+    container.innerHTML = svg;
+}
+
+/**
+ * Renders a Level 1 (domain-specific) radar chart.
+ * Uses a distinct color scheme per domain with the same professional style.
+ */
+function renderLevel1RadarChart(container) {
+    const data = JSON.parse(container.getAttribute('data-level1'));
+    const domain = data.domain || 'unknown';
+    const dims = data.dimensions || {};
+
+    const domainColors = {
+        healthcare: { primary: '#059669', gradient1: '#059669', gradient2: '#10b981', bg: 'rgba(5, 150, 105, 0.12)' },
+        transportation: { primary: '#4f46e5', gradient1: '#4f46e5', gradient2: '#818cf8', bg: 'rgba(79, 70, 229, 0.12)' },
+        finance: { primary: '#d97706', gradient1: '#d97706', gradient2: '#f59e0b', bg: 'rgba(217, 119, 6, 0.12)' },
+        manufacturing: { primary: '#dc2626', gradient1: '#dc2626', gradient2: '#f87171', bg: 'rgba(220, 38, 38, 0.12)' }
+    };
+    const colors = domainColors[domain] || domainColors.healthcare;
+
+    const dimList = Object.entries(dims).map(([key, val], i) => ({
+        key, label: key.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase()).trim(),
+        score: val.score ?? 0, position: val.position ?? i
+    })).sort((a, b) => a.position - b.position);
+
+    const numDims = dimList.length;
+    const size = 400;
+    const center = size / 2;
+    const maxRadius = center - 70;
+    const levels = 5;
+    const uid = Math.random().toString(36).substr(2, 6);
+
+    let svg = `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
+    svg += `<rect width="${size}" height="${size}" fill="#ffffff" rx="12"/>`;
+    svg += `<defs><radialGradient id="l1g-${uid}"><stop offset="0%" stop-color="${colors.gradient1}" stop-opacity="0.25"/><stop offset="100%" stop-color="${colors.gradient2}" stop-opacity="0.06"/></radialGradient>`;
+    svg += `<filter id="l1s-${uid}"><feDropShadow dx="0" dy="1" stdDeviation="2" flood-opacity="0.1"/></filter></defs>`;
+
+    // Domain label at top
+    const domainLabel = domain.charAt(0).toUpperCase() + domain.slice(1);
+    svg += `<text x="${center}" y="22" text-anchor="middle" font-size="11" font-weight="700" fill="${colors.primary}" letter-spacing="1">LEVEL 1 — ${domainLabel.toUpperCase()} DOMAIN</text>`;
+
+    // Grid
+    for (let i = 1; i <= levels; i++) {
+        const r = (maxRadius / levels) * i;
+        svg += `<circle cx="${center}" cy="${center + 10}" r="${r}" fill="none" stroke="#e2e8f0" stroke-width="${i === levels ? 1.5 : 0.75}"/>`;
+        svg += `<text x="${center + 5}" y="${center + 10 - r + 4}" font-size="8" fill="#94a3b8">${i}</text>`;
+    }
+
+    // Axes and labels
+    dimList.forEach((dim, i) => {
+        const angle = getDimensionAngle(i, numDims);
+        const cx = center, cy = center + 10;
+        const x = cx + maxRadius * Math.cos(angle);
+        const y = cy + maxRadius * Math.sin(angle);
+        svg += `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#e2e8f0" stroke-width="0.75"/>`;
+        const labelR = maxRadius + 30;
+        const lx = cx + labelR * Math.cos(angle);
+        const ly = cy + labelR * Math.sin(angle);
+        svg += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" font-size="9.5" font-weight="600" fill="${colors.primary}">${dim.label}</text>`;
+    });
+
+    // Polygon
+    const cx = center, cy = center + 10;
+    let points = dimList.map((dim, i) => {
+        const angle = getDimensionAngle(i, numDims);
+        const r = (maxRadius / levels) * dim.score;
+        return `${cx + r * Math.cos(angle)},${cy + r * Math.sin(angle)}`;
+    });
+    svg += `<polygon points="${points.join(' ')}" fill="url(#l1g-${uid})" stroke="${colors.primary}" stroke-width="2.5" stroke-linejoin="round"/>`;
+
+    // Dots
+    dimList.forEach((dim, i) => {
+        const angle = getDimensionAngle(i, numDims);
+        const r = (maxRadius / levels) * dim.score;
+        const x = cx + r * Math.cos(angle);
+        const y = cy + r * Math.sin(angle);
+        svg += `<circle cx="${x}" cy="${y}" r="4.5" fill="${colors.primary}" stroke="white" stroke-width="2" filter="url(#l1s-${uid})"/>`;
+        svg += `<text x="${x}" y="${y - 12}" text-anchor="middle" font-size="11" font-weight="700" fill="${colors.primary}">${dim.score}</text>`;
+    });
+
+    // Center score
+    const total = dimList.reduce((s, d) => s + d.score, 0);
+    const avg = (total / numDims).toFixed(1);
+    svg += `<circle cx="${cx}" cy="${cy}" r="28" fill="white" stroke="#e2e8f0" stroke-width="1.5" filter="url(#l1s-${uid})"/>`;
+    svg += `<text x="${cx}" y="${cy - 3}" text-anchor="middle" font-size="16" font-weight="800" fill="${colors.primary}">${total}</text>`;
+    svg += `<text x="${cx}" y="${cy + 11}" text-anchor="middle" font-size="8" fill="#64748b">avg ${avg}</text>`;
 
     svg += '</svg>';
     container.innerHTML = svg;

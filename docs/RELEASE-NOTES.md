@@ -1,19 +1,19 @@
 # a-CMM Release Notes
 
-## v0.1.0 — Initial Release (2026-05-24)
+## v0.2.0 — Level 0 / Level 1 Architecture (2026-05-24)
 
 ### Overview
 
-First public release of the **Agent Capability Maturity Model (a-CMM)** — an open-source framework for classifying AI agent capabilities across 8 dimensions.
+Introduces the **Agent Capability Maturity Model (a-CMM)** 12-dimension, two-level architecture: a universal Level 0 baseline plus Level 1 domain-specific radar charts for specialized deployment contexts.
 
 ---
 
 ### Features
 
 #### Core Framework
-- **8-Dimension Scoring Model** — Autonomy, Reasoning, Learning, Memory, Tool Use, Collaboration, Embodiment, Domain Alignment (each 0-5)
-- **Capability Fingerprint** — Unique profile per agent enabling cross-type comparison
-- **Governance Rules** — Built-in constraints (Autonomy must not exceed Domain Alignment + 1)
+- **12-Dimension Two-Level Architecture** — Level 0 universal dimensions plus Level 1 domain-specific radar charts (each score 0-5)
+- **Capability Fingerprint** — 12-value profile per agent enabling cross-type comparison
+- **Expanded Governance Rules** — 7 built-in constraints for autonomy, explainability, safety, interoperability, cost, and domain fit
 - **Agent Categories** — Digital, Embodied, Hybrid classification
 - **Scoring Engine** — Validation, bottleneck detection, governance compliance checking
 
@@ -69,17 +69,17 @@ AiCMM/
 
 | Field | Type | Description |
 |-------|------|-------------|
+| `schemaVersion` | string | Schema version `0.2.0` |
+| `_dimensionSchema` | string | Fixed Level 0 schema identifier (`level0-v0.2`) |
 | `agent.name` | string | Agent identifier |
 | `agent.version` | string | Version being evaluated |
 | `agent.vendor` | string | Creator organization |
 | `agent.category` | enum | digital / embodied / hybrid |
-| `capabilityProfile.*` | 0-5 | 8 dimension scores with evidence |
+| `capabilityProfile.*` | object | 12 dimension entries with `position`, `score`, and `confidence` |
+| `level1Profile` | object | Domain-specific radar chart and scoring metadata |
+| `governanceValidation` | object | 7-rule validation results and violations |
 | `avatar` | object | Visual identity and personality |
 | `tools` | array | External tools available |
-| `skills` | array | Core competencies |
-| `plugins` | array | Extensions and add-ons |
-| `agentRelationships` | object | delegatesTo, usedBy, dependsOn |
-| `standardsIntegration` | object | A2A, MCP, OpenAI config |
 | `assessmentMetadata` | object | Who, when, how assessed |
 
 ---
@@ -88,9 +88,13 @@ AiCMM/
 
 | Rule | Constraint | Rationale |
 |------|-----------|-----------|
-| Autonomy Gap | Autonomy <= Alignment + 1 | No ungoverned autonomy |
-| Embodiment Safety | Embodiment >= 3 requires Alignment >= 3 | Physical agents need governance |
-| Tool Oversight | Tool Use >= 4 requires Alignment >= 3 | Powerful tools need controls |
+| Autonomy-Reasoning Foundation | Autonomy >= 4 requires Reasoning >= 4 | Advanced autonomy needs strong planning |
+| Explainability Gate | Autonomy >= 4 requires Explainability >= 3 | High-autonomy systems must support review |
+| Safety Gate | Embodiment >= 3 requires Safety >= 4 | Physical agents need robust containment |
+| Collaboration-Interop Link | Collaboration >= 4 requires Interoperability >= 3 | Strong coordination needs shared protocols |
+| Cost Awareness | Autonomy >= 4 requires CostEfficiency >= 2 | Advanced autonomy must stay economically bounded |
+| Domain Alignment | Autonomy >= 4 requires DomainAlignment >= 3 | Deployment fit is mandatory |
+| Reasoning Foundation | Autonomy >= 4 requires Reasoning >= 3 | Baseline reasoning floor remains enforced |
 
 ---
 
@@ -106,7 +110,7 @@ Registered at `~/.copilot/skills/` and `~/.copilot/agents/` for use across Copil
 - `markdown-to-pdf` — Generate PDFs from Markdown
 - `agent-card-creation` — Generate a-CMM Agent Cards
 - `agent-inspection` — Inspect agents from URLs
-- `aicmm-scoring` — Score agents on 8 dimensions
+- `aicmm-scoring` — Score agents on 12 dimensions
 - `catalog-management` — Manage Agent Card catalog
 
 **Agents:**
@@ -148,13 +152,12 @@ Registered at `~/.copilot/skills/` and `~/.copilot/agents/` for use across Copil
 
 ---
 
-### Roadmap (v0.2+)
+### Roadmap (v0.3+)
 
 - [ ] Auto-scoring from agent documentation URLs
 - [ ] Backend search with Elasticsearch/PostgreSQL FTS
 - [ ] Agent Card federation (aggregate from multiple registries)
-- [ ] Dimension scoring rubric UI (guided scoring wizard)
-- [ ] Comparison view (side-by-side radar charts)
+- [ ] Comparison view (side-by-side Level 0 and Level 1 radar charts)
 - [ ] Export to A2A agent.json format
 - [ ] Batch import/export
 - [ ] REST API for CRUD operations

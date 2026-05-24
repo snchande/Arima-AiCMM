@@ -41,37 +41,55 @@ graph TB
     Core --> Resume
 ```
 
-## Eight Dimensions Model
+## Twelve Level 0 Dimensions
 
 ```mermaid
 graph LR
-    subgraph "Capability Dimensions (0-5)"
+    subgraph "Cognitive Core"
         A[Autonomy]
         R[Reasoning & Planning]
-        L[Learning & Adaptation]
         M[Memory & Context]
+        L[Learning & Adaptation]
+    end
+
+    subgraph "Action & Integration"
         T[Tool Use & Integration]
         C[Collaboration]
         E[Embodiment]
+    end
+
+    subgraph "Trust & Deployment"
+        X[Explainability & Transparency]
+        S[Safety & Containment]
+        I[Interoperability]
+        CE[Cost Efficiency]
         D[Domain Alignment]
     end
 
     Agent((AI Agent)) --> A
     Agent --> R
-    Agent --> L
     Agent --> M
+    Agent --> L
     Agent --> T
     Agent --> C
     Agent --> E
+    Agent --> X
+    Agent --> S
+    Agent --> I
+    Agent --> CE
     Agent --> D
 
-    A --> FP[Capability<br/>Fingerprint]
+    A --> FP[Level 0 Capability<br/>Fingerprint]
     R --> FP
-    L --> FP
     M --> FP
+    L --> FP
     T --> FP
     C --> FP
     E --> FP
+    X --> FP
+    S --> FP
+    I --> FP
+    CE --> FP
     D --> FP
 ```
 
@@ -80,7 +98,7 @@ graph LR
 ```mermaid
 flowchart TD
     Start[Identify Agent] --> Gather[Gather Evidence<br/>Logs, Tests, Red-team]
-    Gather --> Score[Score 8 Dimensions<br/>0-5 each]
+    Gather --> Score[Score 12 Level 0 Dimensions<br/>0-5 each]
     Score --> Validate{Governance<br/>Rules Pass?}
     
     Validate -->|Yes| Card[Generate Agent Card]
@@ -95,9 +113,13 @@ flowchart TD
     Improve --> Score
 
     subgraph "Key Governance Rules"
-        Rule1["Autonomy must not exceed Domain Alignment + 1"]
-        Rule2["Embodiment at 3+ requires Alignment at 3+"]
-        Rule3["High Autonomy → Strong Controls"]
+        Rule1["Autonomy 4+ requires Reasoning 4+"]
+        Rule2["Autonomy 4+ requires Explainability 3+"]
+        Rule3["Embodiment 3+ requires Safety 4+"]
+        Rule4["Collaboration 4+ requires Interoperability 3+"]
+        Rule5["Autonomy 4+ requires Cost Efficiency 2+"]
+        Rule6["Autonomy 4+ requires Domain Alignment 3+"]
+        Rule7["Autonomy 4+ requires Reasoning 3+"]
     end
 ```
 

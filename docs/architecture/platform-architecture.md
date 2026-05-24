@@ -187,11 +187,15 @@ aCMM/
 ├── dimensions/
 │   ├── autonomy.md               # Level 0-5 rubric with evidence criteria
 │   ├── reasoning-planning.md
-│   ├── learning-adaptation.md
 │   ├── memory-context.md
+│   ├── learning-adaptation.md
 │   ├── tool-use-integration.md
 │   ├── collaboration-social.md
 │   ├── embodiment.md
+│   ├── explainability.md
+│   ├── safety.md
+│   ├── interoperability.md
+│   ├── cost-efficiency.md
 │   └── domain-alignment.md
 ├── governance/
 │   ├── rules.yaml                # Formal governance constraints
@@ -202,7 +206,7 @@ aCMM/
 │   ├── capability-profile.schema.json
 │   └── agent-descriptor.schema.json
 └── versions/
-    ├── v0.1.0.md                 # Current version specification
+    ├── v0.2.0.md                 # Current version specification
     └── CHANGELOG.md              # Framework version history
 ```
 
@@ -210,26 +214,30 @@ aCMM/
 
 ```mermaid
 flowchart TD
-    Profile["Capability Profile<br/>[4,4,2,4,5,3,0,4]"] --> Rules
+    Profile["Capability Profile<br/>[4,4,4,3,5,3,0,4,3,4,2,4]"] --> Rules
 
     subgraph Rules["Governance Rule Evaluation"]
-        R1{"Autonomy lte<br/>Alignment + 1?"}
-        R2{"Embodiment gte 3 then<br/>Alignment gte 3?"}
-        R3{"High Autonomy then<br/>Reasoning gte 3?"}
-        R4{"Tool Use gte 4 then<br/>Alignment gte 3?"}
+        R1{"Autonomy gte 4 then<br/>Reasoning gte 4?"}
+        R2{"Autonomy gte 4 then<br/>Explainability gte 3?"}
+        R3{"Embodiment gte 3 then<br/>Safety gte 4?"}
+        R4{"Collaboration gte 4 then<br/>Interoperability gte 3?"}
+        R5{"Autonomy gte 4 then<br/>Cost Efficiency gte 2?"}
+        R6{"Autonomy gte 4 then<br/>Domain Alignment gte 3?"}
+        R7{"Autonomy gte 4 then<br/>Reasoning gte 3?"}
     end
 
-    R1 -->|Pass| Check2
-    R1 -->|Fail| Violation["GOVERNANCE VIOLATION<br/>Agent non-compliant"]
-
-    R2 --> Check2{All Rules<br/>Passed?}
+    R1 --> Check2
+    R2 --> Check2
     R3 --> Check2
     R4 --> Check2
+    R5 --> Check2
+    R6 --> Check2
+    R7 --> Check2
 
-    Check2 -->|Yes| Compliant["COMPLIANT<br/>Generate Agent Card"]
-    Check2 -->|No| Violation
+    Check2{All Rules<br/>Passed?} -->|Yes| Compliant["COMPLIANT<br/>Generate Agent Card"]
+    Check2 -->|No| Violation["GOVERNANCE VIOLATION<br/>Agent non-compliant"]
 
-    Violation --> Remediate["Remediation Required<br/>Increase Alignment or<br/>Reduce Autonomy"]
+    Violation --> Remediate["Remediation Required<br/>Improve controls or<br/>reduce autonomy"]
 ```
 
 ---
@@ -369,7 +377,7 @@ registry.register(entry);
 
 ### 3. Evaluation Phase
 
-The `EvaluationPipeline` orchestrates scoring across all 8 dimensions:
+The `EvaluationPipeline` orchestrates scoring across all 12 Level 0 dimensions:
 
 ```java
 // For each dimension, select the appropriate inspector and score
@@ -481,7 +489,8 @@ The platform is configured via `aicmm.yaml` at the project root:
 ```yaml
 # aicmm.yaml
 aicmm:
-  version: "0.1.0"
+  version: "0.2.0"
+  dimensionSchema: "level0-v0.2"
 
   # Where to scan for agent descriptors
   agents:
@@ -495,9 +504,13 @@ aicmm:
   # Governance rules
   governance:
     rules:
-      - autonomy_alignment_gap: 1      # max gap between autonomy and alignment
-      - embodiment_alignment_floor: 3   # if embodiment >= 3, alignment must be >= 3
-      - high_autonomy_reasoning: 3      # if autonomy >= 4, reasoning must be >= 3
+      - autonomy_reasoning_foundation: 4     # if autonomy >= 4, reasoning must be >= 4
+      - autonomy_explainability_gate: 3      # if autonomy >= 4, explainability must be >= 3
+      - embodiment_safety_gate: 4            # if embodiment >= 3, safety must be >= 4
+      - collaboration_interop_link: 3        # if collaboration >= 4, interoperability must be >= 3
+      - autonomy_cost_awareness: 2           # if autonomy >= 4, cost efficiency must be >= 2
+      - autonomy_domain_alignment: 3         # if autonomy >= 4, domain alignment must be >= 3
+      - high_autonomy_reasoning_floor: 3     # if autonomy >= 4, reasoning must be >= 3
 
   # Output
   output:

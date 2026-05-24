@@ -1,6 +1,6 @@
 # Agent Card Template
 
-> **a•CMM Agent Card v0.1.0** — A standardized capability description for AI agents.
+> **a•CMM Agent Card v0.2.0** — A standardized capability description for AI agents.
 >
 > Copy this template, fill in all sections, and save as `<agent-name>-agent-card.json` (or `.yaml`/`.md`).
 
@@ -23,20 +23,24 @@
 
 Score each dimension **0–5** with observable evidence.
 
-| # | Dimension | Score | Evidence |
-|---|-----------|:-----:|----------|
-| 1 | **Autonomy** | _/5_ | _[How independently does it act? What triggers require human input?]_ |
-| 2 | **Reasoning & Planning** | _/5_ | _[Can it decompose problems? Multi-step planning? Handle uncertainty?]_ |
-| 3 | **Learning & Adaptation** | _/5_ | _[Does it improve from experience? Retain context across sessions?]_ |
-| 4 | **Memory & Context** | _/5_ | _[Working memory size? Long-term retrieval? Temporal awareness?]_ |
-| 5 | **Tool Use & Integration** | _/5_ | _[What tools can it use? How autonomously? Error recovery?]_ |
-| 6 | **Collaboration & Social** | _/5_ | _[Multi-agent coordination? Human handoff? Social protocols?]_ |
-| 7 | **Embodiment** | _/5_ | _[Physical sensors? Navigation? Manipulation? (0 for pure software)]_ |
-| 8 | **Domain Alignment** | _/5_ | _[Policy compliance? Audit trail? Safety constraints? Certifications?]_ |
+| Pos | Group | Dimension | Score | Evidence |
+|-----|-------|-----------|:-----:|----------|
+| 0 | **Cognitive Core** | **Autonomy** | _/5_ | _[How independently does it act? What triggers require human input?]_ |
+| 1 | **Cognitive Core** | **Reasoning & Planning** | _/5_ | _[Can it decompose problems? Multi-step planning? Handle uncertainty?]_ |
+| 2 | **Cognitive Core** | **Memory & Context** | _/5_ | _[Working memory size? Long-term retrieval? Temporal awareness?]_ |
+| 3 | **Cognitive Core** | **Learning & Adaptation** | _/5_ | _[Does it improve from experience safely? What feedback loops exist?]_ |
+| 4 | **Action & Integration** | **Tool Use & Integration** | _/5_ | _[What tools can it use? How autonomously? Error recovery?]_ |
+| 5 | **Action & Integration** | **Collaboration & Social Intelligence** | _/5_ | _[Multi-agent coordination? Empathy? Age-appropriate communication? Inclusivity?]_ |
+| 6 | **Action & Integration** | **Embodiment** | _/5_ | _[Physical sensors? Navigation? Manipulation? (0 for pure software)]_ |
+| 7 | **Trust & Deployment** | **Explainability & Transparency** | _/5_ | _[Can it explain decisions, cite evidence, and support human review?]_ |
+| 8 | **Trust & Deployment** | **Safety & Containment** | _/5_ | _[What guardrails, fail-safes, and containment controls exist?]_ |
+| 9 | **Trust & Deployment** | **Interoperability** | _/5_ | _[Can it work across protocols, agents, and ecosystems?]_ |
+| 10 | **Trust & Deployment** | **Cost Efficiency** | _/5_ | _[Does it operate with bounded resource use and economic discipline?]_ |
+| 11 | **Trust & Deployment** | **Domain Alignment** | _/5_ | _[Policy compliance? Audit trail? Domain-specific deployment fit?]_ |
 
-**Capability Fingerprint**: `[_, _, _, _, _, _, _, _]`
+**Capability Fingerprint**: `[_, _, _, _, _, _, _, _, _, _, _, _]`
 
-**Total Score**: _/40_ | **Average**: _/5_ | **Governance Compliant**: _[Yes/No]_
+**Total Score**: _/60_ | **Average**: _/5_ | **Governance Compliant**: _[Yes/No]_
 
 ---
 
@@ -172,12 +176,16 @@ Document why each dimension received its score — what evidence supports it and
 
 1. **Autonomy**: _[Why this score? What was observed?]_
 2. **Reasoning & Planning**: _[...]_
-3. **Learning & Adaptation**: _[...]_
-4. **Memory & Context**: _[...]_
+3. **Memory & Context**: _[...]_
+4. **Learning & Adaptation**: _[...]_
 5. **Tool Use & Integration**: _[...]_
-6. **Collaboration & Social**: _[...]_
+6. **Collaboration & Social Intelligence**: _[...]_
 7. **Embodiment**: _[...]_
-8. **Domain Alignment**: _[...]_
+8. **Explainability & Transparency**: _[...]_
+9. **Safety & Containment**: _[...]_
+10. **Interoperability**: _[...]_
+11. **Cost Efficiency**: _[...]_
+12. **Domain Alignment**: _[...]_
 
 ### Governance Notes
 
@@ -216,7 +224,8 @@ The following events should trigger a reassessment of this Agent Card:
 
 ```json
 {
-  "schemaVersion": "0.1.0",
+  "schemaVersion": "0.2.0",
+  "_dimensionSchema": "level0-v0.2",
   "agent": {
     "name": "",
     "version": "",
@@ -226,14 +235,27 @@ The following events should trigger a reassessment of this Agent Card:
     "url": ""
   },
   "capabilityProfile": {
-    "autonomy": { "score": 0, "evidence": "" },
-    "reasoning": { "score": 0, "evidence": "" },
-    "learning": { "score": 0, "evidence": "" },
-    "memory": { "score": 0, "evidence": "" },
-    "toolUse": { "score": 0, "evidence": "" },
-    "collaboration": { "score": 0, "evidence": "" },
-    "embodiment": { "score": 0, "evidence": "" },
-    "domainAlignment": { "score": 0, "evidence": "" }
+    "autonomy": { "position": 0, "score": 0, "confidence": "medium", "evidence": "" },
+    "reasoning": { "position": 1, "score": 0, "confidence": "medium", "evidence": "" },
+    "memory": { "position": 2, "score": 0, "confidence": "medium", "evidence": "" },
+    "learning": { "position": 3, "score": 0, "confidence": "medium", "evidence": "" },
+    "toolUse": { "position": 4, "score": 0, "confidence": "medium", "evidence": "" },
+    "collaboration": { "position": 5, "score": 0, "confidence": "medium", "evidence": "" },
+    "embodiment": { "position": 6, "score": 0, "confidence": "medium", "evidence": "" },
+    "explainability": { "position": 7, "score": 0, "confidence": "medium", "evidence": "" },
+    "safety": { "position": 8, "score": 0, "confidence": "medium", "evidence": "" },
+    "interoperability": { "position": 9, "score": 0, "confidence": "medium", "evidence": "" },
+    "costEfficiency": { "position": 10, "score": 0, "confidence": "medium", "evidence": "" },
+    "domainAlignment": { "position": 11, "score": 0, "confidence": "medium", "evidence": "" }
+  },
+  "level1Profile": {
+    "domain": "",
+    "dimensions": {}
+  },
+  "governanceValidation": {
+    "passed": true,
+    "rulesChecked": 7,
+    "violations": []
   },
   "skills": [],
   "tools": [],
@@ -280,8 +302,9 @@ The following events should trigger a reassessment of this Agent Card:
 1. **Copy** this template to your project
 2. **Fill in** all sections with evidence-based information
 3. **Score** each dimension using the [a•CMM Scoring Rubric](../docs/articles/overview-medium.md)
-4. **Validate** governance compliance (Autonomy ≤ Domain Alignment + 1)
-5. **Submit** as a PR to the [AiCMM examples](../examples/) directory or embed in your agent's metadata
+4. **Validate** governance compliance against the 7 Level 0 rules
+5. **Add** a Level 1 domain profile when the deployment context requires domain-specific scoring
+6. **Submit** as a PR to the [AiCMM examples](../examples/) directory or embed in your agent's metadata
 
 ### Validation
 
@@ -290,10 +313,10 @@ The following events should trigger a reassessment of this Agent Card:
 java -jar aicmm-cli/target/aicmm-cli.jar validate --card my-agent-card.json
 
 # Generate a radar chart visualization
-java -jar aicmm-site/target/aicmm-site-0.1.0-SNAPSHOT.jar
-# → View at http://localhost:8080/agent-cards
+java -jar aicmm-site/target/aicmm-site-0.1.0-SNAPSHOT.jar --port 8090
+# → View at http://localhost:8090/agent-cards
 ```
 
 ---
 
-*Template version: 0.1.0 | Framework: a•CMM Agent Capability Maturity Model*
+*Template version: 0.2.0 | Framework: a•CMM Agent Capability Maturity Model*

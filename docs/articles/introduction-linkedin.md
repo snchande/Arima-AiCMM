@@ -37,24 +37,33 @@ This asymmetry becomes even more pronounced with embodied agents such as robots 
 
 ## The Proposal: Agent Capability Maturity Model (aCMM)
 
-A multi-dimensional capability-profile framework that evaluates agents across **eight distinct dimensions** instead of collapsing everything into a single maturity score:
+A multi-dimensional capability-profile framework that evaluates agents across **twelve universal dimensions organized in three groups** instead of collapsing everything into a single maturity score:
 
+**Cognitive Core**
 1. **Autonomy**
 2. **Reasoning & Planning**
-3. **Learning & Adaptation**
-4. **Memory & Context**
-5. **Tool Use & Integration**
-6. **Collaboration & Social Ability**
-7. **Embodiment**
-8. **Domain Alignment**
+3. **Memory & Context**
+4. **Learning & Adaptation**
 
-Each dimension is scored from **0–5**, producing a **capability fingerprint** — a visual shape that makes trade-offs explicit and gives engineering, product, security, and governance teams a shared, evidence-based way to discuss what an agent can (and cannot) do.
+**Action & Integration**
+5. **Tool Use & Integration**
+6. **Collaboration & Social Intelligence** (includes empathy, inclusivity, age-appropriate communication)
+7. **Embodiment**
+
+**Trust & Deployment**
+8. **Explainability & Transparency**
+9. **Safety & Containment**
+10. **Interoperability**
+11. **Cost Efficiency**
+12. **Domain Alignment**
+
+Each Level 0 dimension is scored from **0–5**, producing a **12-value capability fingerprint** and a universal radar chart. Teams can then add **Level 1** domain-specific radar charts for areas such as healthcare, transportation, finance, or manufacturing to capture specialized deployment requirements.
 
 ## Why This Matters
 
 When you compare software agents in digital workspaces, embodied agents operating in physical space, medical and clinical AI agents, and mobile robotic or drone agents, you see completely different capability fingerprints — and suddenly the word "agent" stops being a single bucket and becomes a full spectrum of systems with very different risks, expectations, and governance needs.
 
-Over time, this model can also expand to include domain-specific dimensions for sectors like healthcare, manufacturing, or finance, where specialized capabilities and constraints meaningfully shape how agents must be evaluated.
+That second layer matters because the capabilities that make a healthcare agent deployable are not the same as the ones that matter most for fleet autonomy, finance controls, or factory orchestration. Level 1 gives each domain its own focused scoring profile while preserving the shared Level 0 baseline needed for comparison across very different agent types.
 
 ---
 

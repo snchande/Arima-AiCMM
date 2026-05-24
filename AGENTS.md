@@ -1,6 +1,6 @@
 # AiCMM Project Agent Instructions
 
-This repository implements the **Agent Capability Maturity Model (AiCMM)** — a multi-dimensional framework for evaluating AI agents across 8 dimensions scored 0-5.
+This repository implements the **Agent Capability Maturity Model (AiCMM)** — a multi-dimensional framework for evaluating AI agents across 12 Level 0 dimensions scored 0-5, with optional Level 1 domain-specific scoring.
 
 ## Key Conventions
 
@@ -18,7 +18,8 @@ This repository implements the **Agent Capability Maturity Model (AiCMM)** — a
 
 ## Framework Rules
 
-1. Autonomy must never exceed Domain Alignment by more than 1 (governance rule)
-2. Scores must be justified by observable evidence (logs, tests, red-team results)
-3. Embodied agents (score ≥ 3) require strong Domain Alignment (≥ 3)
-4. Agent Cards track version history as "Capability Resumes"
+1. Level 0 uses 12 fixed positions grouped into Cognitive Core, Action & Integration, and Trust & Deployment
+2. Level 1 adds domain-specific radar charts without replacing Level 0
+3. Scores must be justified by observable evidence (logs, tests, red-team results)
+4. Governance validation checks 7 rules covering reasoning, explainability, safety, interoperability, cost, and domain fit
+5. Agent Cards track version history as "Capability Resumes"

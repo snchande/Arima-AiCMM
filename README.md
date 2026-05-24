@@ -17,20 +17,32 @@
 
 **a•CMM (Agent Capability Maturity Model)** is an open-source framework that helps developers, architects, and organizations **classify, evaluate, and communicate** the capabilities of AI agents in a structured, comparable way.
 
-Instead of treating all AI agents as equal — or relying on vague marketing terms — a•CMM provides an **8-dimension scoring model** (each scored 0–5) that produces a unique **capability fingerprint** for any agent, whether it's a simple chatbot, an autonomous coding assistant, or an embodied robot.
+Instead of treating all AI agents as equal — or relying on vague marketing terms — a•CMM provides a **12-dimension, two-level scoring architecture** (each scored 0–5) that produces a unique **capability fingerprint** for any agent, whether it's a simple chatbot, an autonomous coding assistant, or an embodied robot.
 
 The result is an **Agent Card**: a standardized, machine-readable description of what an agent can and cannot do — enabling informed decisions about deployment, governance, and interoperability.
 
-| Dimension | What It Measures |
-|-----------|-----------------|
-| **Autonomy** | Self-directed action without human intervention |
-| **Reasoning & Planning** | Structured problem-solving under uncertainty |
-| **Learning & Adaptation** | Ability to improve from experience safely |
-| **Memory & Context** | Information retention, retrieval, temporal awareness |
-| **Tool Use & Integration** | Orchestrating external tools and APIs |
-| **Collaboration & Social** | Coordination with humans and other agents |
-| **Embodiment** | Physical/virtual presence — perception, navigation, manipulation |
-| **Domain Alignment** | Policy compliance, safety, auditability |
+### Level 0 — 12 Universal Dimensions
+
+| Group | Pos | Key | Name | What It Measures |
+|-------|-----|-----|------|------------------|
+| **Cognitive Core** | 0 | `autonomy` | **Autonomy** | Self-directed action without human intervention |
+| **Cognitive Core** | 1 | `reasoning` | **Reasoning & Planning** | Structured problem-solving under uncertainty |
+| **Cognitive Core** | 2 | `memory` | **Memory & Context** | Information retention, retrieval, temporal awareness |
+| **Cognitive Core** | 3 | `learning` | **Learning & Adaptation** | Ability to improve from experience safely |
+| **Action & Integration** | 4 | `toolUse` | **Tool Use & Integration** | Orchestrating external tools and APIs |
+| **Action & Integration** | 5 | `collaboration` | **Collaboration & Social Intelligence** | Coordination with humans/agents, empathy, age-appropriate communication |
+| **Action & Integration** | 6 | `embodiment` | **Embodiment** | Physical/virtual presence — perception, navigation, manipulation |
+| **Trust & Deployment** | 7 | `explainability` | **Explainability & Transparency** | Ability to justify decisions, expose reasoning traces, and support review |
+| **Trust & Deployment** | 8 | `safety` | **Safety & Containment** | Controls that prevent harmful or unsafe actions |
+| **Trust & Deployment** | 9 | `interoperability` | **Interoperability** | Ability to work across protocols, ecosystems, and agents |
+| **Trust & Deployment** | 10 | `costEfficiency` | **Cost Efficiency** | Resource awareness, bounded execution, and economic viability |
+| **Trust & Deployment** | 11 | `domainAlignment` | **Domain Alignment** | Domain-specific policy, compliance, and deployment fit |
+
+These 12 Level 0 dimensions are organized into three groups: **Cognitive Core**, **Action & Integration**, and **Trust & Deployment**.
+
+### Level 1 — Domain Deep-Dive
+
+Level 1 adds **domain-specific radar charts** for sectors such as Healthcare, Transportation, Finance, and Manufacturing. These domain profiles are **drill-downs**, not replacements for Level 0, and let teams score specialized requirements alongside the universal 12-dimension baseline.
 
 ---
 
@@ -42,7 +54,7 @@ Today's AI agent ecosystem is exploding — but we lack a common language to des
 |---------|----------------|
 | **"All agents are the same"** | Multi-dimensional scoring reveals that a coding agent and a robot are fundamentally different systems |
 | **No way to compare agents** | Capability fingerprints enable apples-to-apples comparison across vendors |
-| **Governance is an afterthought** | Domain Alignment is a first-class dimension; autonomy is constrained by alignment |
+| **Governance is an afterthought** | Trust & Deployment dimensions and 7 governance rules make deployment constraints explicit |
 | **Vendor marketing is opaque** | Agent Cards provide evidence-based, verifiable capability claims |
 | **Standards lack capability metadata** | a•CMM integrates with A2A, MCP, and other protocols via embeddable classifications |
 
@@ -50,7 +62,7 @@ Today's AI agent ecosystem is exploding — but we lack a common language to des
 
 - **Multi-dimensional, not linear** — No single "maturity level"; agents have unique profiles
 - **Evidence-based scoring** — Each level requires observable, testable indicators
-- **Governance built-in** — Autonomy must not exceed Domain Alignment by more than 1 level
+- **Governance built-in** — High autonomy is gated by reasoning, explainability, safety, cost, interoperability, and domain-fit checks
 - **Protocol-agnostic** — Embeds into any agent communication standard
 - **Community-driven** — Open for co-authoring, industry adaptations, and new dimensions
 
@@ -89,7 +101,11 @@ AiCMM/
 │   └── agent-card.schema.json         # JSON Schema for Agent Cards
 │
 ├── examples/
-│   └── copilot-cli-agent-card.json    # Example: GitHub Copilot CLI scored
+│   ├── copilot-cli-agent-card.json            # Example: GitHub Copilot CLI scored
+│   ├── medassist-pro-agent-card.json          # Example: Healthcare hybrid (Level 0 + Level 1)
+│   ├── autonav-fleet-agent-card.json          # Example: Transportation embodied (Level 0 + Level 1)
+│   ├── finguard-analyst-agent-card.json       # Example: Finance digital (Level 0 + Level 1)
+│   └── smartfactory-orchestrator-agent-card.json # Example: Manufacturing hybrid (Level 0 + Level 1)
 │
 ├── pom.xml                            # Maven parent POM (Java 17)
 ├── LICENSE                            # MIT License
@@ -117,8 +133,8 @@ mvn clean install
 ### Run the Documentation Site
 
 ```bash
-java -jar aicmm-site/target/aicmm-site-0.1.0-SNAPSHOT.jar
-# → Open http://localhost:8080
+java -jar aicmm-site/target/aicmm-site-0.1.0-SNAPSHOT.jar --port 8090
+# → Open http://localhost:8090
 ```
 
 The site renders all Markdown documentation with Mermaid diagram support, provides an interactive Agent Card browser with radar charts, and links to the original articles.
@@ -140,15 +156,19 @@ import org.aicmm.model.*;
 import org.aicmm.scoring.ScoringEngine;
 import org.aicmm.agentcard.AgentCard;
 
-// Build a capability profile
+// Build a Level 0 capability profile
 CapabilityProfile profile = CapabilityProfile.builder()
     .score(Dimension.AUTONOMY, 4)
     .score(Dimension.REASONING_AND_PLANNING, 4)
-    .score(Dimension.LEARNING_AND_ADAPTATION, 2)
     .score(Dimension.MEMORY_AND_CONTEXT, 4)
+    .score(Dimension.LEARNING_AND_ADAPTATION, 3)
     .score(Dimension.TOOL_USE_AND_INTEGRATION, 5)
     .score(Dimension.COLLABORATION_AND_SOCIAL_ABILITY, 3)
     .score(Dimension.EMBODIMENT, 0)
+    .score(Dimension.EXPLAINABILITY_AND_TRANSPARENCY, 4)
+    .score(Dimension.SAFETY_AND_CONTAINMENT, 3)
+    .score(Dimension.INTEROPERABILITY, 4)
+    .score(Dimension.COST_EFFICIENCY, 2)
     .score(Dimension.DOMAIN_ALIGNMENT, 4)
     .build();
 
@@ -176,7 +196,7 @@ Classification follows a structured process:
 
 ### Step 2: Score Each Dimension (0–5)
 
-For each of the 8 dimensions, assign a level based on observable evidence:
+For each of the 12 Level 0 dimensions, assign a level based on observable evidence:
 
 | Level | Meaning | Indicator |
 |-------|---------|-----------|
@@ -189,14 +209,23 @@ For each of the 8 dimensions, assign a level based on observable evidence:
 
 ### Step 3: Apply Governance Rules
 
-- **Constraint**: `Autonomy ≤ Domain Alignment + 1`
-- If an agent scores Autonomy: 5 but Domain Alignment: 3, it is **non-compliant** — flag for review
+1. **Autonomy-Reasoning Foundation** — `Autonomy >= 4` requires `Reasoning >= 4`
+2. **Explainability Gate** — `Autonomy >= 4` requires `Explainability >= 3`
+3. **Safety Gate** — `Embodiment >= 3` requires `Safety >= 4`
+4. **Collaboration-Interop Link** — `Collaboration >= 4` requires `Interoperability >= 3`
+5. **Cost Awareness** — `Autonomy >= 4` requires `CostEfficiency >= 2`
+6. **Domain Alignment** — `Autonomy >= 4` requires `DomainAlignment >= 3`
+7. **Reasoning Foundation** — `Autonomy >= 4` requires `Reasoning >= 3`
 
 ### Step 4: Generate the Capability Fingerprint
 
-The 8 scores form a fingerprint: `[4, 4, 2, 4, 5, 3, 0, 4]`
+The 12 scores form a Level 0 fingerprint: `[4, 4, 4, 3, 5, 3, 0, 4, 3, 4, 2, 4]`
 
 This can be visualized as a radar chart, compared across agents, and embedded into protocols.
+
+### Step 4a: Add Level 1 Domain Scoring (When Needed)
+
+If the agent operates in a regulated or specialized environment, add a Level 1 domain radar chart for Healthcare, Transportation, Finance, Manufacturing, or another domain-specific profile. Level 1 extends the universal Level 0 baseline rather than replacing it.
 
 ### Step 5: Document as an Agent Card
 
@@ -227,23 +256,46 @@ Create a JSON file following this structure:
 
 ```json
 {
+  "schemaVersion": "0.2.0",
+  "_dimensionSchema": "level0-v0.2",
   "name": "My AI Agent",
   "version": "2.1.0",
   "category": "DIGITAL",
   "description": "An autonomous coding assistant",
   "capabilityProfile": {
-    "autonomy": 4,
-    "reasoningAndPlanning": 4,
-    "learningAndAdaptation": 2,
-    "memoryAndContext": 4,
-    "toolUseAndIntegration": 5,
-    "collaborationAndSocialAbility": 3,
-    "embodiment": 0,
-    "domainAlignment": 4
+    "autonomy": { "position": 0, "score": 4, "confidence": "high" },
+    "reasoning": { "position": 1, "score": 4, "confidence": "high" },
+    "memory": { "position": 2, "score": 4, "confidence": "medium" },
+    "learning": { "position": 3, "score": 3, "confidence": "medium" },
+    "toolUse": { "position": 4, "score": 5, "confidence": "high" },
+    "collaboration": { "position": 5, "score": 3, "confidence": "medium" },
+    "embodiment": { "position": 6, "score": 0, "confidence": "high" },
+    "explainability": { "position": 7, "score": 4, "confidence": "medium" },
+    "safety": { "position": 8, "score": 3, "confidence": "high" },
+    "interoperability": { "position": 9, "score": 4, "confidence": "medium" },
+    "costEfficiency": { "position": 10, "score": 2, "confidence": "medium" },
+    "domainAlignment": { "position": 11, "score": 4, "confidence": "high" }
   },
-  "governanceCompliant": true,
-  "totalScore": 26,
-  "averageScore": 3.25,
+  "level1Profile": {
+    "domain": "finance",
+    "dimensions": {
+      "auditability": 4,
+      "policyControls": 4,
+      "dataSensitivity": 4,
+      "transactionSafety": 3,
+      "fraudAwareness": 3,
+      "humanOversight": 4,
+      "regulatoryTraceability": 4,
+      "workflowIntegration": 5
+    }
+  },
+  "governanceValidation": {
+    "passed": true,
+    "rulesChecked": 7,
+    "violations": []
+  },
+  "totalScore": 40,
+  "averageScore": 3.33,
   "assessedAt": "2026-05-24",
   "assessedBy": "human"
 }

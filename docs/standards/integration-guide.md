@@ -61,29 +61,38 @@ a-CMM capability profiles embed as an `extensions.aicmm` field in the A2A Agent 
   ],
   "extensions": {
     "aicmm": {
-      "schemaVersion": "0.1.0",
+      "schemaVersion": "0.2.0",
+      "_dimensionSchema": "level0-v0.2",
       "capabilityProfile": {
-        "autonomy": 4,
-        "reasoning": 4,
-        "learning": 2,
-        "memory": 3,
-        "toolUse": 5,
-        "collaboration": 3,
-        "embodiment": 0,
-        "domainAlignment": 4
+        "autonomy": { "position": 0, "score": 4, "confidence": "high" },
+        "reasoning": { "position": 1, "score": 4, "confidence": "high" },
+        "memory": { "position": 2, "score": 4, "confidence": "medium" },
+        "learning": { "position": 3, "score": 3, "confidence": "medium" },
+        "toolUse": { "position": 4, "score": 5, "confidence": "high" },
+        "collaboration": { "position": 5, "score": 3, "confidence": "medium" },
+        "embodiment": { "position": 6, "score": 0, "confidence": "high" },
+        "explainability": { "position": 7, "score": 4, "confidence": "medium" },
+        "safety": { "position": 8, "score": 3, "confidence": "high" },
+        "interoperability": { "position": 9, "score": 4, "confidence": "medium" },
+        "costEfficiency": { "position": 10, "score": 2, "confidence": "medium" },
+        "domainAlignment": { "position": 11, "score": 4, "confidence": "high" }
       },
-      "governanceCompliant": true,
-      "totalScore": 25,
-      "averageScore": 3.1,
+      "governanceValidation": {
+        "passed": true,
+        "rulesChecked": 7,
+        "violations": []
+      },
+      "totalScore": 40,
+      "averageScore": 3.33,
       "category": "digital",
       "skillProfiles": {
         "code-generation": {
-          "primaryDimensions": ["reasoning", "toolUse"],
-          "minimumScores": {"reasoning": 3, "toolUse": 4}
+          "primaryDimensions": ["reasoning", "toolUse", "explainability"],
+          "minimumScores": {"reasoning": 3, "toolUse": 4, "explainability": 3}
         },
         "debugging": {
           "primaryDimensions": ["reasoning", "memory", "toolUse"],
-          "minimumScores": {"reasoning": 4, "memory": 3}
+          "minimumScores": {"reasoning": 4, "memory": 3, "toolUse": 4}
         }
       }
     }
@@ -149,23 +158,37 @@ a-CMM metadata annotates MCP server manifests to describe the capability require
   ],
   "metadata": {
     "aicmm": {
+      "schemaVersion": "0.2.0",
+      "_dimensionSchema": "level0-v0.2",
       "serverCapabilityProfile": {
-        "toolUse": 5,
-        "domainAlignment": 4,
-        "autonomy": 2
+        "autonomy": { "position": 0, "score": 2, "confidence": "medium" },
+        "reasoning": { "position": 1, "score": 3, "confidence": "medium" },
+        "memory": { "position": 2, "score": 3, "confidence": "medium" },
+        "learning": { "position": 3, "score": 1, "confidence": "low" },
+        "toolUse": { "position": 4, "score": 5, "confidence": "high" },
+        "collaboration": { "position": 5, "score": 2, "confidence": "medium" },
+        "embodiment": { "position": 6, "score": 0, "confidence": "high" },
+        "explainability": { "position": 7, "score": 4, "confidence": "high" },
+        "safety": { "position": 8, "score": 4, "confidence": "high" },
+        "interoperability": { "position": 9, "score": 4, "confidence": "high" },
+        "costEfficiency": { "position": 10, "score": 3, "confidence": "medium" },
+        "domainAlignment": { "position": 11, "score": 4, "confidence": "high" }
       },
       "toolRequirements": {
         "query_database": {
           "minimumClientProfile": {
             "reasoning": 2,
-            "domainAlignment": 3
+            "domainAlignment": 3,
+            "safety": 3
           },
           "riskLevel": "low"
         },
         "modify_schema": {
           "minimumClientProfile": {
             "reasoning": 4,
-            "domainAlignment": 4
+            "domainAlignment": 4,
+            "explainability": 3,
+            "safety": 4
           },
           "riskLevel": "high",
           "requiresApproval": true
@@ -189,7 +212,7 @@ a-CMM metadata annotates MCP server manifests to describe the capability require
 
 ```mermaid
 flowchart TD
-    Client["AI Agent<br/>a-CMM: [4,4,2,3,5,3,0,4]"] --> Request["Request: modify_schema"]
+    Client["AI Agent<br/>a-CMM: [4,4,4,3,5,3,0,4,3,4,2,4]"] --> Request["Request: modify_schema"]
     Request --> Check{"Agent meets<br/>minimum profile?<br/>reasoning>=4, alignment>=4"}
     Check -->|Yes| Execute["Execute tool"]
     Check -->|No| Deny["Deny access<br/>Suggest alternatives"]
@@ -246,32 +269,54 @@ For any protocol, a-CMM provides a standard JSON block that can be embedded:
 
 ```json
 {
-  "aicmm": "0.1.0",
-  "profile": [4, 4, 2, 3, 5, 3, 0, 4],
+  "aicmm": "0.2.0",
+  "profile": [4, 4, 4, 3, 5, 3, 0, 4, 3, 4, 2, 4],
   "compliant": true
 }
 ```
 
-The array order is always: `[autonomy, reasoning, learning, memory, toolUse, collaboration, embodiment, domainAlignment]`
+The array order is always: `[autonomy, reasoning, memory, learning, toolUse, collaboration, embodiment, explainability, safety, interoperability, costEfficiency, domainAlignment]`
 
 ### Full Embedding (Reference)
 
 ```json
 {
   "aicmm": {
-    "schemaVersion": "0.1.0",
+    "schemaVersion": "0.2.0",
+    "_dimensionSchema": "level0-v0.2",
     "cardUrl": "https://agent.example.com/aicmm-card.json",
     "capabilityProfile": {
-      "autonomy": 4,
-      "reasoning": 4,
-      "learning": 2,
-      "memory": 3,
-      "toolUse": 5,
-      "collaboration": 3,
-      "embodiment": 0,
-      "domainAlignment": 4
+      "autonomy": { "position": 0, "score": 4, "confidence": "high" },
+      "reasoning": { "position": 1, "score": 4, "confidence": "high" },
+      "memory": { "position": 2, "score": 4, "confidence": "medium" },
+      "learning": { "position": 3, "score": 3, "confidence": "medium" },
+      "toolUse": { "position": 4, "score": 5, "confidence": "high" },
+      "collaboration": { "position": 5, "score": 3, "confidence": "medium" },
+      "embodiment": { "position": 6, "score": 0, "confidence": "high" },
+      "explainability": { "position": 7, "score": 4, "confidence": "medium" },
+      "safety": { "position": 8, "score": 3, "confidence": "high" },
+      "interoperability": { "position": 9, "score": 4, "confidence": "medium" },
+      "costEfficiency": { "position": 10, "score": 2, "confidence": "medium" },
+      "domainAlignment": { "position": 11, "score": 4, "confidence": "high" }
     },
-    "governanceCompliant": true,
+    "level1Profile": {
+      "domain": "manufacturing",
+      "dimensions": {
+        "processReliability": 4,
+        "operatorSafety": 4,
+        "workflowIntegration": 5,
+        "traceability": 4,
+        "equipmentCoordination": 4,
+        "qualityControl": 4,
+        "downtimeResilience": 3,
+        "humanOverride": 5
+      }
+    },
+    "governanceValidation": {
+      "passed": true,
+      "rulesChecked": 7,
+      "violations": []
+    },
     "category": "digital",
     "assessedDate": "2026-05-24"
   }
@@ -303,7 +348,7 @@ For protocol implementers who want to incorporate a-CMM:
 1. **Add a-CMM extension field** to your agent/tool metadata schema
 2. **Validate profiles** against `agent-card.schema.json` on ingestion
 3. **Implement capability matching** — compare task requirements to agent profiles
-4. **Add governance checks** — enforce Autonomy <= Alignment + 1 rule
+4. **Add governance checks** — enforce the 7 Level 0 governance rules during routing and execution
 5. **Log a-CMM metadata** in audit trails for compliance
 6. **Expose profiles in discovery** — allow clients to filter agents by capability
 7. **Support progressive access** — unlock features as agents mature

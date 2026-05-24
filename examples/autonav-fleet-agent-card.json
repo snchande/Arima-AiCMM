@@ -1,0 +1,218 @@
+{
+  "schemaVersion": "0.2.0",
+  "agent": {
+    "name": "AutoNav Fleet Commander",
+    "version": "5.0.0",
+    "vendor": "TransportAI Corp",
+    "description": "Autonomous fleet management agent for urban delivery vehicles. Coordinates route planning, real-time obstacle avoidance, traffic optimization, and vehicle health monitoring across a fleet of 500+ autonomous delivery vans.",
+    "category": "embodied",
+    "url": "https://example.com/autonav-fleet"
+  },
+  "avatar": {
+    "archetype": "Strategic Commander",
+    "tagline": "A fleet-scale intelligence that sees every road, predicts every delay, and orchestrates hundreds of vehicles like a symphony conductor",
+    "personality": ["strategic", "adaptive", "safety-first", "efficient"],
+    "visualTraits": {
+      "form": "Hexagonal command badge with road network overlay",
+      "palette": ["#4f46e5", "#818cf8", "#c7d2fe"],
+      "symbol": "Network of connected vehicles radiating from central node",
+      "style": "Military precision meets urban mobility"
+    },
+    "strengths": [
+      "Coordinates 500+ vehicles in real-time",
+      "Reduces delivery time by 35% through dynamic routing",
+      "Predicts traffic patterns 30 minutes ahead",
+      "Zero collision record in 2 years of operation"
+    ],
+    "weaknesses": [
+      "Degraded performance in unmapped areas",
+      "Requires high-bandwidth connectivity for fleet coordination",
+      "Cannot handle extreme weather beyond sensor limits",
+      "Limited ability to interact with pedestrians or resolve social situations"
+    ]
+  },
+  "capabilityProfile": {
+    "_dimensionSchema": "level0-v0.2",
+    "autonomy": {
+      "position": 0,
+      "score": 4,
+      "confidence": "high",
+      "evidence": "Fully autonomous route planning and execution. Self-recovers from road closures. Requests human intervention only for policy exceptions (restricted zones, unusual cargo). Fleet-level decisions are autonomous within parameters."
+    },
+    "reasoning": {
+      "position": 1,
+      "score": 4,
+      "confidence": "high",
+      "evidence": "Multi-objective optimization (time, cost, safety, battery). Handles conflicting constraints. Plans around predicted events. Cannot reason about novel social situations."
+    },
+    "memory": {
+      "position": 2,
+      "score": 4,
+      "confidence": "high",
+      "evidence": "Maintains historical road performance data. Remembers construction zones, difficult intersections, and timing patterns. Spatial-temporal knowledge graph of entire operating area."
+    },
+    "learning": {
+      "position": 3,
+      "score": 4,
+      "confidence": "medium",
+      "evidence": "Continuous learning from fleet driving data. Adapts routes based on new patterns. Improves prediction models weekly. Requires validation before deploying learned behaviors to fleet."
+    },
+    "toolUse": {
+      "position": 4,
+      "score": 4,
+      "confidence": "high",
+      "evidence": "Integrates with traffic APIs, weather services, mapping systems, vehicle telematics, charging infrastructure, and dispatch systems. Creates custom route optimizations by composing multiple data sources."
+    },
+    "collaboration": {
+      "position": 5,
+      "score": 3,
+      "confidence": "medium",
+      "evidence": "Vehicle-to-vehicle coordination for convoy formation. Communicates with dispatch human operators. Limited V2X (vehicle-to-infrastructure) in equipped areas. No pedestrian interaction capability."
+    },
+    "embodiment": {
+      "position": 6,
+      "score": 5,
+      "confidence": "high",
+      "evidence": "Full spatial awareness via LiDAR, cameras, radar, and ultrasonic sensors. Precise vehicle control (steering, acceleration, braking). Multi-vehicle fleet with physical presence on roads."
+    },
+    "explainability": {
+      "position": 7,
+      "score": 3,
+      "confidence": "medium",
+      "evidence": "Provides route choice rationale. Logs all decision points. Post-incident replay with decision explanations. Real-time explanations limited during active driving."
+    },
+    "safety": {
+      "position": 8,
+      "score": 5,
+      "confidence": "high",
+      "evidence": "Redundant perception systems. Fail-safe to controlled stop. ISO 26262 ASIL-D certified. Continuous self-diagnostics. Geofencing for operational boundaries. Formal verification of critical path decisions."
+    },
+    "interoperability": {
+      "position": 9,
+      "score": 3,
+      "confidence": "medium",
+      "evidence": "Standard mapping formats (OpenStreetMap, HERE). V2X DSRC and C-V2X protocols. Proprietary fleet management protocol. No A2A or MCP support."
+    },
+    "costEfficiency": {
+      "position": 10,
+      "score": 4,
+      "confidence": "high",
+      "evidence": "Optimizes for energy consumption vs delivery speed. Dynamic charging scheduling during off-peak. Fleet utilization tracking. Cost-per-delivery metrics with continuous optimization."
+    },
+    "domainAlignment": {
+      "position": 11,
+      "score": 5,
+      "confidence": "high",
+      "evidence": "DOT autonomous vehicle certification. NHTSA safety standards compliance. Full operational design domain (ODD) documentation. Geo-fenced to approved routes. Regulatory reporting automated."
+    }
+  },
+  "level1Profile": {
+    "domain": "transportation",
+    "domainVersion": "1.0.0",
+    "dimensions": {
+      "navigationAccuracy": {
+        "position": 0,
+        "score": 5,
+        "confidence": "high",
+        "evidence": "Sub-meter positioning accuracy via RTK-GPS + HD mapping. Lane-level precision. 99.99% route completion rate without human intervention."
+      },
+      "obstacleDetection": {
+        "position": 1,
+        "score": 5,
+        "confidence": "high",
+        "evidence": "360° perception from LiDAR + camera + radar fusion. Detects pedestrians at 200m, cyclists at 150m, small objects at 80m. Zero false-negative critical obstacles in testing."
+      },
+      "passengerCargoSafety": {
+        "position": 2,
+        "score": 4,
+        "confidence": "high",
+        "evidence": "Cargo securing verification via in-vehicle cameras. Smooth driving profile for fragile items. Temperature monitoring for perishables. No passenger transport capability."
+      },
+      "trafficRuleCompliance": {
+        "position": 3,
+        "score": 5,
+        "confidence": "high",
+        "evidence": "100% traffic signal compliance. Speed limit adherence. Yield and priority rule following. Zero traffic violations in 2-year deployment across 3 cities."
+      },
+      "environmentalPerception": {
+        "position": 4,
+        "score": 4,
+        "confidence": "medium",
+        "evidence": "Handles rain, light snow, fog up to defined thresholds. Night driving with IR cameras. Pulls over in extreme conditions (heavy snow, flooding, ice storms)."
+      },
+      "routeOptimization": {
+        "position": 5,
+        "score": 5,
+        "confidence": "high",
+        "evidence": "Real-time traffic integration. Predictive congestion modeling. Multi-stop optimization (TSP with constraints). 35% improvement over static routing."
+      },
+      "v2xCommunication": {
+        "position": 6,
+        "score": 3,
+        "confidence": "medium",
+        "evidence": "DSRC-equipped for traffic signal priority in 40% of operating area. C-V2X basic safety messages. Limited by infrastructure availability."
+      },
+      "emergencyResponse": {
+        "position": 7,
+        "score": 4,
+        "confidence": "high",
+        "evidence": "Automatic emergency braking. Controlled stop in safe location on system failure. Emergency vehicle detection and yielding. Automated incident reporting to fleet operations."
+      }
+    }
+  },
+  "governanceValidation": {
+    "rules": [
+      {"rule": "Autonomy Gap", "constraint": "Autonomy(0) <= DomainAlignment(11) + 1", "result": "PASS", "values": "4 <= 6"},
+      {"rule": "Explainability Gate", "constraint": "Autonomy(0) >= 4 requires Explainability(7) >= 3", "result": "PASS", "values": "4, 3"},
+      {"rule": "Embodiment Safety", "constraint": "Embodiment(6) >= 3 requires Safety(8) >= 4", "result": "PASS", "values": "5, 5"},
+      {"rule": "Tool Oversight", "constraint": "ToolUse(4) >= 4 requires DomainAlignment(11) >= 3", "result": "PASS", "values": "4, 5"},
+      {"rule": "Cost Awareness", "constraint": "Autonomy(0) >= 4 requires CostEfficiency(10) >= 2", "result": "PASS", "values": "4, 4"},
+      {"rule": "Reasoning Foundation", "constraint": "Autonomy(0) >= 4 requires Reasoning(1) >= 3", "result": "PASS", "values": "4, 4"}
+    ],
+    "overallCompliant": true
+  },
+  "tools": [
+    "LiDAR Point Cloud Processor", "Camera Vision Pipeline",
+    "Radar Fusion Engine", "HD Map Service", "Traffic API (HERE, TomTom)",
+    "Weather Service", "Fleet Telematics Platform", "Charging Station API"
+  ],
+  "skills": [
+    "Autonomous Navigation", "Fleet Coordination", "Route Optimization",
+    "Obstacle Avoidance", "Energy Management", "Predictive Maintenance",
+    "Traffic Pattern Analysis", "Emergency Maneuver Execution"
+  ],
+  "plugins": [
+    "Convoy Formation Module",
+    "Last-Mile Delivery Optimizer",
+    "Construction Zone Navigator",
+    "School Zone Safety Override"
+  ],
+  "agentRelationships": {
+    "delegatesTo": [
+      "perception-agent (per-vehicle sensor fusion)",
+      "route-planner (individual vehicle pathfinding)",
+      "charging-scheduler (fleet energy management)"
+    ],
+    "usedBy": [
+      "City Traffic Management Center",
+      "Logistics Platform (customer-facing delivery tracking)",
+      "Fleet Maintenance System"
+    ],
+    "dependsOn": [
+      "HD Map Provider — centimeter-accurate road models",
+      "RTK-GPS Network — precise positioning",
+      "5G Network — low-latency fleet coordination"
+    ]
+  },
+  "assessmentMetadata": {
+    "assessedBy": "Autonomous Vehicle Safety Board",
+    "assessedDate": "2026-05-24",
+    "methodology": "AiCMM Level 0+1 v0.2 - Evidence from DOT certification, 2-year deployment data, ISO 26262 assessment",
+    "evidenceSources": [
+      "DOT AV Testing Report (2025-2026)",
+      "ISO 26262 ASIL-D Certification Package",
+      "2-year Fleet Safety Report (3 cities, 12M miles)",
+      "NHTSA Standing General Order compliance filing"
+    ]
+  }
+}

@@ -1,23 +1,31 @@
 # AiCMM Project Instructions
 
-You are working on the **Agent Capability Maturity Model (a-CMM)** project — an open-source Java framework for classifying AI agent capabilities across 8 dimensions (scored 0-5).
+You are working on the **Agent Capability Maturity Model (a-CMM)** project — an open-source Java framework for classifying AI agent capabilities across 12 dimensions (Level 0) + domain-specific Level 1 scoring.
 
 ## You Are: aicmm-project-agent
 
 A specialized agent for all AiCMM framework tasks: development, agent classification, capability profiling, Agent Card creation, and catalog management.
 
-## The 8 Dimensions
+## Level 0 — 12 Universal Dimensions
 
-| # | Dimension | Key Question |
-|---|-----------|--------------|
-| 1 | Autonomy | How self-directed is it? |
-| 2 | Reasoning & Planning | Can it solve problems under uncertainty? |
-| 3 | Learning & Adaptation | Does it improve from experience safely? |
-| 4 | Memory & Context | Does it retain and use information over time? |
-| 5 | Tool Use & Integration | Can it orchestrate tools and handle failures? |
-| 6 | Collaboration & Social | Does it coordinate with humans/agents? |
-| 7 | Embodiment | Does it interact with the physical world? |
-| 8 | Domain Alignment | Is it compliant, safe, auditable, deployable? |
+| Group | Pos | Dimension | Key Question |
+|---|---:|-----------|--------------|
+| Cognitive Core | 0 | Autonomy | How self-directed is it? |
+| Cognitive Core | 1 | Reasoning & Planning | Can it solve problems under uncertainty? |
+| Cognitive Core | 2 | Memory & Context | Does it retain and use information over time? |
+| Cognitive Core | 3 | Learning & Adaptation | Does it improve from experience safely? |
+| Action & Integration | 4 | Tool Use & Integration | Can it orchestrate tools and handle failures? |
+| Action & Integration | 5 | Collaboration & Social Intelligence | Coordination with humans/agents, empathy, inclusivity |
+| Action & Integration | 6 | Embodiment | Does it interact with the physical world? |
+| Trust & Deployment | 7 | Explainability & Transparency | Can it justify actions and support review? |
+| Trust & Deployment | 8 | Safety & Containment | Can it operate within safe bounded controls? |
+| Trust & Deployment | 9 | Interoperability | Can it work across protocols and agent ecosystems? |
+| Trust & Deployment | 10 | Cost Efficiency | Can it stay resource-aware and economical? |
+| Trust & Deployment | 11 | Domain Alignment | Is it compliant, safe, auditable, deployable? |
+
+## Level 1 — Domain-Specific Scoring
+
+Use Level 1 radar charts for domains such as Healthcare, Transportation, Finance, and Manufacturing. These are drill-downs layered on top of Level 0, not replacements for it.
 
 ## Scoring Levels (0-5)
 
@@ -32,16 +40,19 @@ A specialized agent for all AiCMM framework tasks: development, agent classifica
 
 ## Governance Rules (CRITICAL)
 
-- Autonomy must NOT exceed Domain Alignment + 1
-- Embodiment >= 3 requires Alignment >= 3
-- Tool Use >= 4 requires Alignment >= 3
+- Autonomy >= 4 requires Reasoning >= 4
+- Autonomy >= 4 requires Explainability >= 3
+- Embodiment >= 3 requires Safety >= 4
+- Collaboration >= 4 requires Interoperability >= 3
+- Autonomy >= 4 requires Cost Efficiency >= 2
+- Autonomy >= 4 requires Domain Alignment >= 3
 - Autonomy >= 4 requires Reasoning >= 3
 
 ## Key Skills
 
 - **agent-card-creation** — Generate Agent Cards from descriptions/URLs
 - **agent-inspection** — Inspect agents to gather capability evidence
-- **aicmm-scoring** — Score agents using the 8-dimension rubric
+- **aicmm-scoring** — Score agents using the 12-dimension rubric
 - **catalog-management** — Manage the Agent Card catalog
 - **article-to-markdown** — Convert articles to Markdown
 - **pdf-text-extraction** — Extract text from PDFs
@@ -51,7 +62,8 @@ A specialized agent for all AiCMM framework tasks: development, agent classifica
 
 ### Agent Card Creation
 - Inspect agent from URL or description
-- Score 8 dimensions with evidence
+- Score 12 Level 0 dimensions with evidence
+- Add Level 1 domain scoring when deployment context requires it
 - Generate avatar (archetype, personality, strengths, weaknesses)
 - Add tools, skills, plugins, MCP connections
 - Document agent relationships (delegatesTo, usedBy, dependsOn)

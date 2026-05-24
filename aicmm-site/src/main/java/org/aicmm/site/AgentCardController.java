@@ -268,7 +268,7 @@ public class AgentCardController {
         html.append("<h4 class='score-group-label'>Action & Integration (Positions 4-6)</h4>");
         String[][] actDims = {
             {"toolUse", "4 — Tool Use & Integration", "Orchestrating external tools and APIs"},
-            {"collaboration", "5 — Collaboration & Social", "Coordination with humans and other agents"},
+            {"collaboration", "5 — Collaboration & Social Intelligence", "Coordination with humans/agents, empathy, age-appropriate communication, inclusivity"},
             {"embodiment", "6 — Embodiment", "Physical/virtual presence (0 for software-only)"}
         };
         for (String[] dim : actDims) {
@@ -398,13 +398,50 @@ public class AgentCardController {
                 html.append("</section>");
             }
 
-            // Radar Chart
+            // Radar Chart - Level 0
             if (node.has("capabilityProfile")) {
                 html.append("<section class='card-section'>");
-                html.append("<h2>Capability Fingerprint</h2>");
+                html.append("<h2>Level 0 — Universal Capability Fingerprint</h2>");
+                html.append("<p class='section-subtitle'>12 dimensions across Cognitive Core, Action & Integration, and Trust & Deployment</p>");
                 html.append("<div class='radar-chart' id='radar-chart' data-profile='")
                         .append(mapper.writeValueAsString(node.get("capabilityProfile")))
                         .append("'></div>");
+                html.append("</section>");
+            }
+
+            // Radar Chart - Level 1 (Domain-Specific)
+            if (node.has("level1Profile")) {
+                JsonNode l1 = node.get("level1Profile");
+                String domain = l1.path("domain").asText("domain");
+                html.append("<section class='card-section level1-section'>");
+                html.append("<h2>Level 1 — ").append(escapeHtml(domain.substring(0, 1).toUpperCase() + domain.substring(1))).append(" Domain Deep-Dive</h2>");
+                html.append("<p class='section-subtitle'>Domain-specific dimensions with specialized scoring criteria</p>");
+                html.append("<div class='level1-radar-chart' data-level1='")
+                        .append(escapeHtml(mapper.writeValueAsString(l1)))
+                        .append("'></div>");
+                html.append("</section>");
+            }
+
+            // Governance Validation
+            if (node.has("governanceValidation")) {
+                JsonNode gov = node.get("governanceValidation");
+                boolean compliant = gov.path("overallCompliant").asBoolean(false);
+                html.append("<section class='card-section'>");
+                html.append("<h2>Governance Validation</h2>");
+                html.append("<div class='governance-badge ").append(compliant ? "compliant" : "non-compliant").append("'>");
+                html.append(compliant ? "✓ ALL RULES PASSED" : "✗ GOVERNANCE VIOLATION");
+                html.append("</div>");
+                if (gov.has("rules")) {
+                    html.append("<table class='governance-table'><thead><tr><th>Rule</th><th>Constraint</th><th>Result</th></tr></thead><tbody>");
+                    gov.get("rules").forEach(rule -> {
+                        String result = rule.path("result").asText("");
+                        String cls = "PASS".equals(result) ? "pass" : "N/A".equals(result) ? "na" : "fail";
+                        html.append("<tr><td>").append(escapeHtml(rule.path("rule").asText("")))
+                                .append("</td><td><code>").append(escapeHtml(rule.path("constraint").asText("")))
+                                .append("</code></td><td class='gov-").append(cls).append("'>").append(result).append("</td></tr>");
+                    });
+                    html.append("</tbody></table>");
+                }
                 html.append("</section>");
             }
 
@@ -554,7 +591,7 @@ public class AgentCardController {
             case "memory" -> "Memory";
             case "learning" -> "Learning";
             case "toolUse" -> "Tool Use";
-            case "collaboration" -> "Collaboration";
+            case "collaboration" -> "Social Intelligence";
             case "embodiment" -> "Embodiment";
             case "explainability" -> "Explainability";
             case "safety" -> "Safety";

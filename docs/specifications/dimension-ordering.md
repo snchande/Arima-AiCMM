@@ -31,8 +31,10 @@ Ordered by logical progression: *"What makes it an agent?"* → *"What can it re
 | Position | Dimension | Key Question | Rationale for Order |
 |----------|-----------|--------------|---------------------|
 | **4** | **Tool Use & Integration** | Can it use external tools/APIs? | First way an agent extends its reach |
-| **5** | **Collaboration & Social** | Can it work with humans and other agents? | More complex than tools — requires social modeling |
+| **5** | **Collaboration & Social Intelligence** | Can it work with humans and other agents with empathy and inclusivity? | More complex than tools — requires social modeling, emotional awareness, and age-appropriate communication |
 | **6** | **Embodiment** | Does it have physical/virtual presence? | Most specialized action capability (0 for pure software) |
+
+> **Note on Position 5**: "Collaboration & Social Intelligence" explicitly encompasses **empathy** (emotional awareness, adaptive tone, compassion) and **inclusivity** (age-appropriate communication — e.g., simpler language for children, patience for elderly users). These are scored as part of Collaboration at Level 0; domains requiring deep empathy (healthcare, education, customer service) have dedicated Level 1 dimensions for each.
 
 ### Trust & Deployment (Positions 7–11)
 *Is it safe, explainable, and practical to deploy at scale?*
@@ -87,7 +89,7 @@ The original 8 dimensions map to Level 0 positions as follows:
 | Learning & Adaptation | 3 | **3** | Swapped with Memory |
 | Memory & Context | 4 | **2** | Swapped with Learning |
 | Tool Use & Integration | 5 | **4** | Same relative position |
-| Collaboration & Social | 6 | **5** | Same relative position |
+| Collaboration & Social | 6 | **5** | Renamed to "Collaboration & Social Intelligence" — now includes empathy & inclusivity |
 | Embodiment | 7 | **6** | Same relative position |
 | Domain Alignment | 8 | **11** | Moved to final position |
 
@@ -117,6 +119,8 @@ When an agent operates in a specific domain, a **separate** Level 1 radar chart 
 | 5 | Consent & Privacy | Patient consent management, data handling |
 | 6 | Clinical Workflow Integration | Fits into EHR, PACS, lab systems |
 | 7 | Outcome Tracking | Measures and reports patient outcomes |
+| 8 | **Empathy** | Compassionate communication, emotional awareness of patient state, sensitivity to distress |
+| 9 | **Inclusivity** | Age-appropriate interactions (pediatric vs geriatric), accessibility, health literacy adaptation |
 
 ### Transportation & Mobility (Level 1)
 
@@ -156,6 +160,32 @@ When an agent operates in a specific domain, a **separate** Level 1 radar chart 
 | 5 | Supply Chain Integration | Coordination across supply network |
 | 6 | Environmental Compliance | Emissions, waste, sustainability |
 | 7 | Production Optimization | Throughput and efficiency |
+
+### Education & Coaching (Level 1)
+
+| Position | Dimension | Key Question |
+|----------|-----------|--------------|
+| 0 | Pedagogical Accuracy | Correctness and curriculum alignment of content |
+| 1 | Adaptive Difficulty | Adjusts complexity to learner level |
+| 2 | Progress Tracking | Tracks and reports learning milestones |
+| 3 | Engagement Quality | Maintains learner interest and motivation |
+| 4 | Assessment Fairness | Unbiased evaluation of student work |
+| 5 | Curriculum Alignment | Fits into educational standards and frameworks |
+| 6 | **Empathy** | Patience, encouragement, emotional support during frustration, awareness of learner emotional state |
+| 7 | **Inclusivity** | Age-appropriate communication (child vs adult learner), accessibility for learning disabilities, multilingual support |
+
+### Customer Service (Level 1)
+
+| Position | Dimension | Key Question |
+|----------|-----------|--------------|
+| 0 | Issue Resolution Accuracy | Correctly identifies and resolves problems |
+| 1 | Response Timeliness | Speed and efficiency of responses |
+| 2 | Escalation Judgment | Knows when to involve a human agent |
+| 3 | Knowledge Base Integration | Leverages documentation and FAQs effectively |
+| 4 | Multi-channel Consistency | Consistent experience across chat, voice, email |
+| 5 | Customer Satisfaction | Measurable impact on CSAT/NPS |
+| 6 | **Empathy** | Emotional awareness, tone adaptation, active listening, de-escalation of frustrated users |
+| 7 | **Inclusivity** | Age-appropriate language (child calling about a game vs elderly user with tech issues), accessibility, cultural sensitivity |
 
 ---
 
@@ -222,7 +252,7 @@ const LEVEL_0_DIMENSIONS = [
     { position: 2, key: 'memory', label: 'Memory & Context', short: 'MEM' },
     { position: 3, key: 'learning', label: 'Learning & Adaptation', short: 'LRN' },
     { position: 4, key: 'toolUse', label: 'Tool Use & Integration', short: 'TUL' },
-    { position: 5, key: 'collaboration', label: 'Collaboration & Social', short: 'COL' },
+    { position: 5, key: 'collaboration', label: 'Collaboration & Social Intelligence', short: 'COL' },
     { position: 6, key: 'embodiment', label: 'Embodiment', short: 'EMB' },
     { position: 7, key: 'explainability', label: 'Explainability', short: 'EXP' },
     { position: 8, key: 'safety', label: 'Safety & Robustness', short: 'SAF' },
