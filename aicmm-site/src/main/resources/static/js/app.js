@@ -17,6 +17,51 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /**
+ * Level 0 Dimensions — Fixed positions (0..11), NEVER reorder.
+ * Progression: Cognitive Core → Action & Integration → Trust & Deployment
+ */
+const LEVEL_0_DIMENSIONS = [
+    { position: 0,  key: 'autonomy',         label: 'Autonomy',         short: 'AUT', color: '#2563eb' },
+    { position: 1,  key: 'reasoning',        label: 'Reasoning',        short: 'REA', color: '#7c3aed' },
+    { position: 2,  key: 'memory',           label: 'Memory',           short: 'MEM', color: '#d97706' },
+    { position: 3,  key: 'learning',         label: 'Learning',         short: 'LRN', color: '#059669' },
+    { position: 4,  key: 'toolUse',          label: 'Tool Use',         short: 'TUL', color: '#dc2626' },
+    { position: 5,  key: 'collaboration',    label: 'Collaboration',    short: 'COL', color: '#0891b2' },
+    { position: 6,  key: 'embodiment',       label: 'Embodiment',       short: 'EMB', color: '#4f46e5' },
+    { position: 7,  key: 'explainability',   label: 'Explainability',   short: 'EXP', color: '#ea580c' },
+    { position: 8,  key: 'safety',           label: 'Safety',           short: 'SAF', color: '#be123c' },
+    { position: 9,  key: 'interoperability', label: 'Interoperability', short: 'INT', color: '#0d9488' },
+    { position: 10, key: 'costEfficiency',   label: 'Cost Efficiency',  short: 'CST', color: '#ca8a04' },
+    { position: 11, key: 'domainAlignment',  label: 'Domain Align.',    short: 'DOM', color: '#15803d' }
+];
+
+/**
+ * Returns the active dimensions from a profile (scored or all Level 0).
+ * Handles both legacy 8-dim profiles and new 12-dim profiles.
+ */
+function getActiveDimensions(profile) {
+    // Check which dimensions have scores in the profile
+    const scored = LEVEL_0_DIMENSIONS.filter(dim => {
+        const val = profile[dim.key];
+        return val !== undefined && val !== null;
+    });
+    // If profile has fewer than 9 dimensions scored, return only scored ones (backward compat)
+    if (scored.length > 0 && scored.length < 9) {
+        return scored;
+    }
+    // Otherwise return all Level 0 dimensions
+    return LEVEL_0_DIMENSIONS;
+}
+
+/**
+ * Fixed angle for a dimension position — NEVER changes regardless of total dimensions shown.
+ * Position 0 is always at 12 o'clock (top), proceeding clockwise.
+ */
+function getDimensionAngle(position, totalDimensions) {
+    return (position * (2 * Math.PI / totalDimensions)) - Math.PI / 2;
+}
+
+/**
  * Renders an SVG avatar based on the agent's capability profile.
  * Creates an octagonal badge with dimension-based visual encoding.
  */
@@ -25,16 +70,8 @@ function renderAvatarVisual(container) {
     const name = container.getAttribute('data-name') || 'Agent';
     const archetype = container.getAttribute('data-archetype') || '';
 
-    const dimensions = [
-        { key: 'autonomy', label: 'A', color: '#2563eb' },
-        { key: 'reasoning', label: 'R', color: '#7c3aed' },
-        { key: 'learning', label: 'L', color: '#059669' },
-        { key: 'memory', label: 'M', color: '#d97706' },
-        { key: 'toolUse', label: 'T', color: '#dc2626' },
-        { key: 'collaboration', label: 'C', color: '#0891b2' },
-        { key: 'embodiment', label: 'E', color: '#4f46e5' },
-        { key: 'domainAlignment', label: 'D', color: '#15803d' }
-    ];
+    const dimensions = getActiveDimensions(profile);
+    const numDims = dimensions.length;
 
     const size = 200;
     const center = size / 2;
@@ -43,22 +80,22 @@ function renderAvatarVisual(container) {
 
     let svg = `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
 
-    // Background octagon
-    const angleStep = (2 * Math.PI) / 8;
+    // Background polygon
+    const angleStep = (2 * Math.PI) / numDims;
     let octPoints = [];
-    for (let i = 0; i < 8; i++) {
-        const angle = angleStep * i - Math.PI / 2;
+    for (let i = 0; i < numDims; i++) {
+        const angle = getDimensionAngle(i, numDims);
         octPoints.push(`${center + outerR * Math.cos(angle)},${center + outerR * Math.sin(angle)}`);
     }
     svg += `<polygon points="${octPoints.join(' ')}" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="2"/>`;
 
-    // Capability petals - each dimension creates a "petal" whose size represents the score
+    // Capability petals
     dimensions.forEach((dim, i) => {
         const score = profile[dim.key]?.score ?? 0;
         if (score === 0) return;
 
-        const angle = angleStep * i - Math.PI / 2;
-        const nextAngle = angleStep * ((i + 1) % 8) - Math.PI / 2;
+        const angle = getDimensionAngle(i, numDims);
+        const nextAngle = getDimensionAngle((i + 1) % numDims, numDims);
         const petalR = innerR + (outerR - innerR) * (score / 5);
 
         const x1 = center + innerR * Math.cos(angle);
@@ -84,11 +121,11 @@ function renderAvatarVisual(container) {
     // Score labels around the edge
     dimensions.forEach((dim, i) => {
         const score = profile[dim.key]?.score ?? 0;
-        const angle = angleStep * i - Math.PI / 2;
+        const angle = getDimensionAngle(i, numDims);
         const labelR = outerR + 12;
         const lx = center + labelR * Math.cos(angle);
         const ly = center + labelR * Math.sin(angle);
-        svg += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" font-size="9" font-weight="600" fill="${dim.color}">${dim.label}${score}</text>`;
+        svg += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" font-size="9" font-weight="600" fill="${dim.color}">${dim.short}${score}</text>`;
     });
 
     svg += '</svg>';
@@ -97,19 +134,12 @@ function renderAvatarVisual(container) {
 
 /**
  * Renders a simple SVG radar chart for an agent capability profile.
+ * Uses fixed dimension positions from LEVEL_0_DIMENSIONS.
  */
 function renderRadarChart(container, mini = false) {
     const profile = JSON.parse(container.getAttribute('data-profile'));
-    const dimensions = [
-        { key: 'autonomy', label: 'Autonomy' },
-        { key: 'reasoning', label: 'Reasoning' },
-        { key: 'learning', label: 'Learning' },
-        { key: 'memory', label: 'Memory' },
-        { key: 'toolUse', label: 'Tool Use' },
-        { key: 'collaboration', label: 'Collaboration' },
-        { key: 'embodiment', label: 'Embodiment' },
-        { key: 'domainAlignment', label: 'Domain Align.' }
-    ];
+    const dimensions = getActiveDimensions(profile);
+    const numDims = dimensions.length;
 
     const size = mini ? 200 : 400;
     const center = size / 2;
@@ -126,10 +156,9 @@ function renderRadarChart(container, mini = false) {
         if (!mini) svg += `<text x="${center + 4}" y="${center - r + 4}" font-size="9" fill="#94a3b8">${i}</text>`;
     }
 
-    // Draw axes and labels
-    const angleStep = (2 * Math.PI) / dimensions.length;
+    // Draw axes and labels using fixed positions
     dimensions.forEach((dim, i) => {
-        const angle = angleStep * i - Math.PI / 2;
+        const angle = getDimensionAngle(i, numDims);
         const x = center + maxRadius * Math.cos(angle);
         const y = center + maxRadius * Math.sin(angle);
         svg += `<line x1="${center}" y1="${center}" x2="${x}" y2="${y}" stroke="#e2e8f0" stroke-width="1"/>`;
@@ -144,13 +173,24 @@ function renderRadarChart(container, mini = false) {
 
     // Draw the capability polygon
     let points = [];
+    let nullPoints = []; // Track unscored dimensions for dashed display
     dimensions.forEach((dim, i) => {
-        const score = profile[dim.key]?.score ?? 0;
-        const angle = angleStep * i - Math.PI / 2;
-        const r = (maxRadius / levels) * score;
-        const x = center + r * Math.cos(angle);
-        const y = center + r * Math.sin(angle);
-        points.push(`${x},${y}`);
+        const val = profile[dim.key];
+        const score = (val !== null && val !== undefined) ? (val.score ?? val) : null;
+        const angle = getDimensionAngle(i, numDims);
+
+        if (score === null) {
+            // Unscored dimension — don't plot (leave at center)
+            const x = center;
+            const y = center;
+            points.push(`${x},${y}`);
+            nullPoints.push(i);
+        } else {
+            const r = (maxRadius / levels) * score;
+            const x = center + r * Math.cos(angle);
+            const y = center + r * Math.sin(angle);
+            points.push(`${x},${y}`);
+        }
     });
 
     svg += `<polygon points="${points.join(' ')}" fill="rgba(37, 99, 235, 0.15)" stroke="#2563eb" stroke-width="${mini ? 1.5 : 2.5}"/>`;
@@ -158,23 +198,33 @@ function renderRadarChart(container, mini = false) {
     // Draw score dots
     if (!mini) {
         dimensions.forEach((dim, i) => {
-            const score = profile[dim.key]?.score ?? 0;
-            const angle = angleStep * i - Math.PI / 2;
+            const val = profile[dim.key];
+            const score = (val !== null && val !== undefined) ? (val.score ?? val) : null;
+            if (score === null) return; // Skip unscored
+            const angle = getDimensionAngle(i, numDims);
             const r = (maxRadius / levels) * score;
             const x = center + r * Math.cos(angle);
             const y = center + r * Math.sin(angle);
-            svg += `<circle cx="${x}" cy="${y}" r="5" fill="#2563eb" stroke="white" stroke-width="2"/>`;
-            svg += `<text x="${x}" y="${y - 12}" text-anchor="middle" font-size="12" font-weight="bold" fill="#1d4ed8">${score}</text>`;
+            svg += `<circle cx="${x}" cy="${y}" r="5" fill="${dim.color}" stroke="white" stroke-width="2"/>`;
+            svg += `<text x="${x}" y="${y - 12}" text-anchor="middle" font-size="12" font-weight="bold" fill="${dim.color}">${score}</text>`;
         });
     }
 
-    // Total score in center
-    const total = dimensions.reduce((sum, dim) => sum + (profile[dim.key]?.score ?? 0), 0);
-    const avg = (total / dimensions.length).toFixed(1);
+    // Total score in center (only count scored dimensions)
+    const scored = dimensions.filter(dim => {
+        const val = profile[dim.key];
+        return val !== null && val !== undefined;
+    });
+    const total = scored.reduce((sum, dim) => {
+        const val = profile[dim.key];
+        return sum + ((val?.score ?? val) || 0);
+    }, 0);
+    const avg = scored.length > 0 ? (total / scored.length).toFixed(1) : '0.0';
+    const maxTotal = scored.length * 5;
     const fontSize = mini ? 14 : 20;
     const subSize = mini ? 8 : 10;
     svg += `<text x="${center}" y="${center - 4}" text-anchor="middle" font-size="${fontSize}" font-weight="bold" fill="#1e293b">${total}</text>`;
-    svg += `<text x="${center}" y="${center + (mini ? 8 : 12)}" text-anchor="middle" font-size="${subSize}" fill="#64748b">${mini ? avg : `/ 40 (avg ${avg})`}</text>`;
+    svg += `<text x="${center}" y="${center + (mini ? 8 : 12)}" text-anchor="middle" font-size="${subSize}" fill="#64748b">${mini ? avg : `/ ${maxTotal} (avg ${avg})`}</text>`;
 
     svg += '</svg>';
     container.innerHTML = svg;
@@ -188,7 +238,7 @@ function updateScoreDisplay(input) {
 }
 
 function getFormScores() {
-    const dims = ['autonomy', 'reasoning', 'learning', 'memory', 'toolUse', 'collaboration', 'embodiment', 'domainAlignment'];
+    const dims = ['autonomy', 'reasoning', 'memory', 'learning', 'toolUse', 'collaboration', 'embodiment', 'explainability', 'safety', 'interoperability', 'costEfficiency', 'domainAlignment'];
     const profile = {};
     dims.forEach(dim => {
         const el = document.getElementById('score-' + dim);

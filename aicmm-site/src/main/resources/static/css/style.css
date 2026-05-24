@@ -822,3 +822,17 @@ textarea.form-input {
     font-size: 0.875rem;
     margin-left: auto;
 }
+
+/* Score group labels in Create Card form */
+.score-group-label {
+    margin: 1.5rem 0 0.5rem 0;
+    padding-bottom: 0.25rem;
+    border-bottom: 2px solid var(--primary);
+    color: var(--primary-dark);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.score-group-label:first-child {
+    margin-top: 0;
+}

@@ -126,7 +126,7 @@ public class AgentCardController {
             html.append("<table class='catalog-table'>");
             html.append("<thead><tr>");
             html.append("<th>Agent</th><th>Vendor</th><th>Category</th>");
-            html.append("<th>A</th><th>R</th><th>L</th><th>M</th><th>T</th><th>C</th><th>E</th><th>D</th>");
+            html.append("<th>AUT</th><th>REA</th><th>MEM</th><th>LRN</th><th>TUL</th><th>COL</th><th>EMB</th><th>EXP</th><th>SAF</th><th>INT</th><th>CST</th><th>DOM</th>");
             html.append("<th>Total</th><th>Avg</th>");
             html.append("</tr></thead><tbody>");
 
@@ -144,14 +144,20 @@ public class AgentCardController {
                 html.append("<td><span class='badge category'>").append(escapeHtml(category.toUpperCase())).append("</span></td>");
 
                 int total = 0;
-                String[] dims = {"autonomy", "reasoning", "learning", "memory", "toolUse", "collaboration", "embodiment", "domainAlignment"};
+                int scored = 0;
+                String[] dims = {"autonomy", "reasoning", "memory", "learning", "toolUse", "collaboration", "embodiment", "explainability", "safety", "interoperability", "costEfficiency", "domainAlignment"};
                 for (String dim : dims) {
                     int val = getScoreFromProfile(profile, dim);
-                    total += val;
-                    String colorClass = val >= 4 ? "high" : val >= 2 ? "mid" : "low";
-                    html.append("<td class='score-cell ").append(colorClass).append("'>").append(val).append("</td>");
+                    if (val >= 0) {
+                        scored++;
+                        total += val;
+                        String colorClass = val >= 4 ? "high" : val >= 2 ? "mid" : "low";
+                        html.append("<td class='score-cell ").append(colorClass).append("'>").append(val).append("</td>");
+                    } else {
+                        html.append("<td class='score-cell'>-</td>");
+                    }
                 }
-                double avg = total / 8.0;
+                double avg = scored > 0 ? total / (double) scored : 0;
                 html.append("<td class='total-cell'><strong>").append(total).append("</strong></td>");
                 html.append("<td>").append(String.format("%.1f", avg)).append("</td>");
                 html.append("</tr>");
@@ -241,20 +247,47 @@ public class AgentCardController {
 
         // Scoring
         html.append("<fieldset class='form-section'>");
-        html.append("<legend>a-CMM Scores (0-5)</legend>");
-        html.append("<p class='form-help'>Score each dimension based on observable evidence. Leave at 0 if unsure — the system will suggest scores from the agent description.</p>");
+        html.append("<legend>a-CMM Level 0 Scores (0-5)</legend>");
+        html.append("<p class='form-help'>Score each dimension based on observable evidence. Positions are fixed (0-11) for consistent radar chart comparison.</p>");
         html.append("<div class='score-inputs'>");
-        String[][] dims = {
-            {"autonomy", "Autonomy", "Self-directed action without human intervention"},
-            {"reasoning", "Reasoning & Planning", "Structured problem-solving under uncertainty"},
-            {"learning", "Learning & Adaptation", "Ability to improve from experience"},
-            {"memory", "Memory & Context", "Information retention and temporal awareness"},
-            {"toolUse", "Tool Use & Integration", "Orchestrating external tools and APIs"},
-            {"collaboration", "Collaboration", "Coordination with humans and other agents"},
-            {"embodiment", "Embodiment", "Physical/virtual presence (0 for software-only)"},
-            {"domainAlignment", "Domain Alignment", "Policy compliance, safety, auditability"}
+        html.append("<h4 class='score-group-label'>Cognitive Core (Positions 0-3)</h4>");
+        String[][] cogDims = {
+            {"autonomy", "0 — Autonomy", "Self-directed action without human intervention"},
+            {"reasoning", "1 — Reasoning & Planning", "Structured problem-solving under uncertainty"},
+            {"memory", "2 — Memory & Context", "Information retention and temporal awareness"},
+            {"learning", "3 — Learning & Adaptation", "Ability to improve from experience"}
         };
-        for (String[] dim : dims) {
+        for (String[] dim : cogDims) {
+            html.append("<div class='score-input-row'>");
+            html.append("<label for='score-").append(dim[0]).append("'>").append(dim[1]).append("</label>");
+            html.append("<input type='range' id='score-").append(dim[0]).append("' name='score_").append(dim[0]).append("' min='0' max='5' value='0' oninput='updateScoreDisplay(this)'/>");
+            html.append("<span class='score-display' id='display-").append(dim[0]).append("'>0</span>");
+            html.append("<span class='score-hint'>").append(dim[2]).append("</span>");
+            html.append("</div>");
+        }
+        html.append("<h4 class='score-group-label'>Action & Integration (Positions 4-6)</h4>");
+        String[][] actDims = {
+            {"toolUse", "4 — Tool Use & Integration", "Orchestrating external tools and APIs"},
+            {"collaboration", "5 — Collaboration & Social", "Coordination with humans and other agents"},
+            {"embodiment", "6 — Embodiment", "Physical/virtual presence (0 for software-only)"}
+        };
+        for (String[] dim : actDims) {
+            html.append("<div class='score-input-row'>");
+            html.append("<label for='score-").append(dim[0]).append("'>").append(dim[1]).append("</label>");
+            html.append("<input type='range' id='score-").append(dim[0]).append("' name='score_").append(dim[0]).append("' min='0' max='5' value='0' oninput='updateScoreDisplay(this)'/>");
+            html.append("<span class='score-display' id='display-").append(dim[0]).append("'>0</span>");
+            html.append("<span class='score-hint'>").append(dim[2]).append("</span>");
+            html.append("</div>");
+        }
+        html.append("<h4 class='score-group-label'>Trust & Deployment (Positions 7-11)</h4>");
+        String[][] trustDims = {
+            {"explainability", "7 — Explainability & Transparency", "Can you understand why it did what it did?"},
+            {"safety", "8 — Safety & Robustness", "Graceful degradation, adversarial resistance"},
+            {"interoperability", "9 — Interoperability & Standards", "Protocol support (A2A, MCP, OpenAI)"},
+            {"costEfficiency", "10 — Cost & Resource Efficiency", "Budget-aware, optimized resource use"},
+            {"domainAlignment", "11 — Domain Alignment & Governance", "Regulatory compliance, auditability"}
+        };
+        for (String[] dim : trustDims) {
             html.append("<div class='score-input-row'>");
             html.append("<label for='score-").append(dim[0]).append("'>").append(dim[1]).append("</label>");
             html.append("<input type='range' id='score-").append(dim[0]).append("' name='score_").append(dim[0]).append("' min='0' max='5' value='0' oninput='updateScoreDisplay(this)'/>");
@@ -518,11 +551,15 @@ public class AgentCardController {
         return switch (key) {
             case "autonomy" -> "Autonomy";
             case "reasoning" -> "Reasoning";
-            case "learning" -> "Learning";
             case "memory" -> "Memory";
+            case "learning" -> "Learning";
             case "toolUse" -> "Tool Use";
             case "collaboration" -> "Collaboration";
             case "embodiment" -> "Embodiment";
+            case "explainability" -> "Explainability";
+            case "safety" -> "Safety";
+            case "interoperability" -> "Interoperability";
+            case "costEfficiency" -> "Cost Efficiency";
             case "domainAlignment" -> "Domain Alignment";
             default -> key;
         };
@@ -531,10 +568,12 @@ public class AgentCardController {
     private int getScoreFromProfile(Map<String, Object> profile, String dim) {
         if (profile == null) return 0;
         Object val = profile.get(dim);
+        if (val == null) return -1; // Not scored
         if (val instanceof Map) {
             @SuppressWarnings("unchecked")
             Map<String, Object> scoreMap = (Map<String, Object>) val;
             Object score = scoreMap.get("score");
+            if (score == null) return -1;
             return score instanceof Number ? ((Number) score).intValue() : 0;
         }
         return val instanceof Number ? ((Number) val).intValue() : 0;
@@ -542,12 +581,14 @@ public class AgentCardController {
 
     private String miniProfileJson(Map<String, Object> profile) {
         StringBuilder json = new StringBuilder("{");
-        String[] dims = {"autonomy", "reasoning", "learning", "memory", "toolUse", "collaboration", "embodiment", "domainAlignment"};
+        // Fixed positions: Cognitive Core → Action & Integration → Trust & Deployment
+        String[] dims = {"autonomy", "reasoning", "memory", "learning", "toolUse", "collaboration", "embodiment", "explainability", "safety", "interoperability", "costEfficiency", "domainAlignment"};
         boolean first = true;
         for (String dim : dims) {
+            int score = getScoreFromProfile(profile, dim);
+            if (score < 0) continue; // Skip unscored
             if (!first) json.append(",");
             first = false;
-            int score = getScoreFromProfile(profile, dim);
             json.append("\"").append(dim).append("\":{\"score\":").append(score).append("}");
         }
         json.append("}");
