@@ -215,6 +215,11 @@
     "Session Store (cross-session memory)",
     "Custom Skills (user-defined ~/.copilot/skills/)"
   ],
+  "mcps": [
+    "github-mcp-server",
+    "filesystem-mcp",
+    "session-store-mcp"
+  ],
   "agentRelationships": {
     "delegatesTo": [
       "explore-agent (codebase research)",

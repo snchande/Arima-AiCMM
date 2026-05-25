@@ -902,3 +902,105 @@ textarea.form-input {
 .gov-pass { color: #059669; font-weight: 700; }
 .gov-fail { color: #dc2626; font-weight: 700; }
 .gov-na { color: #64748b; font-style: italic; }
+
+/* Capabilities & Integrations Section */
+.capabilities-section {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-radius: 12px;
+    padding: 2rem;
+}
+
+.capabilities-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.25rem;
+    margin-top: 1rem;
+}
+
+.capability-card {
+    background: white;
+    border-radius: 10px;
+    padding: 1.25rem;
+    border: 1px solid var(--border);
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.capability-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+}
+
+.capability-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.capability-header h3 {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text);
+    flex: 1;
+}
+
+.capability-icon {
+    font-size: 1.3rem;
+}
+
+.capability-count {
+    background: var(--primary);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.15rem 0.5rem;
+    border-radius: 10px;
+    min-width: 1.5rem;
+    text-align: center;
+}
+
+.capability-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.cap-tag {
+    display: inline-block;
+    padding: 0.25rem 0.65rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    border: 1px solid;
+}
+
+.tool-tag { background: #fef3c7; color: #92400e; border-color: #fcd34d; }
+.skill-tag { background: #dbeafe; color: #1e40af; border-color: #93c5fd; }
+.plugin-tag { background: #ede9fe; color: #5b21b6; border-color: #c4b5fd; }
+.mcp-tag { background: #d1fae5; color: #065f46; border-color: #6ee7b7; }
+.delegate-tag { background: #fce7f3; color: #9d174d; border-color: #f9a8d4; }
+.usedby-tag { background: #e0f2fe; color: #075985; border-color: #7dd3fc; }
+
+/* Avatar visual improvements */
+.avatar-visual {
+    min-width: 240px;
+    min-height: 240px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.avatar-card {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+
+.avatar-details {
+    flex: 1;
+    min-width: 250px;
+}

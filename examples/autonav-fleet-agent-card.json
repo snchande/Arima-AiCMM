@@ -187,6 +187,11 @@
     "Construction Zone Navigator",
     "School Zone Safety Override"
   ],
+  "mcps": [
+    "fleet-telemetry-mcp",
+    "traffic-data-mcp",
+    "v2x-communication-mcp"
+  ],
   "agentRelationships": {
     "delegatesTo": [
       "perception-agent (per-vehicle sensor fusion)",

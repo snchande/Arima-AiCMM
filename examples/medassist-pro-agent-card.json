@@ -198,6 +198,12 @@
     "Stroke Protocol Accelerator",
     "Pediatric Dosing Calculator"
   ],
+  "mcps": [
+    "hl7-fhir-mcp",
+    "clinical-decision-support-mcp",
+    "pharmacy-interaction-mcp",
+    "radiology-pacs-mcp"
+  ],
   "agentRelationships": {
     "delegatesTo": [
       "radiology-ai (image interpretation)",

@@ -445,6 +445,9 @@ public class AgentCardController {
                 html.append("</section>");
             }
 
+            // Tools, Skills, Plugins & MCPs
+            renderCapabilitiesSection(html, node);
+
             // Standards Integration
             if (node.has("standardsIntegration")) {
                 JsonNode standards = node.get("standardsIntegration");
@@ -526,6 +529,87 @@ public class AgentCardController {
         } catch (IOException e) {
             ctx.status(500).result("Error: " + e.getMessage());
         }
+    }
+
+    private void renderCapabilitiesSection(StringBuilder html, JsonNode node) {
+        // Gather from agent object or root level
+        JsonNode agent = node.has("agent") ? node.get("agent") : node;
+        JsonNode tools = agent.has("tools") ? agent.get("tools") : node.path("tools");
+        JsonNode skills = agent.has("skills") ? agent.get("skills") : node.path("skills");
+        JsonNode plugins = agent.has("plugins") ? agent.get("plugins") : node.path("plugins");
+        JsonNode mcps = agent.has("mcps") ? agent.get("mcps") : node.path("mcps");
+        JsonNode delegatesTo = agent.has("delegatesTo") ? agent.get("delegatesTo") : node.path("agentRelationships").path("delegatesTo");
+        JsonNode usedBy = agent.has("usedBy") ? agent.get("usedBy") : node.path("agentRelationships").path("usedBy");
+
+        boolean hasAny = (tools.isArray() && tools.size() > 0)
+                || (skills.isArray() && skills.size() > 0)
+                || (plugins.isArray() && plugins.size() > 0)
+                || (mcps.isArray() && mcps.size() > 0)
+                || (delegatesTo.isArray() && delegatesTo.size() > 0)
+                || (usedBy.isArray() && usedBy.size() > 0);
+
+        if (!hasAny) return;
+
+        html.append("<section class='card-section capabilities-section'>");
+        html.append("<h2>Capabilities & Integrations</h2>");
+        html.append("<div class='capabilities-grid'>");
+
+        // Tools
+        if (tools.isArray() && tools.size() > 0) {
+            html.append("<div class='capability-card'>");
+            html.append("<div class='capability-header'><span class='capability-icon'>🔧</span><h3>Tools</h3><span class='capability-count'>").append(tools.size()).append("</span></div>");
+            html.append("<div class='capability-tags'>");
+            tools.forEach(t -> html.append("<span class='cap-tag tool-tag'>").append(escapeHtml(t.asText())).append("</span>"));
+            html.append("</div></div>");
+        }
+
+        // Skills
+        if (skills.isArray() && skills.size() > 0) {
+            html.append("<div class='capability-card'>");
+            html.append("<div class='capability-header'><span class='capability-icon'>⚡</span><h3>Skills</h3><span class='capability-count'>").append(skills.size()).append("</span></div>");
+            html.append("<div class='capability-tags'>");
+            skills.forEach(s -> html.append("<span class='cap-tag skill-tag'>").append(escapeHtml(s.asText())).append("</span>"));
+            html.append("</div></div>");
+        }
+
+        // Plugins
+        if (plugins.isArray() && plugins.size() > 0) {
+            html.append("<div class='capability-card'>");
+            html.append("<div class='capability-header'><span class='capability-icon'>🧩</span><h3>Plugins</h3><span class='capability-count'>").append(plugins.size()).append("</span></div>");
+            html.append("<div class='capability-tags'>");
+            plugins.forEach(p -> html.append("<span class='cap-tag plugin-tag'>").append(escapeHtml(p.asText())).append("</span>"));
+            html.append("</div></div>");
+        }
+
+        // MCPs
+        if (mcps.isArray() && mcps.size() > 0) {
+            html.append("<div class='capability-card'>");
+            html.append("<div class='capability-header'><span class='capability-icon'>🔌</span><h3>MCP Connections</h3><span class='capability-count'>").append(mcps.size()).append("</span></div>");
+            html.append("<div class='capability-tags'>");
+            mcps.forEach(m -> html.append("<span class='cap-tag mcp-tag'>").append(escapeHtml(m.asText())).append("</span>"));
+            html.append("</div></div>");
+        }
+
+        // Delegates To
+        if (delegatesTo.isArray() && delegatesTo.size() > 0) {
+            html.append("<div class='capability-card'>");
+            html.append("<div class='capability-header'><span class='capability-icon'>➡️</span><h3>Delegates To</h3><span class='capability-count'>").append(delegatesTo.size()).append("</span></div>");
+            html.append("<div class='capability-tags'>");
+            delegatesTo.forEach(d -> html.append("<span class='cap-tag delegate-tag'>").append(escapeHtml(d.asText())).append("</span>"));
+            html.append("</div></div>");
+        }
+
+        // Used By
+        if (usedBy.isArray() && usedBy.size() > 0) {
+            html.append("<div class='capability-card'>");
+            html.append("<div class='capability-header'><span class='capability-icon'>⬅️</span><h3>Used By</h3><span class='capability-count'>").append(usedBy.size()).append("</span></div>");
+            html.append("<div class='capability-tags'>");
+            usedBy.forEach(u -> html.append("<span class='cap-tag usedby-tag'>").append(escapeHtml(u.asText())).append("</span>"));
+            html.append("</div></div>");
+        }
+
+        html.append("</div>"); // capabilities-grid
+        html.append("</section>");
     }
 
     public void viewSchema(Context ctx) {

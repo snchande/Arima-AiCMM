@@ -76,60 +76,103 @@ function renderAvatarVisual(container) {
 
     const dimensions = getActiveDimensions(profile);
     const numDims = dimensions.length;
+    const uid = Math.random().toString(36).substr(2, 6);
 
-    const size = 200;
+    const size = 240;
     const center = size / 2;
-    const outerR = 80;
-    const innerR = 40;
+
+    // Determine dominant group and color theme based on highest scores
+    let groupScores = [0, 0, 0]; // cognitive, action, trust
+    dimensions.forEach((dim, i) => {
+        const score = profile[dim.key]?.score ?? 0;
+        if (i <= 3) groupScores[0] += score;
+        else if (i <= 6) groupScores[1] += score;
+        else groupScores[2] += score;
+    });
+    const dominantGroup = groupScores.indexOf(Math.max(...groupScores));
+    const themes = [
+        { primary: '#7c3aed', secondary: '#a78bfa', accent: '#ede9fe', glow: 'rgba(124,58,237,0.3)' },  // cognitive - purple
+        { primary: '#2563eb', secondary: '#60a5fa', accent: '#dbeafe', glow: 'rgba(37,99,235,0.3)' },   // action - blue
+        { primary: '#059669', secondary: '#34d399', accent: '#d1fae5', glow: 'rgba(5,150,105,0.3)' }    // trust - green
+    ];
+    const theme = themes[dominantGroup];
+
+    // Calculate overall strength for visual weight
+    const totalScore = dimensions.reduce((s, d) => s + (profile[d.key]?.score ?? 0), 0);
+    const avgScore = totalScore / numDims;
+    const strength = avgScore / 5; // 0-1
 
     let svg = `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
 
-    // Background polygon
-    const angleStep = (2 * Math.PI) / numDims;
-    let octPoints = [];
-    for (let i = 0; i < numDims; i++) {
-        const angle = getDimensionAngle(i, numDims);
-        octPoints.push(`${center + outerR * Math.cos(angle)},${center + outerR * Math.sin(angle)}`);
-    }
-    svg += `<polygon points="${octPoints.join(' ')}" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="2"/>`;
+    // Defs
+    svg += `<defs>`;
+    svg += `<radialGradient id="av-bg-${uid}"><stop offset="0%" stop-color="${theme.accent}"/><stop offset="100%" stop-color="white"/></radialGradient>`;
+    svg += `<radialGradient id="av-core-${uid}"><stop offset="0%" stop-color="${theme.primary}" stop-opacity="0.9"/><stop offset="100%" stop-color="${theme.secondary}" stop-opacity="0.7"/></radialGradient>`;
+    svg += `<filter id="av-glow-${uid}"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`;
+    svg += `<filter id="av-shadow-${uid}"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="${theme.primary}" flood-opacity="0.2"/></filter>`;
+    svg += `</defs>`;
 
-    // Capability petals
+    // Background circle
+    svg += `<circle cx="${center}" cy="${center}" r="${center - 8}" fill="url(#av-bg-${uid})" stroke="${theme.secondary}" stroke-width="2" stroke-opacity="0.3"/>`;
+
+    // Orbital rings based on capability groups
+    const ringRadii = [85, 70, 55];
+    DIMENSION_GROUPS.forEach((group, gi) => {
+        const groupDims = dimensions.filter((_, i) => group.positions.includes(i));
+        const groupAvg = groupDims.reduce((s, d) => s + (profile[d.key]?.score ?? 0), 0) / (groupDims.length || 1);
+        const opacity = 0.15 + (groupAvg / 5) * 0.4;
+        const r = ringRadii[gi] * (0.7 + strength * 0.3);
+        svg += `<circle cx="${center}" cy="${center}" r="${r}" fill="none" stroke="${group.color}" stroke-width="${1.5 + groupAvg * 0.3}" stroke-opacity="${opacity}" stroke-dasharray="${4 + groupAvg * 2} ${6 - groupAvg}"/>`;
+    });
+
+    // Capability nodes — positioned around concentric orbits
     dimensions.forEach((dim, i) => {
         const score = profile[dim.key]?.score ?? 0;
         if (score === 0) return;
 
         const angle = getDimensionAngle(i, numDims);
-        const nextAngle = getDimensionAngle((i + 1) % numDims, numDims);
-        const petalR = innerR + (outerR - innerR) * (score / 5);
+        const orbitR = 40 + (score / 5) * 45;
+        const x = center + orbitR * Math.cos(angle);
+        const y = center + orbitR * Math.sin(angle);
+        const nodeR = 3 + score * 1.2;
 
-        const x1 = center + innerR * Math.cos(angle);
-        const y1 = center + innerR * Math.sin(angle);
-        const x2 = center + petalR * Math.cos(angle);
-        const y2 = center + petalR * Math.sin(angle);
-        const x3 = center + petalR * Math.cos((angle + nextAngle) / 2);
-        const y3 = center + petalR * Math.sin((angle + nextAngle) / 2);
-        const x4 = center + innerR * Math.cos(nextAngle);
-        const y4 = center + innerR * Math.sin(nextAngle);
+        svg += `<circle cx="${x}" cy="${y}" r="${nodeR}" fill="${dim.color}" opacity="${0.6 + score * 0.08}" filter="url(#av-glow-${uid})"/>`;
 
-        const opacity = 0.3 + (score / 5) * 0.5;
-        svg += `<path d="M ${x1} ${y1} L ${x2} ${y2} L ${x3} ${y3} L ${x4} ${y4} Z" fill="${dim.color}" opacity="${opacity}"/>`;
+        // Connection lines from center to nodes
+        svg += `<line x1="${center}" y1="${center}" x2="${x}" y2="${y}" stroke="${dim.color}" stroke-width="0.8" stroke-opacity="${0.15 + score * 0.06}" stroke-dasharray="2 3"/>`;
     });
 
-    // Center circle
-    svg += `<circle cx="${center}" cy="${center}" r="${innerR - 5}" fill="white" stroke="#e2e8f0" stroke-width="1"/>`;
+    // Core emblem — hexagonal shape representing the agent's identity
+    const coreR = 30 + strength * 8;
+    const hexPoints = [];
+    for (let i = 0; i < 6; i++) {
+        const angle = (i * Math.PI / 3) - Math.PI / 6;
+        hexPoints.push(`${center + coreR * Math.cos(angle)},${center + coreR * Math.sin(angle)}`);
+    }
+    svg += `<polygon points="${hexPoints.join(' ')}" fill="url(#av-core-${uid})" stroke="white" stroke-width="2.5" filter="url(#av-shadow-${uid})"/>`;
 
-    // Initials in center
-    const initials = name.split(' ').map(w => w[0]).join('').substring(0, 2);
-    svg += `<text x="${center}" y="${center + 2}" text-anchor="middle" dominant-baseline="middle" font-size="18" font-weight="bold" fill="#1e293b">${initials}</text>`;
+    // Inner decorative ring
+    svg += `<circle cx="${center}" cy="${center}" r="${coreR - 8}" fill="none" stroke="white" stroke-width="1" stroke-opacity="0.5"/>`;
 
-    // Score labels around the edge
-    dimensions.forEach((dim, i) => {
-        const score = profile[dim.key]?.score ?? 0;
-        const angle = getDimensionAngle(i, numDims);
-        const labelR = outerR + 12;
-        const lx = center + labelR * Math.cos(angle);
-        const ly = center + labelR * Math.sin(angle);
-        svg += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" font-size="9" font-weight="600" fill="${dim.color}">${dim.short}${score}</text>`;
+    // Initials
+    const initials = name.split(/[\s-]+/).map(w => w[0]).join('').substring(0, 2).toUpperCase();
+    svg += `<text x="${center}" y="${center - 2}" text-anchor="middle" dominant-baseline="middle" font-size="20" font-weight="800" fill="white" letter-spacing="1">${initials}</text>`;
+
+    // Score badge at bottom
+    svg += `<text x="${center}" y="${center + 14}" text-anchor="middle" font-size="9" fill="white" opacity="0.9">${avgScore.toFixed(1)}/5</text>`;
+
+    // Category indicator — small icon at top
+    const catIcon = archetype ? archetype.split(' ').pop().charAt(0).toUpperCase() : '●';
+    svg += `<circle cx="${center}" cy="18" r="12" fill="white" stroke="${theme.primary}" stroke-width="1.5" filter="url(#av-shadow-${uid})"/>`;
+    svg += `<text x="${center}" y="19" text-anchor="middle" dominant-baseline="middle" font-size="10" font-weight="700" fill="${theme.primary}">${catIcon}</text>`;
+
+    // Outer decorative dots at cardinal positions for high-scoring dimensions
+    const topDims = dimensions.slice().sort((a, b) => (profile[b.key]?.score ?? 0) - (profile[a.key]?.score ?? 0)).slice(0, 4);
+    topDims.forEach((dim, i) => {
+        const angle = (i * Math.PI / 2) - Math.PI / 4;
+        const x = center + (center - 20) * Math.cos(angle);
+        const y = center + (center - 20) * Math.sin(angle);
+        svg += `<circle cx="${x}" cy="${y}" r="3" fill="${dim.color}" opacity="0.5"/>`;
     });
 
     svg += '</svg>';
