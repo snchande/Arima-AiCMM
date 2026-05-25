@@ -5,9 +5,9 @@ Thank you for your interest in contributing to the Agent Capability Maturity Mod
 ## Ways to Contribute
 
 ### 1. Framework Development
-- Refine dimension definitions and scoring rubrics
-- Propose industry-specific adaptations (healthcare, manufacturing, defense, etc.)
-- Add evidence guidelines and assessment templates
+- Refine the 12 Level 0 dimension definitions and scoring rubrics
+- Propose Level 1 domain-specific adaptations (healthcare, manufacturing, finance, transportation, defense, etc.)
+- Add evidence guidelines, confidence scoring, and assessment templates
 - Review and improve the formal specification
 
 ### 2. Tooling & Code
@@ -65,11 +65,11 @@ mvn test
 
 Use clear, descriptive commit messages:
 ```
-Add scoring rubric for Autonomy dimension
+Add Level 0 / Level 1 scoring guidance for Explainability and Safety
 
-- Define Level 0-5 observable behaviors
-- Add evidence requirements for each level
-- Include IT ops scenario examples
+- Define Level 0-5 observable behaviors for new Level 0 dimensions
+- Add confidence and governance validation guidance
+- Include domain-specific Level 1 examples for regulated deployments
 ```
 
 ## Code of Conduct

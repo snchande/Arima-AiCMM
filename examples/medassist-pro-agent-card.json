@@ -1,0 +1,229 @@
+{
+  "schemaVersion": "0.2.0",
+  "agent": {
+    "name": "MedAssist Pro",
+    "version": "3.2.1",
+    "vendor": "HealthAI Systems",
+    "description": "Clinical decision support agent for emergency departments. Triages patients, suggests differential diagnoses, coordinates care teams, and monitors vitals in real-time. Integrates with EHR systems and medical device feeds.",
+    "category": "hybrid",
+    "url": "https://example.com/medassist-pro"
+  },
+  "avatar": {
+    "archetype": "Vigilant Guardian",
+    "tagline": "An ever-watchful clinical partner that combines rapid pattern recognition with deep medical knowledge, always deferring final decisions to human clinicians",
+    "personality": ["precise", "empathetic", "evidence-driven", "alert"],
+    "visualTraits": {
+      "form": "Shield shape with medical cross and pulse line",
+      "palette": ["#059669", "#10b981", "#d1fae5"],
+      "symbol": "Stethoscope wrapped around a neural network",
+      "style": "Clinical, trustworthy, calm authority"
+    },
+    "strengths": [
+      "Processes patient data from 20+ sources simultaneously",
+      "Identifies rare conditions from subtle symptom patterns",
+      "Reduces triage time by 60% in high-volume settings",
+      "Never experiences fatigue or attention drift"
+    ],
+    "weaknesses": [
+      "Cannot perform physical examinations",
+      "May over-rely on data patterns vs clinical intuition",
+      "Limited effectiveness with novel/undocumented conditions",
+      "Requires stable network for real-time vital monitoring"
+    ]
+  },
+  "capabilityProfile": {
+    "_dimensionSchema": "level0-v0.2",
+    "autonomy": {
+      "position": 0,
+      "score": 3,
+      "confidence": "high",
+      "evidence": "Autonomously triages patients, generates differential diagnoses, and alerts care teams. All treatment recommendations require clinician approval. Cannot prescribe or order procedures independently."
+    },
+    "reasoning": {
+      "position": 1,
+      "score": 5,
+      "confidence": "high",
+      "evidence": "Multi-hypothesis differential diagnosis. Bayesian reasoning over symptom combinations. Handles uncertainty with confidence intervals. Plans diagnostic pathways considering test availability and urgency."
+    },
+    "memory": {
+      "position": 2,
+      "score": 4,
+      "confidence": "high",
+      "evidence": "Full patient history integration via EHR. Cross-visit pattern tracking. Population-level trend awareness. Temporal reasoning over symptom progression."
+    },
+    "learning": {
+      "position": 3,
+      "score": 3,
+      "confidence": "medium",
+      "evidence": "Adapts triage thresholds based on department outcomes. Learns from clinician feedback on diagnosis accuracy. Quarterly model updates from anonymized data. Cannot self-modify core diagnostic rules."
+    },
+    "toolUse": {
+      "position": 4,
+      "score": 4,
+      "confidence": "high",
+      "evidence": "Integrates with EHR (Epic, Cerner), lab systems, radiology PACS, vital sign monitors, pharmacy databases. Handles API failures with graceful degradation. Cannot create new tool integrations."
+    },
+    "collaboration": {
+      "position": 5,
+      "score": 4,
+      "confidence": "high",
+      "evidence": "Coordinates across nurses, physicians, specialists, and lab technicians. Structured handoff protocols. Escalation paths for critical findings. Does not negotiate or resolve inter-clinician conflicts."
+    },
+    "embodiment": {
+      "position": 6,
+      "score": 2,
+      "confidence": "high",
+      "evidence": "Connected to bedside vital monitors and in-room cameras (for fall detection). No manipulation capability. Passive environmental sensing only."
+    },
+    "explainability": {
+      "position": 7,
+      "score": 5,
+      "confidence": "high",
+      "evidence": "Every diagnosis suggestion includes reasoning chain, contributing evidence, confidence level, and contradicting factors. Generates clinician-facing and patient-facing explanations at appropriate detail levels."
+    },
+    "safety": {
+      "position": 8,
+      "score": 4,
+      "confidence": "high",
+      "evidence": "Drug interaction checking, allergy cross-reference, dosage validation. Fail-safe to human override. Circuit breaker on conflicting vital signs. Red-team tested for adversarial inputs."
+    },
+    "interoperability": {
+      "position": 9,
+      "score": 3,
+      "confidence": "medium",
+      "evidence": "HL7 FHIR, DICOM, IHE profiles. Limited to healthcare-specific protocols. No A2A or MCP support yet. Vendor-specific EHR adapters required."
+    },
+    "costEfficiency": {
+      "position": 10,
+      "score": 3,
+      "confidence": "medium",
+      "evidence": "Cost-aware test ordering (suggests cheaper alternatives when clinically equivalent). Resource-optimized inference for real-time vital monitoring. No explicit budget tracking."
+    },
+    "domainAlignment": {
+      "position": 11,
+      "score": 5,
+      "confidence": "high",
+      "evidence": "FDA 510(k) cleared as clinical decision support. HIPAA compliant. Full audit trail. Clinician override always available. Bias testing across demographics. Annual recertification."
+    }
+  },
+  "level1Profile": {
+    "domain": "healthcare",
+    "domainVersion": "1.0.0",
+    "dimensions": {
+      "clinicalAccuracy": {
+        "position": 0,
+        "score": 4,
+        "confidence": "high",
+        "evidence": "92% diagnostic concordance with specialist consensus in ED settings. Sensitivity 96% for critical conditions. Specificity varies by condition (78-94%)."
+      },
+      "patientSafety": {
+        "position": 1,
+        "score": 5,
+        "confidence": "high",
+        "evidence": "Zero missed critical alerts in 18-month deployment. Drug interaction detection covers 99.7% of known interactions. Automated dosage range validation for all age groups."
+      },
+      "careCoordination": {
+        "position": 2,
+        "score": 4,
+        "confidence": "high",
+        "evidence": "Manages handoffs between ED, radiology, lab, and inpatient teams. Tracks pending results and auto-escalates delays. Supports shift-change briefing generation."
+      },
+      "medicalKnowledge": {
+        "position": 3,
+        "score": 4,
+        "confidence": "medium",
+        "evidence": "Trained on 2M+ clinical encounters. Updated quarterly with latest guidelines (AHA, ACEP, NICE). Knowledge gaps in ultra-rare conditions (<1:100,000 incidence)."
+      },
+      "regulatoryCompliance": {
+        "position": 4,
+        "score": 5,
+        "confidence": "high",
+        "evidence": "FDA 510(k) cleared. HIPAA BAA in place. SOC 2 Type II certified. GDPR-compliant for EU deployments. State medical board review completed."
+      },
+      "consentAndPrivacy": {
+        "position": 5,
+        "score": 4,
+        "confidence": "high",
+        "evidence": "Patient consent workflow integrated. Data minimization in logging. De-identification for analytics. Right-to-delete supported with 72hr SLA."
+      },
+      "clinicalWorkflowIntegration": {
+        "position": 6,
+        "score": 4,
+        "confidence": "high",
+        "evidence": "Native Epic and Cerner integration. Fits into existing nursing workflows without additional steps. Alert fatigue management with smart suppression."
+      },
+      "outcomeTracking": {
+        "position": 7,
+        "score": 3,
+        "confidence": "medium",
+        "evidence": "Tracks 30-day readmission correlation. Diagnosis accuracy feedback loop. Limited long-term outcome tracking beyond index visit."
+      },
+      "empathy": {
+        "position": 8,
+        "score": 4,
+        "confidence": "medium",
+        "evidence": "Adapts communication tone based on patient distress level. Uses calming language during critical alerts to care staff. Recognizes emotional cues in patient-reported symptoms."
+      },
+      "inclusivity": {
+        "position": 9,
+        "score": 4,
+        "confidence": "high",
+        "evidence": "Age-appropriate communication (pediatric simplification, geriatric patience). Multi-language support (12 languages). Health literacy level adaptation. Accessible interface for visually impaired clinicians."
+      }
+    }
+  },
+  "governanceValidation": {
+    "rules": [
+      {"rule": "Autonomy Gap", "constraint": "Autonomy(0) <= DomainAlignment(11) + 1", "result": "PASS", "values": "3 <= 6"},
+      {"rule": "Explainability Gate", "constraint": "Autonomy(0) >= 4 requires Explainability(7) >= 3", "result": "N/A", "values": "Autonomy=3"},
+      {"rule": "Embodiment Safety", "constraint": "Embodiment(6) >= 3 requires Safety(8) >= 4", "result": "N/A", "values": "Embodiment=2"},
+      {"rule": "Tool Oversight", "constraint": "ToolUse(4) >= 4 requires DomainAlignment(11) >= 3", "result": "PASS", "values": "4, 5"},
+      {"rule": "Reasoning Foundation", "constraint": "Autonomy(0) >= 4 requires Reasoning(1) >= 3", "result": "N/A", "values": "Autonomy=3"}
+    ],
+    "overallCompliant": true
+  },
+  "tools": [
+    "Epic EHR API", "Cerner Millennium API", "HL7 FHIR R4",
+    "DICOM Viewer", "Lab Information System", "Pharmacy DB",
+    "Vital Signs Monitor Feed", "Radiology PACS"
+  ],
+  "skills": [
+    "Differential Diagnosis", "Patient Triage", "Drug Interaction Check",
+    "Clinical Alert Generation", "Care Coordination", "Shift Handoff Briefing",
+    "Evidence Synthesis", "Risk Stratification"
+  ],
+  "plugins": [
+    "Epic MyChart Integration",
+    "Sepsis Early Warning System",
+    "Stroke Protocol Accelerator",
+    "Pediatric Dosing Calculator"
+  ],
+  "agentRelationships": {
+    "delegatesTo": [
+      "radiology-ai (image interpretation)",
+      "lab-analyzer (result interpretation)",
+      "pharmacy-checker (interaction validation)"
+    ],
+    "usedBy": [
+      "Hospital Command Center Dashboard",
+      "Nurse Station Alert System",
+      "Physician Mobile App"
+    ],
+    "dependsOn": [
+      "EHR System (Epic/Cerner) — patient data source",
+      "Medical Knowledge Graph — clinical reasoning",
+      "Vital Signs Infrastructure — real-time monitoring"
+    ]
+  },
+  "assessmentMetadata": {
+    "assessedBy": "Clinical AI Governance Board",
+    "assessedDate": "2026-05-24",
+    "methodology": "AiCMM Level 0+1 v0.2 - Evidence from FDA submission, red-team results, 18-month deployment data",
+    "evidenceSources": [
+      "FDA 510(k) submission package",
+      "18-month post-market surveillance report",
+      "Independent red-team assessment (CyberMDX)",
+      "Clinical outcomes study (NEJM Digital Medicine, 2026)"
+    ]
+  }
+}

@@ -42,6 +42,7 @@
         <module>aicmm-core</module>
         <module>aicmm-inspector</module>
         <module>aicmm-cli</module>
+        <module>aicmm-site</module>
     </modules>
 
     <properties>

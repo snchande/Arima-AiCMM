@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "0.1.0",
+  "schemaVersion": "0.2.0",
   "agent": {
     "name": "GitHub Copilot CLI",
     "version": "1.0.40",
@@ -8,37 +8,104 @@
     "category": "digital",
     "url": "https://docs.github.com/copilot/concepts/agents/about-copilot-cli"
   },
+  "avatar": {
+    "archetype": "Expert Craftsman",
+    "tagline": "A master developer's companion that speaks code fluently, wields dozens of tools with precision, yet always defers to human judgment on critical decisions",
+    "personality": ["methodical", "tool-savvy", "collaborative", "transparent"],
+    "visualTraits": {
+      "form": "Abstract geometric — 12-sided badge representing Level 0 capability dimensions",
+      "palette": ["#2563eb", "#1d4ed8", "#60a5fa"],
+      "symbol": "Terminal cursor within a radar chart silhouette",
+      "style": "Technical, precise, modern developer aesthetic"
+    },
+    "strengths": [
+      "Orchestrates 30+ tools seamlessly",
+      "Decomposes complex goals into sub-tasks",
+      "Repairs plans when builds or tests fail",
+      "Parallelizes independent work streams",
+      "Explains reasoning and decisions transparently"
+    ],
+    "weaknesses": [
+      "No memory across sessions without external stores",
+      "Cannot learn or improve from past interactions",
+      "Purely digital — no physical world interaction",
+      "Requires human approval for irreversible actions",
+      "No cost-awareness or resource optimization"
+    ]
+  },
   "capabilityProfile": {
+    "_dimensionSchema": "level0-v0.2",
+    "_positionNote": "Positions are fixed (0..11). Cognitive Core (0-3) → Action & Integration (4-6) → Trust & Deployment (7-11)",
     "autonomy": {
+      "position": 0,
       "score": 4,
+      "confidence": "high",
       "evidence": "Can decompose complex goals into sub-tasks, delegate to sub-agents, schedule multi-step work, but respects human approval gates for file modifications and tool execution"
     },
     "reasoning": {
+      "position": 1,
       "score": 4,
+      "confidence": "high",
       "evidence": "Plans multi-step implementations, compares approaches, handles branching logic, repairs plans when builds/tests fail. Can orchestrate parallel sub-agents for complex investigations"
     },
-    "learning": {
-      "score": 2,
-      "evidence": "Adapts within session via context and conversation history. Incorporates custom instructions and skills. No cross-session learning or model fine-tuning from user feedback"
-    },
     "memory": {
+      "position": 2,
       "score": 3,
+      "confidence": "high",
       "evidence": "Session-level memory with context compaction. Cross-session store for history retrieval. Custom instructions persist. No long-term preference learning across sessions"
     },
+    "learning": {
+      "position": 3,
+      "score": 2,
+      "confidence": "medium",
+      "evidence": "Adapts within session via context and conversation history. Incorporates custom instructions and skills. No cross-session learning or model fine-tuning from user feedback"
+    },
     "toolUse": {
+      "position": 4,
       "score": 5,
+      "confidence": "high",
       "evidence": "Orchestrates 30+ tools (grep, glob, view, edit, shell, git, GitHub MCP, SQL, web search/fetch, sub-agents). Handles failures, retries, parallel execution, and tool chaining"
     },
     "collaboration": {
+      "position": 5,
       "score": 3,
+      "confidence": "high",
       "evidence": "Delegates to specialized sub-agents (explore, task, research, code-review). Coordinates with GitHub (PRs, issues). Human-in-the-loop approval model. No multi-user agent coordination"
     },
     "embodiment": {
+      "position": 6,
       "score": 0,
+      "confidence": "high",
       "evidence": "Purely digital agent operating within a terminal environment. No physical sensors, actuators, or spatial awareness"
     },
-    "domainAlignment": {
+    "explainability": {
+      "position": 7,
       "score": 4,
+      "confidence": "high",
+      "evidence": "Explains approach before implementing, provides rationale for tool choices, shows reasoning in responses, summarizes what was done and why. Intent reporting system makes current goals visible"
+    },
+    "safety": {
+      "position": 8,
+      "score": 3,
+      "confidence": "medium",
+      "evidence": "Content exclusion policies, prohibited actions list, path traversal prevention, secret detection. No formal adversarial testing or circuit-breaker mechanisms"
+    },
+    "interoperability": {
+      "position": 9,
+      "score": 4,
+      "confidence": "high",
+      "evidence": "MCP protocol support (client), GitHub API integration, multiple output formats (JSON, Markdown), cross-CLI skill registration. A2A-compatible agent card format"
+    },
+    "costEfficiency": {
+      "position": 10,
+      "score": 2,
+      "confidence": "low",
+      "evidence": "No explicit cost tracking or budget awareness. Uses parallel tool calls for efficiency. No model routing based on task complexity. Token usage not exposed to user"
+    },
+    "domainAlignment": {
+      "position": 11,
+      "score": 4,
+      "confidence": "high",
       "evidence": "Permission system with explicit approval gates. Content exclusion policies. Trusted folder model. Audit trail via session history. Respects organizational policies. No formal certification"
     }
   },
@@ -51,10 +118,60 @@
       "Directory trust confirmation"
     ]
   },
+  "standardsIntegration": {
+    "a2a": {
+      "compatible": true,
+      "agentCardUrl": "/.well-known/agent.json",
+      "capabilities": ["streaming", "pushNotifications"],
+      "skillMapping": {
+        "code-generation": {"autonomy": 4, "reasoning": 4, "toolUse": 5},
+        "file-management": {"autonomy": 4, "toolUse": 5, "domainAlignment": 4},
+        "debugging": {"reasoning": 4, "toolUse": 5, "memory": 3}
+      },
+      "embedding": {
+        "location": "agent.json → extensions.aicmm",
+        "example": "See docs/standards/a2a-integration.md"
+      }
+    },
+    "mcp": {
+      "role": "client",
+      "connectedServers": ["github-mcp-server"],
+      "toolCount": 30,
+      "protocolVersion": "2024-11-05"
+    },
+    "openai": {
+      "functionCallingCompatible": true,
+      "toolFormat": "openai-tools-2024"
+    }
+  },
   "capabilityResume": [
     {
       "version": "1.0.40",
+      "date": "2026-05-24",
+      "schemaVersion": "0.2.0",
+      "scores": {
+        "autonomy": 4,
+        "reasoning": 4,
+        "memory": 3,
+        "learning": 2,
+        "toolUse": 5,
+        "collaboration": 3,
+        "embodiment": 0,
+        "explainability": 4,
+        "safety": 3,
+        "interoperability": 4,
+        "costEfficiency": 2,
+        "domainAlignment": 4
+      },
+      "total": 38,
+      "maxPossible": 60,
+      "average": 3.2,
+      "notes": "Re-assessed with Level 0 v0.2 (12 dimensions). Added explainability, safety, interoperability, costEfficiency"
+    },
+    {
+      "version": "1.0.40",
       "date": "2026-05-23",
+      "schemaVersion": "0.1.0",
       "scores": {
         "autonomy": 4,
         "reasoning": 4,
@@ -65,21 +182,66 @@
         "embodiment": 0,
         "domainAlignment": 4
       },
-      "notes": "Initial assessment based on documented capabilities and observed behavior"
+      "total": 25,
+      "maxPossible": 40,
+      "average": 3.1,
+      "notes": "Initial assessment based on documented capabilities and observed behavior (8-dimension schema)"
     }
   ],
-  "integration": {
-    "a2aCompatible": true,
-    "mcpEndpoints": ["github-mcp-server"]
+  "governanceValidation": {
+    "rules": [
+      {"rule": "Autonomy Gap", "constraint": "Autonomy(0) <= DomainAlignment(11) + 1", "result": "PASS", "values": "4 <= 5"},
+      {"rule": "Explainability Gate", "constraint": "Autonomy(0) >= 4 requires Explainability(7) >= 3", "result": "PASS", "values": "4 >= 4"},
+      {"rule": "Embodiment Safety", "constraint": "Embodiment(6) >= 3 requires Safety(8) >= 4", "result": "N/A", "values": "Embodiment=0"},
+      {"rule": "Tool Oversight", "constraint": "ToolUse(4) >= 4 requires DomainAlignment(11) >= 3", "result": "PASS", "values": "5 >= 4"},
+      {"rule": "Collaboration Interop", "constraint": "Collaboration(5) >= 4 requires Interop(9) >= 3", "result": "N/A", "values": "Collaboration=3"},
+      {"rule": "Cost Awareness", "constraint": "Autonomy(0) >= 4 requires CostEfficiency(10) >= 2", "result": "PASS", "values": "2 >= 2"},
+      {"rule": "Reasoning Foundation", "constraint": "Autonomy(0) >= 4 requires Reasoning(1) >= 3", "result": "PASS", "values": "4 >= 3"}
+    ],
+    "overallCompliant": true
+  },
+  "tools": [
+    "grep", "glob", "view", "edit", "create",
+    "powershell", "git", "web_search", "web_fetch",
+    "sql", "github-mcp-server", "task (sub-agents)"
+  ],
+  "skills": [
+    "Code Generation", "Code Refactoring", "Debugging",
+    "Test Writing", "Documentation", "Architecture Design",
+    "Dependency Management", "CI/CD Configuration"
+  ],
+  "plugins": [
+    "GitHub MCP Server (repos, PRs, issues, actions)",
+    "Session Store (cross-session memory)",
+    "Custom Skills (user-defined ~/.copilot/skills/)"
+  ],
+  "agentRelationships": {
+    "delegatesTo": [
+      "explore-agent (codebase research)",
+      "task-agent (builds, tests, lints)",
+      "code-review-agent (PR review)",
+      "research-agent (web research)",
+      "general-purpose-agent (complex subtasks)"
+    ],
+    "usedBy": [
+      "GitHub Copilot Workspace",
+      "VS Code Copilot Chat (agent mode)"
+    ],
+    "dependsOn": [
+      "Claude (Anthropic) — primary reasoning model",
+      "GitHub MCP Server — repository operations",
+      "Ripgrep — code search engine"
+    ]
   },
   "assessmentMetadata": {
     "assessedBy": "Suresh Chande",
-    "assessedDate": "2026-05-23",
-    "methodology": "AiCMM v0.1 - Evidence-based scoring from documentation and runtime observation",
+    "assessedDate": "2026-05-24",
+    "methodology": "AiCMM Level 0 v0.2 - Evidence-based scoring from documentation and runtime observation",
     "evidenceSources": [
       "GitHub Copilot CLI README and help documentation",
       "Runtime tool capabilities observed in session",
-      "Permission model and approval workflow behavior"
+      "Permission model and approval workflow behavior",
+      "Intent reporting and explanation patterns"
     ]
   }
 }

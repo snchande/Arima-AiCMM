@@ -1,107 +1,372 @@
-# AiCMM — Agent Capability Maturity Model
+# a•CMM — Agent Capability Maturity Model
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
-[![Java](https://img.shields.io/badge/Java-17%2B-orange.svg)](https://openjdk.org/)
-[![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)](CONTRIBUTING.md)
+<p align="center">
+  <strong>A unified, multi-dimensional framework for classifying AI agent capabilities</strong>
+</p>
+
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License: MIT"></a>
+  <a href="https://openjdk.org/"><img src="https://img.shields.io/badge/Java-17%2B-orange.svg" alt="Java 17+"></a>
+  <a href="CONTRIBUTING.md"><img src="https://img.shields.io/badge/contributions-welcome-brightgreen.svg" alt="Contributions Welcome"></a>
+  <a href="https://github.com/snchande/AiCMM/actions"><img src="https://img.shields.io/badge/build-passing-brightgreen.svg" alt="Build"></a>
+</p>
+
+---
 
 ## Overview
 
-The **Agent Capability Maturity Model (AiCMM)** is an open-source framework for evaluating, classifying, and describing the capabilities of modern AI agents — whether they are purely digital, embodied, or hybrid systems.
+**a•CMM (Agent Capability Maturity Model)** is an open-source framework that helps developers, architects, and organizations **classify, evaluate, and communicate** the capabilities of AI agents in a structured, comparable way.
 
-Unlike single-linear maturity ladders, AiCMM uses a **multi-dimensional capability profile** across eight dimensions, producing a unique **capability fingerprint** for each agent that makes trade-offs explicit and governance actionable.
+Instead of treating all AI agents as equal — or relying on vague marketing terms — a•CMM provides a **12-dimension, two-level scoring architecture** (each scored 0–5) that produces a unique **capability fingerprint** for any agent, whether it's a simple chatbot, an autonomous coding assistant, or an embodied robot.
 
-## The Eight Dimensions
+The result is an **Agent Card**: a standardized, machine-readable description of what an agent can and cannot do — enabling informed decisions about deployment, governance, and interoperability.
 
-| # | Dimension | What It Measures |
-|---|-----------|-----------------|
-| 1 | **Autonomy** | Degree of self-directed action without human intervention |
-| 2 | **Reasoning & Planning** | Structured problem solving under uncertainty |
-| 3 | **Learning & Adaptation** | Ability to improve from experience safely |
-| 4 | **Memory & Context** | Information retention, retrieval, and temporal awareness |
-| 5 | **Tool Use & Integration** | Proficiency in orchestrating external tools and APIs |
-| 6 | **Collaboration & Social Ability** | Coordination with humans and other agents |
-| 7 | **Embodiment** | Physical/virtual presence — perception, navigation, manipulation |
-| 8 | **Domain Alignment** | Policy compliance, regulatory fitness, safety, auditability |
+### Level 0 — 12 Universal Dimensions
 
-Each dimension is scored **0–5**, producing a radar-chart-style fingerprint that enables comparison across fundamentally different agent types.
+| Group | Pos | Key | Name | What It Measures |
+|-------|-----|-----|------|------------------|
+| **Cognitive Core** | 0 | `autonomy` | **Autonomy** | Self-directed action without human intervention |
+| **Cognitive Core** | 1 | `reasoning` | **Reasoning & Planning** | Structured problem-solving under uncertainty |
+| **Cognitive Core** | 2 | `memory` | **Memory & Context** | Information retention, retrieval, temporal awareness |
+| **Cognitive Core** | 3 | `learning` | **Learning & Adaptation** | Ability to improve from experience safely |
+| **Action & Integration** | 4 | `toolUse` | **Tool Use & Integration** | Orchestrating external tools and APIs |
+| **Action & Integration** | 5 | `collaboration` | **Collaboration & Social Intelligence** | Coordination with humans/agents, empathy, age-appropriate communication |
+| **Action & Integration** | 6 | `embodiment` | **Embodiment** | Physical/virtual presence — perception, navigation, manipulation |
+| **Trust & Deployment** | 7 | `explainability` | **Explainability & Transparency** | Ability to justify decisions, expose reasoning traces, and support review |
+| **Trust & Deployment** | 8 | `safety` | **Safety & Containment** | Controls that prevent harmful or unsafe actions |
+| **Trust & Deployment** | 9 | `interoperability` | **Interoperability** | Ability to work across protocols, ecosystems, and agents |
+| **Trust & Deployment** | 10 | `costEfficiency` | **Cost Efficiency** | Resource awareness, bounded execution, and economic viability |
+| **Trust & Deployment** | 11 | `domainAlignment` | **Domain Alignment** | Domain-specific policy, compliance, and deployment fit |
 
-## Project Goals
+These 12 Level 0 dimensions are organized into three groups: **Cognitive Core**, **Action & Integration**, and **Trust & Deployment**.
 
-This project provides:
+### Level 1 — Domain Deep-Dive
 
-1. **Framework Specification** — Formal definitions, scoring rubrics, and evidence guidelines for each dimension
-2. **Agent Card Generator** — Tools to inspect agents/systems and produce standardized AiCMM Agent Cards
-3. **Integration with Standards** — AiCMM classifications embeddable into A2A (Agent-to-Agent), MCP, and other emerging agent protocols
-4. **CLI & Library** — Java-based tooling for programmatic agent evaluation and classification
+Level 1 adds **domain-specific radar charts** for sectors such as Healthcare, Transportation, Finance, and Manufacturing. These domain profiles are **drill-downs**, not replacements for Level 0, and let teams score specialized requirements alongside the universal 12-dimension baseline.
 
-## Project Structure
+---
+
+## Why a•CMM?
+
+Today's AI agent ecosystem is exploding — but we lack a common language to describe what agents actually do. This creates real problems:
+
+| Problem | How a•CMM Helps |
+|---------|----------------|
+| **"All agents are the same"** | Multi-dimensional scoring reveals that a coding agent and a robot are fundamentally different systems |
+| **No way to compare agents** | Capability fingerprints enable apples-to-apples comparison across vendors |
+| **Governance is an afterthought** | Trust & Deployment dimensions and 7 governance rules make deployment constraints explicit |
+| **Vendor marketing is opaque** | Agent Cards provide evidence-based, verifiable capability claims |
+| **Standards lack capability metadata** | a•CMM integrates with A2A, MCP, and other protocols via embeddable classifications |
+
+### Key Design Principles
+
+- **Multi-dimensional, not linear** — No single "maturity level"; agents have unique profiles
+- **Evidence-based scoring** — Each level requires observable, testable indicators
+- **Governance built-in** — High autonomy is gated by reasoning, explainability, safety, cost, interoperability, and domain-fit checks
+- **Protocol-agnostic** — Embeds into any agent communication standard
+- **Community-driven** — Open for co-authoring, industry adaptations, and new dimensions
+
+---
+
+## Repo Structure
 
 ```
 AiCMM/
-├── docs/                          # Documentation and articles
-│   ├── articles/                  # Original articles (introduction & overview)
-│   ├── specifications/            # Formal framework specifications
-│   └── diagrams/                  # Architecture and framework diagrams
-├── aicmm-core/                    # Core library — models, scoring, agent cards
+├── docs/                              # Documentation
+│   ├── articles/                      # Original articles (LinkedIn + Medium)
+│   │   ├── introduction-linkedin.md   # "Not All AI Agents Are the Same"
+│   │   ├── overview-medium.md         # Full framework specification
+│   │   ├── introduction-linkedin.pdf  # PDF versions
+│   │   └── overview-medium.pdf
+│   └── diagrams/                      # Mermaid architecture diagrams
+│
+├── aicmm-core/                        # Core library
 │   └── src/main/java/org/aicmm/
-│       ├── core/                  # Framework core classes
-│       ├── model/                 # Domain model (dimensions, scores, profiles)
-│       ├── scoring/               # Scoring engine and rubrics
-│       └── agentcard/             # Agent Card generation and serialization
-├── aicmm-inspector/               # Agent inspector — investigates agents/systems
+│       ├── model/                     # Dimension, DimensionScore, CapabilityProfile
+│       ├── scoring/                   # ScoringEngine — validation & analysis
+│       └── agentcard/                 # AgentCard record + JSON serializer
+│
+├── aicmm-inspector/                   # Agent inspection framework
 │   └── src/main/java/org/aicmm/inspector/
-├── aicmm-cli/                     # Command-line interface
+│       └── AgentInspector.java        # Interface for agent investigation
+│
+├── aicmm-cli/                         # Command-line interface (Picocli)
 │   └── src/main/java/org/aicmm/cli/
-├── schemas/                       # JSON Schema definitions for Agent Cards
-├── examples/                      # Example agent cards and scoring profiles
-├── .github/                       # GitHub Actions, issue templates
-├── pom.xml                        # Maven parent POM
-├── LICENSE                        # Apache 2.0
-├── CONTRIBUTING.md                # Contribution guidelines
-└── CHANGELOG.md                   # Release history
+│       └── AicmmCli.java              # CLI entry point
+│
+├── aicmm-site/                        # Documentation web server (Javalin)
+│   └── src/main/java/org/aicmm/site/ # Renders docs, agent cards, diagrams
+│
+├── schemas/
+│   └── agent-card.schema.json         # JSON Schema for Agent Cards
+│
+├── examples/
+│   ├── copilot-cli-agent-card.json            # Example: GitHub Copilot CLI scored
+│   ├── medassist-pro-agent-card.json          # Example: Healthcare hybrid (Level 0 + Level 1)
+│   ├── autonav-fleet-agent-card.json          # Example: Transportation embodied (Level 0 + Level 1)
+│   ├── finguard-analyst-agent-card.json       # Example: Finance digital (Level 0 + Level 1)
+│   └── smartfactory-orchestrator-agent-card.json # Example: Manufacturing hybrid (Level 0 + Level 1)
+│
+├── pom.xml                            # Maven parent POM (Java 17)
+├── LICENSE                            # MIT License
+├── CONTRIBUTING.md                    # How to contribute
+└── CHANGELOG.md                       # Release history
 ```
 
-## Quick Start
+---
+
+## How to Use
 
 ### Prerequisites
 
-- Java 17 or later
-- Maven 3.8+
+- **Java 17** or later
+- **Maven 3.8+**
 
-### Build
+### Build the Project
 
 ```bash
+git clone https://github.com/snchande/AiCMM.git
+cd AiCMM
 mvn clean install
 ```
 
-### Generate an Agent Card
+### Run the Documentation Site
 
 ```bash
-java -jar aicmm-cli/target/aicmm-cli.jar inspect --agent <agent-descriptor>
+java -jar aicmm-site/target/aicmm-site-0.1.0-SNAPSHOT.jar --port 8090
+# → Open http://localhost:8090
 ```
+
+The site renders all Markdown documentation with Mermaid diagram support, provides an interactive Agent Card browser with radar charts, and links to the original articles.
+
+### Use as a Library
+
+Add the core module to your project:
+
+```xml
+<dependency>
+  <groupId>org.aicmm</groupId>
+  <artifactId>aicmm-core</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
+</dependency>
+```
+
+```java
+import org.aicmm.model.*;
+import org.aicmm.scoring.ScoringEngine;
+import org.aicmm.agentcard.AgentCard;
+
+// Build a Level 0 capability profile
+CapabilityProfile profile = CapabilityProfile.builder()
+    .score(Dimension.AUTONOMY, 4)
+    .score(Dimension.REASONING_AND_PLANNING, 4)
+    .score(Dimension.MEMORY_AND_CONTEXT, 4)
+    .score(Dimension.LEARNING_AND_ADAPTATION, 3)
+    .score(Dimension.TOOL_USE_AND_INTEGRATION, 5)
+    .score(Dimension.COLLABORATION_AND_SOCIAL_ABILITY, 3)
+    .score(Dimension.EMBODIMENT, 0)
+    .score(Dimension.EXPLAINABILITY_AND_TRANSPARENCY, 4)
+    .score(Dimension.SAFETY_AND_CONTAINMENT, 3)
+    .score(Dimension.INTEROPERABILITY, 4)
+    .score(Dimension.COST_EFFICIENCY, 2)
+    .score(Dimension.DOMAIN_ALIGNMENT, 4)
+    .build();
+
+// Validate governance rules
+ScoringEngine engine = new ScoringEngine();
+List<String> warnings = engine.validate(profile);
+
+// Create an Agent Card
+AgentCard card = new AgentCard("My Agent", "1.0", profile, AgentCategory.DIGITAL);
+```
+
+---
+
+## How to Classify an Agent
+
+Classification follows a structured process:
+
+### Step 1: Identify the Agent Category
+
+| Category | Description | Examples |
+|----------|-------------|----------|
+| **Digital** | Software-only, no physical interaction | Copilot, ChatGPT, AutoGPT |
+| **Embodied** | Has physical presence or sensors | Spot, surgical robots, drones |
+| **Hybrid** | Combines digital reasoning with physical action | Tesla FSD, warehouse robots |
+
+### Step 2: Score Each Dimension (0–5)
+
+For each of the 12 Level 0 dimensions, assign a level based on observable evidence:
+
+| Level | Meaning | Indicator |
+|-------|---------|-----------|
+| **0** | None | Capability absent |
+| **1** | Basic | Minimal, hardcoded behavior |
+| **2** | Intermediate | Structured but limited scope |
+| **3** | Advanced | Handles complexity with guardrails |
+| **4** | Expert | Autonomous within defined boundaries |
+| **5** | Mastery | Full autonomy with self-governance |
+
+### Step 3: Apply Governance Rules
+
+1. **Autonomy-Reasoning Foundation** — `Autonomy >= 4` requires `Reasoning >= 4`
+2. **Explainability Gate** — `Autonomy >= 4` requires `Explainability >= 3`
+3. **Safety Gate** — `Embodiment >= 3` requires `Safety >= 4`
+4. **Collaboration-Interop Link** — `Collaboration >= 4` requires `Interoperability >= 3`
+5. **Cost Awareness** — `Autonomy >= 4` requires `CostEfficiency >= 2`
+6. **Domain Alignment** — `Autonomy >= 4` requires `DomainAlignment >= 3`
+7. **Reasoning Foundation** — `Autonomy >= 4` requires `Reasoning >= 3`
+
+### Step 4: Generate the Capability Fingerprint
+
+The 12 scores form a Level 0 fingerprint: `[4, 4, 4, 3, 5, 3, 0, 4, 3, 4, 2, 4]`
+
+This can be visualized as a radar chart, compared across agents, and embedded into protocols.
+
+### Step 4a: Add Level 1 Domain Scoring (When Needed)
+
+If the agent operates in a regulated or specialized environment, add a Level 1 domain radar chart for Healthcare, Transportation, Finance, Manufacturing, or another domain-specific profile. Level 1 extends the universal Level 0 baseline rather than replacing it.
+
+### Step 5: Document as an Agent Card
+
+See the next section ↓
+
+---
+
+## How to Generate an Agent Card
+
+An **Agent Card** is the machine-readable output of the classification process. It follows the [JSON Schema](schemas/agent-card.schema.json).
+
+### Using the CLI (coming soon)
+
+```bash
+# Interactive classification
+java -jar aicmm-cli/target/aicmm-cli.jar classify --interactive
+
+# Inspect an agent endpoint
+java -jar aicmm-cli/target/aicmm-cli.jar inspect --url https://agent.example.com/.well-known/agent
+
+# Validate an existing card
+java -jar aicmm-cli/target/aicmm-cli.jar validate --card my-agent-card.json
+```
+
+### Manual Creation
+
+Create a JSON file following this structure:
+
+```json
+{
+  "schemaVersion": "0.2.0",
+  "_dimensionSchema": "level0-v0.2",
+  "name": "My AI Agent",
+  "version": "2.1.0",
+  "category": "DIGITAL",
+  "description": "An autonomous coding assistant",
+  "capabilityProfile": {
+    "autonomy": { "position": 0, "score": 4, "confidence": "high" },
+    "reasoning": { "position": 1, "score": 4, "confidence": "high" },
+    "memory": { "position": 2, "score": 4, "confidence": "medium" },
+    "learning": { "position": 3, "score": 3, "confidence": "medium" },
+    "toolUse": { "position": 4, "score": 5, "confidence": "high" },
+    "collaboration": { "position": 5, "score": 3, "confidence": "medium" },
+    "embodiment": { "position": 6, "score": 0, "confidence": "high" },
+    "explainability": { "position": 7, "score": 4, "confidence": "medium" },
+    "safety": { "position": 8, "score": 3, "confidence": "high" },
+    "interoperability": { "position": 9, "score": 4, "confidence": "medium" },
+    "costEfficiency": { "position": 10, "score": 2, "confidence": "medium" },
+    "domainAlignment": { "position": 11, "score": 4, "confidence": "high" }
+  },
+  "level1Profile": {
+    "domain": "finance",
+    "dimensions": {
+      "auditability": 4,
+      "policyControls": 4,
+      "dataSensitivity": 4,
+      "transactionSafety": 3,
+      "fraudAwareness": 3,
+      "humanOversight": 4,
+      "regulatoryTraceability": 4,
+      "workflowIntegration": 5
+    }
+  },
+  "governanceValidation": {
+    "passed": true,
+    "rulesChecked": 7,
+    "violations": []
+  },
+  "totalScore": 40,
+  "averageScore": 3.33,
+  "assessedAt": "2026-05-24",
+  "assessedBy": "human"
+}
+```
+
+### Embedding in A2A / MCP
+
+Agent Cards are designed to be embedded as capability metadata in agent communication protocols:
+
+```json
+{
+  "agent": { "name": "My Agent", "url": "..." },
+  "aicmm": { "$ref": "./my-agent-card.json" }
+}
+```
+
+---
 
 ## Contributing
 
-We welcome contributions! Whether you want to:
+We welcome contributions from developers, researchers, and AI practitioners! You can:
 
-- **Co-author the framework** — refine dimensions, scoring rubrics, or industry adaptations
-- **Build tooling** — inspectors, integrations, visualizations
-- **Add examples** — score real-world agents and share Agent Cards
-- **Improve documentation** — clarifications, translations, diagrams
+- **Co-author the framework** — Refine scoring rubrics, propose new dimensions, create industry adaptations
+- **Build tooling** — Inspector implementations, protocol integrations, visualizations
+- **Add Agent Cards** — Classify real-world agents and submit examples
+- **Improve documentation** — Clarifications, translations, tutorials
 
-Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for full guidelines, code of conduct, and development setup.
+
+### Quick Contribution Workflow
+
+```bash
+git checkout -b feature/your-feature
+# Make changes
+mvn clean verify
+git commit -m "feat: your description"
+git push origin feature/your-feature
+# Open a Pull Request
+```
+
+---
 
 ## Background & Articles
 
-- [Not All AI Agents Are the Same — So Why Do We Treat Them Like It?](docs/articles/introduction-linkedin.md) — LinkedIn introduction
-- [Agent Capability Maturity Model: A Unified Framework](docs/articles/overview-medium.md) — Detailed Medium article
+The a•CMM framework originated from these published articles:
+
+- 📰 [Not All AI Agents Are the Same — So Why Do We Treat Them Like It?](https://www.linkedin.com/pulse/all-ai-agents-same-so-why-do-we-treat-them-like-suresh-chande-oxgqc/) — LinkedIn
+- 📖 [Agent Capability Maturity Model: A Unified Framework for Evaluating Modern AI Agents](https://medium.com/@sureshchande/agent-capability-maturity-model-a-unified-framework-for-evaluating-modern-ai-agents-bcb5b7a64bd7) — Medium
+
+Local copies are available in [`docs/articles/`](docs/articles/) (Markdown and PDF).
+
+---
 
 ## License
 
-This project is licensed under the [Apache License 2.0](LICENSE).
+This project is licensed under the **MIT License** — see [LICENSE](LICENSE) for details.
+
+You are free to use, modify, and distribute this framework in both open-source and commercial projects.
+
+---
 
 ## Author
 
-**Suresh Chande** — Principal Product Manager, Microsoft  
+**Suresh Chande** — Principal Product Manager, Microsoft
+
 - [LinkedIn](https://www.linkedin.com/in/sureshchande)
 - [Medium](https://medium.com/@sureshchande)
+- [GitHub](https://github.com/snchande)
+
+---
+
+<p align="center">
+  <em>Not all agents are the same — now we have a way to prove it.</em>
+</p>

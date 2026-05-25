@@ -36,24 +36,40 @@ Traditional maturity models tend to force agents into a single linear ladder. Mo
 
 ## A Unified Agent Capability Framework
 
-This article proposes a unified, eight-dimension capability model that can score any agent — purely digital, embodied, or hybrid — on a **0–5 scale**. The goal is not to declare a single winner, but to produce a repeatable **capability fingerprint** that helps you reason about design intent, operational risk, and readiness for deployment.
+This article proposes a unified, twelve-dimension, two-level capability architecture that can score any agent — purely digital, embodied, or hybrid — on a **0–5 scale**. The goal is not to declare a single winner, but to produce a repeatable **capability fingerprint** that helps you reason about design intent, operational risk, and readiness for deployment.
 
 ---
 
-## The Eight Dimensions
+## The Twelve Level 0 Dimensions
 
-Scoring each dimension independently produces a capability fingerprint you can visualize (for example, as a radar chart) and track across releases as a **Capability Resume**.
+Scoring each dimension independently produces a Level 0 capability fingerprint you can visualize (for example, as a radar chart) and track across releases as a **Capability Resume**.
 
-| # | Dimension | What It Measures |
-|---|-----------|-----------------|
-| 1 | **Autonomy** | How far the system can move from being driven to being self-directed |
-| 2 | **Reasoning & Planning** | Structured problem solving under uncertainty |
+### Cognitive Core
+
+| Pos | Dimension | What It Measures |
+|-----|-----------|-----------------|
+| 0 | **Autonomy** | How far the system can move from being driven to being self-directed |
+| 1 | **Reasoning & Planning** | Structured problem solving under uncertainty |
+| 2 | **Memory & Context** | Ability to retain, retrieve, and use information over time |
 | 3 | **Learning & Adaptation** | Whether the agent improves from experience and how safely |
-| 4 | **Memory & Context** | Ability to retain, retrieve, and use information over time |
-| 5 | **Tool Use & Integration** | Acting through reliable interfaces, handling failure |
-| 6 | **Collaboration & Social Ability** | Coordination with humans and other agents |
-| 7 | **Embodiment** | Physical or virtual presence — perception, navigation, manipulation |
-| 8 | **Domain Alignment** | Policy compliance, regulatory fitness, safety, auditability |
+
+### Action & Integration
+
+| Pos | Dimension | What It Measures |
+|-----|-----------|-----------------|
+| 4 | **Tool Use & Integration** | Acting through reliable interfaces, handling failure |
+| 5 | **Collaboration & Social Intelligence** | Coordination with humans/agents, empathy, inclusivity, age-appropriate communication |
+| 6 | **Embodiment** | Physical or virtual presence — perception, navigation, manipulation |
+
+### Trust & Deployment
+
+| Pos | Dimension | What It Measures |
+|-----|-----------|-----------------|
+| 7 | **Explainability & Transparency** | Ability to justify actions and support review |
+| 8 | **Safety & Containment** | Controls that prevent unsafe or harmful outcomes |
+| 9 | **Interoperability** | Ability to work across protocols, ecosystems, and agent networks |
+| 10 | **Cost Efficiency** | Resource awareness, bounded execution, and economic viability |
+| 11 | **Domain Alignment** | Policy compliance, regulatory fitness, and deployment fit |
 
 ---
 
@@ -61,53 +77,51 @@ Scoring each dimension independently produces a capability fingerprint you can v
 
 ### 1. Autonomy
 
-Autonomy measures how far the system can move from being driven to being self-directed. At low levels, it only reacts to explicit triggers (a button click, a webhook) and follows pre-authored flows. At higher levels, it can decompose goals into subgoals, schedule work, request missing information, and decide when to stop.
-
-**Scenario:** An IT ops agent at Autonomy 2 can restart services when a specific alert fires; at Autonomy 4 it can detect a slow-burn incident, collect evidence, open a ticket with a proposed fix, and page the on-call — but still respects a human approval gate for risky actions.
+Autonomy measures how far the system can move from being driven to being self-directed. At low levels, it only reacts to explicit triggers; at higher levels, it decomposes goals, manages execution, and decides when to stop.
 
 ### 2. Reasoning & Planning
 
-Reasoning & Planning is about structured problem solving under uncertainty: forming a plan, validating assumptions, and repairing the plan when the environment changes. A Level 1 system can produce plausible next steps but struggles to maintain coherence across a long chain. A Level 5 system can branch, compare alternatives, and select strategies that optimize constraints like cost, time, or safety.
+Reasoning & Planning captures structured problem solving under uncertainty: forming plans, validating assumptions, repairing failures, and choosing among alternatives.
 
-**Scenario:** A procurement agent asked to reduce cloud spending by 15% might propose obvious rightsizing at Level 2; at Level 4 it can generate a staged plan (inventory → measure → simulate → execute), run impact analysis, and surface trade-offs such as latency risk or reserved-instance lock-in.
+### 3. Memory & Context
 
-### 3. Learning & Adaptation
+Memory & Context is what lets an agent reason over time rather than only within the current prompt. Higher levels add durable recall, task continuity, and privacy-aware retrieval.
 
-Learning & Adaptation describes whether the agent improves from experience and how safely it does so. Early levels are static: behavior changes only when humans redeploy code or a new model. Mid-level systems incorporate feedback loops (thumbs-up/down, human review queues) to tune prompts, retrieval, or policies. High levels use controlled online learning or reinforcement learning within sandboxes, with drift detection and rollback.
+### 4. Learning & Adaptation
 
-**Scenario:** A customer-support agent might learn that certain refund requests correlate with fraud signals, but only after those signals are validated and the policy is updated.
-
-> **Note:** In regulated domains, learning is often intentionally capped to preserve determinism, reproducibility, and certification artifacts.
-
-### 4. Memory & Context
-
-Memory & Context is the difference between an agent that converses and one that remembers enough to be useful tomorrow. At low levels, the agent is effectively stateless and can only work within the current prompt. Higher levels add session state, task state, and durable memory with retrieval (often via embeddings) plus explicit controls for retention and privacy.
-
-**Scenario:** An enterprise assistant with Level 4 memory can remember project-specific conventions (naming, owners, timelines), retrieve the latest decision from meeting notes, and avoid re-asking already-answered questions — while still honoring expiration, redaction, and least-privilege access.
+Learning & Adaptation describes whether the agent improves from experience and how safely it does so. In regulated settings, this dimension is often deliberately capped to preserve reproducibility and certification.
 
 ### 5. Tool Use & Integration
 
-Tool Use & Integration measures whether the agent can act through reliable interfaces and whether it treats tools as first-class, failure-prone systems. Low-level agents call a single API with hard-coded parameters. Higher-level agents choose among tools, sequence them, interpret outputs, and recover from partial failures.
+Tool Use & Integration measures how well the agent acts through external interfaces, sequences tools, interprets outputs, and recovers from partial failures.
 
-**Scenario:** A finance close agent might reconcile invoices by pulling data from ERP, matching against contracts, and generating exceptions. A Level 5 tool user not only performs the workflow, but also validates invariants (totals balance), writes an audit trail, and rolls back changes if downstream checks fail.
+### 6. Collaboration & Social Intelligence
 
-### 6. Collaboration & Social Ability
-
-Collaboration & Social Ability covers coordination protocols: how the agent communicates intent, requests help, delegates, and avoids stepping on other actors. In multi-agent settings this includes role specialization, negotiation, and conflict resolution.
-
-**Scenario:** In a software delivery pipeline, one agent might triage issues, another writes a fix, and a third runs tests and prepares a release note. A mature collaborative layer defines contracts (inputs/outputs), escalation rules, and shared memory so that agents do not create circular work or duplicate effort.
+Collaboration & Social Intelligence covers coordination protocols, empathy, and inclusivity: how the agent communicates intent, requests help, delegates, adapts its tone to the user's emotional state, adjusts communication for different age groups (children vs elderly), and works with humans or peer agents without creating circular effort.
 
 ### 7. Embodiment
 
-Embodiment distinguishes agents that act in pixels from agents that act in atoms. It includes perception (sensor fusion), localization, navigation, manipulation, and safe interaction with people and infrastructure.
+Embodiment distinguishes agents that act in pixels from agents that act in atoms. It includes perception, localization, navigation, manipulation, and safe interaction with people and infrastructure.
 
-**Scenario:** A warehouse AMR may navigate aisles at Level 4 embodiment but still require strict geofencing, conservative speed limits near people, and a certified e-stop pathway.
+### 8. Explainability & Transparency
 
-### 8. Domain Alignment
+Explainability & Transparency measures whether the agent can justify its actions, expose decision paths, cite evidence, and support meaningful human review.
 
-Domain Alignment is not an extra; it is the constraint layer that determines whether a capability is deployable. It covers policy compliance, regulatory fitness, safety engineering, privacy, and auditability.
+### 9. Safety & Containment
 
-**Scenario:** A healthcare documentation agent may score high on language ability, but without HIPAA-compliant access controls, data minimization, and traceable citations back to the patient record, it cannot cross the deployment threshold regardless of its reasoning score.
+Safety & Containment evaluates guardrails, fail-safes, bounded execution, and the ability to prevent or recover from unsafe actions in both digital and physical environments.
+
+### 10. Interoperability
+
+Interoperability captures how well the agent works across protocols, tool ecosystems, shared data contracts, and multi-agent networks.
+
+### 11. Cost Efficiency
+
+Cost Efficiency measures whether the agent behaves with resource awareness: choosing economical plans, limiting unnecessary compute, and making autonomy sustainable at scale.
+
+### 12. Domain Alignment
+
+Domain Alignment is the deployment-fit layer: policy compliance, regulatory readiness, auditability, and domain-specific controls that determine whether a capability can be trusted in the real world.
 
 ---
 
@@ -157,7 +171,7 @@ Agents evolve across versions. The framework supports temporal tracking through 
 | v4.0 | Goal-driven — decomposes tasks, executes within policies | Autonomy: 4, Tool Use: 3, Domain Alignment: high |
 | v5.0 | Orchestrator — coordinates sub-agents, manages queues, escalates | Reasoning: 5, Collaboration: 3 |
 
-This creates a governance trail that ensures Domain Alignment scales with Autonomy before deployment.
+This creates a governance trail that ensures Trust & Deployment controls scale with Autonomy before deployment.
 
 ---
 
@@ -181,6 +195,12 @@ Autonomy and collaboration matter due to adversarial, disconnected, or time-comp
 
 ---
 
+## Level 1 Domain-Specific Scoring
+
+Level 0 gives every agent a shared 12-dimension baseline. Level 1 adds domain-specific radar charts for sectors such as Healthcare, Transportation, Finance, and Manufacturing, each with its own focused eight-dimension profile.
+
+That separation matters. A transportation agent may need deeper scoring around operational design domain, fleet telemetry, remote intervention, and physical fail-safe behavior. A finance agent needs stronger emphasis on auditability, transaction controls, fraud awareness, and policy enforcement. By keeping those concerns in Level 1, the framework preserves comparability at Level 0 while still supporting serious domain evaluation.
+
 ## Toward Standardized Agent Certification
 
 The Agent Capability Framework supports governance by:
@@ -200,7 +220,7 @@ The Agent Capability Framework supports governance by:
 
 3. **Identify your bottleneck dimension.** Many failures come from a single weak link (e.g., strong reasoning paired with weak tool reliability or weak domain alignment).
 
-4. **Couple Autonomy to Alignment.** Treat rising autonomy as a trigger to strengthen guardrails, approvals, monitoring, and rollback before expanding scope.
+4. **Couple Autonomy to Trust & Deployment.** Treat rising autonomy as a trigger to strengthen explainability, safety, approvals, monitoring, rollback, and domain controls before expanding scope.
 
 5. **Track changes as a Capability Resume.** When you upgrade models, add tools, or introduce memory, re-score and document the delta so governance can keep pace.
 
@@ -212,13 +232,13 @@ The AI ecosystem is shifting from isolated tools to agentic systems woven into e
 
 The Agent Capability Maturity Model provides that shared language. Use it to:
 
-1. **Score** an agent across the eight dimensions
+1. **Score** an agent across the twelve Level 0 dimensions
 2. **Justify** scores with an evidence pack (tests, logs, red-team results, audit trails)
 3. **Define governance triggers** — especially that higher autonomy requires stronger domain alignment, monitoring, and rollback
 
 Done well, the framework becomes a living "capability resume" you can review at each release gate, vendor evaluation, and production expansion.
 
-**Concrete next step:** Pick one agent you already run (or are piloting). Score it quickly at a workshop with engineering, security, and product using the eight dimensions. Then choose one improvement that reduces real risk — tighten tool permissions, add audit logging, introduce an approval gate, or constrain the operating domain — and rescore after the change. That loop is how agent programs become measurable, governable, and scalable.
+**Concrete next step:** Pick one agent you already run (or are piloting). Score it quickly at a workshop with engineering, security, and product using the twelve Level 0 dimensions, then add a Level 1 domain profile if the deployment context demands it. Choose one improvement that reduces real risk — tighten tool permissions, add audit logging, introduce an approval gate, or constrain the operating domain — and rescore after the change. That loop is how agent programs become measurable, governable, and scalable.
 
 ---
 
