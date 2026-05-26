@@ -29,12 +29,13 @@
 6. [The Web Interface](#the-web-interface)
 7. [MCP Integration](#mcp-integration)
 8. [CLI Agents & Skills](#cli-agents--skills)
-9. [Agent Card Examples](#agent-card-examples)
-10. [Standards Integration (A2A, MCP, OpenAI)](#standards-integration)
-11. [Governance & Validation](#governance--validation)
-12. [Level 1: Domain-Specific Scoring](#level-1-domain-specific-scoring)
-13. [API Reference](#api-reference)
-14. [Contributing](#contributing)
+9. [Copy-Paste CLI Recipes](#-copy-paste-cli-recipes)
+10. [Agent Card Examples](#agent-card-examples)
+11. [Standards Integration (A2A, MCP, OpenAI)](#standards-integration)
+12. [Governance & Validation](#governance--validation)
+13. [Level 1: Domain-Specific Scoring](#level-1-domain-specific-scoring)
+14. [API Reference](#api-reference)
+15. [Contributing](#contributing)
 
 ---
 
@@ -67,27 +68,24 @@ AiCMM evaluates every AI agent across **12 fixed-position dimensions**, grouped 
 
 ```mermaid
 graph LR
-    subgraph CognitiveCore["🧠 Cognitive Core (0-3)"]
+    subgraph CognitiveCore["Cognitive Core 0-3"]
         A[0: Autonomy]
         B[1: Reasoning]
         C[2: Memory]
         D[3: Learning]
     end
-
-    subgraph ActionIntegration["⚡ Action & Integration (4-6)"]
+    subgraph ActionIntegration["Action and Integration 4-6"]
         E[4: Tool Use]
         F[5: Collaboration]
         G[6: Embodiment]
     end
-
-    subgraph TrustDeployment["🛡️ Trust & Deployment (7-11)"]
+    subgraph TrustDeployment["Trust and Deployment 7-11"]
         H[7: Explainability]
         I[8: Safety]
         J[9: Interoperability]
         K[10: Cost Efficiency]
         L[11: Domain Alignment]
     end
-
     CognitiveCore --> ActionIntegration --> TrustDeployment
 ```
 
@@ -125,43 +123,36 @@ graph LR
 
 ```mermaid
 graph TB
-    subgraph User["👤 User / Contributor"]
-        CLI[CLI Agent<br/>Copilot / Claude / Gemini]
+    subgraph User[User and Contributor]
+        CLI[CLI Agent - Copilot Claude Gemini]
         Browser[Web Browser]
     end
-
-    subgraph AiCMMPlatform["🏗️ AiCMM Platform"]
-        subgraph Site["aicmm-site (Javalin)"]
-            WebUI[Web UI<br/>Catalog • Cards • Charts]
-            API[REST API<br/>"/api/*"]
+    subgraph Platform[AiCMM Platform]
+        subgraph Site[aicmm-site Javalin]
+            WebUI[Web UI - Catalog Cards Charts]
+            API[REST API]
         end
-
-        subgraph Core["aicmm-core"]
-            Models[Domain Models<br/>Dimensions • Profiles • Cards]
-            Scoring[Scoring Engine<br/>Governance Validator]
+        subgraph Core[aicmm-core]
+            Models[Domain Models]
+            Scoring[Scoring Engine and Governance]
         end
-
-        subgraph CLIModule["aicmm-cli"]
+        subgraph CLIMod[aicmm-cli]
             PicoCLI[Picocli Commands]
             MCP[MCP Stdio Server]
         end
-
-        subgraph Inspector["aicmm-inspector"]
-            Inspect[Agent Inspector<br/>URL • Docs • A2A]
+        subgraph Inspector[aicmm-inspector]
+            Inspect[Agent Inspector]
         end
     end
-
-    subgraph Storage["💾 Storage"]
-        Cards[(Agent Cards<br/>examples/*.json)]
-        Schema[(JSON Schema<br/>schemas/)]
+    subgraph Storage[Storage Layer]
+        Cards[(Agent Cards JSON)]
+        Schema[(JSON Schema)]
     end
-
-    subgraph Standards["🌐 Standards"]
+    subgraph Standards[Standards Integration]
         A2A[Google A2A]
         MCPStd[Anthropic MCP]
         OpenAI[OpenAI Plugins]
     end
-
     CLI -->|stdio| MCP
     Browser --> WebUI
     CLI -->|HTTP| API
@@ -349,28 +340,24 @@ AiCMM exposes a **Model Context Protocol (MCP)** server for seamless integration
 
 ```mermaid
 sequenceDiagram
-    participant CLI as CLI Agent<br/>(Copilot/Claude/Gemini)
-    participant MCP as AiCMM MCP Server<br/>(Java stdio)
-    participant API as AiCMM REST API<br/>(localhost:8080)
-    participant Catalog as Agent Catalog<br/>(examples/*.json)
-
+    participant CLI as CLI Agent
+    participant MCP as AiCMM MCP Server
+    participant API as AiCMM REST API
+    participant Catalog as Agent Catalog
     CLI->>MCP: tools/call: aicmm_inspect_agent
     MCP->>API: POST /api/inspect
     API->>MCP: Template card JSON
     MCP->>CLI: Card template with suggested scores
-
     CLI->>CLI: User reviews and adjusts scores
-
     CLI->>MCP: tools/call: aicmm_validate_card
     MCP->>API: POST /api/validate
-    API->>MCP: Governance: PASSED 7/7
+    API->>MCP: Governance PASSED 7/7
     MCP->>CLI: Validation result
-
     CLI->>MCP: tools/call: aicmm_create_card
     MCP->>API: POST /api/agent-cards
     API->>Catalog: Save card JSON
     API->>MCP: Created + URL
-    MCP->>CLI: ✅ Card registered
+    MCP->>CLI: Card registered
 ```
 
 ### MCP Configuration
@@ -422,18 +409,455 @@ When you clone this repo, you get immediate access to AI-powered agents and skil
 | **@aicmm-contributor** | Navigate codebase, build, follow conventions |
 | **@aicmm-reviewer** | Review cards for quality and governance |
 
+### Using Agents
+
+Agents are invoked by mentioning them in your CLI prompt. They work across **GitHub Copilot CLI**, **Claude Code**, and **Gemini CLI**.
+
+#### @aicmm — Create and Manage Agent Cards
+
+```
+# Create a card from a URL
+> @aicmm Create an agent card for the agent documented at https://docs.example.com/my-agent
+
+# Score an existing card
+> @aicmm Score the agent card in examples/copilot-cli-agent-card.json
+
+# Validate governance rules
+> @aicmm Validate governance for examples/medassist-pro-agent-card.json
+
+# Register a card into the catalog
+> @aicmm Register this agent card: { "name": "My Agent", ... }
+```
+
+#### @aicmm-contributor — Development Help
+
+```
+# Build the project
+> @aicmm-contributor How do I build and test the project?
+
+# Understand module structure
+> @aicmm-contributor Explain how the scoring engine works in aicmm-core
+
+# Add a new feature
+> @aicmm-contributor I want to add a new REST endpoint for bulk card import
+```
+
+#### @aicmm-reviewer — Quality Assurance
+
+```
+# Review a card for completeness
+> @aicmm-reviewer Review this agent card for quality and completeness
+
+# Check governance compliance
+> @aicmm-reviewer Does this card pass all 7 governance rules? Flag any issues.
+
+# Compare two agents
+> @aicmm-reviewer Compare copilot-cli and medassist-pro agent cards
+```
+
 ### Skills (`.copilot/skills/`)
 
-| Skill | Purpose |
-|-------|---------|
-| **create-agent-card** | Full card creation workflow |
-| **register-agent-card** | Validate and register existing cards |
-| **score-agent** | 12-dimension scoring with governance |
-| **inspect-agent** | Investigate agent capabilities |
-| **validate-governance** | Check 7 governance rules |
-| **compare-agents** | Side-by-side comparison |
-| **add-level1-domain** | Extend with new industry domains |
-| **build-and-test** | Build, test, and verify |
+Skills are specialized workflows you invoke directly. They focus on one task and provide structured outputs.
+
+| Skill | Purpose | Invocation |
+|-------|---------|------------|
+| **create-agent-card** | Full card creation workflow | `/create-agent-card` or ask @aicmm |
+| **register-agent-card** | Validate and register existing cards | `/register-agent-card` |
+| **score-agent** | 12-dimension scoring with governance | `/score-agent` |
+| **inspect-agent** | Investigate agent capabilities | `/inspect-agent` |
+| **validate-governance** | Check 7 governance rules | `/validate-governance` |
+| **compare-agents** | Side-by-side comparison | `/compare-agents` |
+| **add-level1-domain** | Extend with new industry domains | `/add-level1-domain` |
+| **build-and-test** | Build, test, and verify | `/build-and-test` |
+
+### Skill Usage Examples
+
+#### create-agent-card
+
+```
+> /create-agent-card
+Agent URL or description: https://github.com/features/copilot
+Agent name: GitHub Copilot
+
+Output:
+✅ Inspected agent capabilities
+✅ Scored 12 dimensions: [4,4,3,2,5,3,0,4,4,4,3,4]
+✅ Governance validation: PASSED (7/7)
+✅ Generated avatar: "The Code Companion"
+✅ Saved to examples/github-copilot-agent-card.json
+```
+
+#### score-agent
+
+```
+> /score-agent examples/my-agent-card.json
+
+┌────────────────────────────────┬───────┬────────────────────────────┐
+│ Dimension                      │ Score │ Evidence                   │
+├────────────────────────────────┼───────┼────────────────────────────┤
+│ 0: Autonomy                    │ 3     │ Semi-autonomous with human │
+│ 1: Reasoning                   │ 4     │ Multi-step problem solving │
+│ 2: Memory                      │ 2     │ Session context only       │
+│ 3: Learning                    │ 1     │ No persistent adaptation   │
+│ 4: Tool Use                    │ 5     │ Multi-tool orchestration   │
+│ 5: Collaboration               │ 3     │ Human-AI pair programming  │
+│ 6: Embodiment                  │ 0     │ Pure digital agent         │
+│ 7: Explainability              │ 4     │ Explains all suggestions   │
+│ 8: Safety                      │ 4     │ Content filtering + scope  │
+│ 9: Interoperability            │ 4     │ LSP, MCP, API standards    │
+│ 10: Cost Efficiency            │ 3     │ Token-aware, caching       │
+│ 11: Domain Alignment           │ 4     │ Code-focused compliance    │
+├────────────────────────────────┼───────┼────────────────────────────┤
+│ TOTAL                          │ 37/60 │ Maturity: Advanced         │
+└────────────────────────────────┴───────┴────────────────────────────┘
+
+Governance: ✅ PASSED (7/7 rules)
+```
+
+#### validate-governance
+
+```
+> /validate-governance examples/my-agent-card.json
+
+Rule 1: Autonomy(3) ≤ Reasoning(4) + 1  ✅ PASS
+Rule 2: Autonomy(3) < 4, skip           ✅ N/A
+Rule 3: Autonomy(3) < 4, skip           ✅ N/A
+Rule 4: Collaboration(3) < 4, skip      ✅ N/A
+Rule 5: ToolUse(5) ≥ 4 → CostEff(3) ≥ 2  ✅ PASS
+Rule 6: Embodiment(0) < 3, skip         ✅ N/A
+Rule 7: ToolUse(5) ≥ 4 → Reasoning(4) ≥ 3  ✅ PASS
+
+Result: ✅ ALL GOVERNANCE RULES PASSED
+```
+
+#### compare-agents
+
+```
+> /compare-agents copilot-cli medassist-pro
+
+┌────────────────────┬─────────────┬──────────────────┐
+│ Dimension          │ Copilot CLI │ MedAssist Pro    │
+├────────────────────┼─────────────┼──────────────────┤
+│ Autonomy           │ 3           │ 4                │
+│ Reasoning          │ 4           │ 5                │
+│ Memory             │ 3           │ 4                │
+│ ...                │ ...         │ ...              │
+│ TOTAL              │ 37/60       │ 42/60            │
+│ Category           │ Digital     │ Hybrid           │
+└────────────────────┴─────────────┴──────────────────┘
+
+Key Differences:
+- MedAssist Pro scores higher in Reasoning (clinical diagnosis)
+- Copilot CLI excels in Tool Use (multi-tool orchestration)
+- MedAssist Pro has Level 1 Healthcare domain scoring
+```
+
+#### inspect-agent
+
+```
+> /inspect-agent --url https://docs.example.com/agent-api
+
+Inspecting agent at: https://docs.example.com/agent-api
+Detected capabilities:
+  - REST API with 12 endpoints
+  - OAuth2 authentication
+  - Rate limiting and quotas
+  - Webhook event handling
+  - Multi-language support
+
+Suggested scores: [2,3,1,0,4,2,0,3,3,4,3,3]
+Suggested category: Digital
+Suggested archetype: "The API Gateway"
+
+Use /create-agent-card to generate the full card from these results.
+```
+
+#### add-level1-domain
+
+```
+> /add-level1-domain Healthcare
+
+Adding Level 1 domain: Healthcare
+Required sub-dimensions:
+  1. Clinical Accuracy (0-5)
+  2. Patient Safety (0-5)
+  3. Regulatory Compliance (0-5)
+  4. EHR Integration (0-5)
+  5. Clinical Workflow (0-5)
+  6. Medical Reasoning (0-5)
+
+Provide scores for each sub-dimension to extend the agent card.
+```
+
+### MCP Tools — Programmatic Usage
+
+For automated pipelines and custom integrations, use the MCP server directly:
+
+```bash
+# Start the MCP server (requires AiCMM site running on :8080)
+java -jar aicmm-cli/target/aicmm-cli-0.1.0-SNAPSHOT.jar --mcp
+```
+
+#### Example: Scripted Agent Card Creation
+
+```bash
+# 1. Inspect an agent
+echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{
+  "name":"aicmm_inspect_agent",
+  "arguments":{"url":"https://docs.myagent.io","name":"MyAgent"}
+}}' | java -jar aicmm-cli/target/aicmm-cli-0.1.0-SNAPSHOT.jar --mcp
+
+# 2. Validate the generated card
+echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{
+  "name":"aicmm_validate_card",
+  "arguments":{"card":{"name":"MyAgent","scores":[3,3,2,1,4,2,0,3,3,3,3,3]}}
+}}' | java -jar aicmm-cli/target/aicmm-cli-0.1.0-SNAPSHOT.jar --mcp
+
+# 3. Register the card
+echo '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{
+  "name":"aicmm_create_card",
+  "arguments":{"name":"MyAgent","description":"My custom agent","scores":[3,3,2,1,4,2,0,3,3,3,3,3]}
+}}' | java -jar aicmm-cli/target/aicmm-cli-0.1.0-SNAPSHOT.jar --mcp
+```
+
+#### REST API Quick Reference
+
+```bash
+# List all agent cards
+curl http://localhost:8080/api/agent-cards
+
+# Get a specific card
+curl http://localhost:8080/api/agent-cards/copilot-cli-agent-card
+
+# Create a new card
+curl -X POST http://localhost:8080/api/agent-cards \
+  -H "Content-Type: application/json" \
+  -d @examples/my-agent-card.json
+
+# Validate governance
+curl -X POST http://localhost:8080/api/validate \
+  -H "Content-Type: application/json" \
+  -d '{"scores":[4,4,3,2,5,3,0,4,4,4,3,4]}'
+
+# Score breakdown
+curl -X POST http://localhost:8080/api/agent-cards/_/score \
+  -H "Content-Type: application/json" \
+  -d @examples/copilot-cli-agent-card.json
+
+# Inspect from URL
+curl -X POST http://localhost:8080/api/inspect \
+  -H "Content-Type: application/json" \
+  -d '{"url":"https://docs.example.com/agent","name":"ExampleAgent"}'
+
+# Get dimension definitions
+curl http://localhost:8080/api/dimensions
+
+# Get JSON schema
+curl http://localhost:8080/api/schema
+```
+
+---
+
+## 📋 Copy-Paste CLI Recipes
+
+Ready-to-use prompts for your favorite CLI. Just clone the repo and start typing:
+
+```bash
+git clone https://github.com/snchande/Arima-AiCMM.git && cd Arima-AiCMM
+```
+
+### 🟣 GitHub Copilot CLI
+
+```
+@aicmm Create an agent card for Claude Code by inspecting https://docs.anthropic.com/en/docs/claude-code
+```
+
+```
+@aicmm Score the agent at examples/copilot-cli-agent-card.json and show a full dimension breakdown
+```
+
+```
+@aicmm Validate governance rules for this agent with scores [4,4,3,2,5,3,0,4,4,4,3,4]
+```
+
+```
+@aicmm Inspect the agent at https://github.com/features/copilot and suggest AiCMM scores
+```
+
+```
+@aicmm Create an agent card for my custom chatbot. It answers customer questions using RAG over our docs. It has no memory between sessions, uses 3 tools (search, summarize, escalate), and requires human approval for escalations.
+```
+
+```
+@aicmm Compare copilot-cli-agent-card and medassist-pro-agent-card side by side
+```
+
+```
+@aicmm List all agent cards in the catalog with their maturity levels
+```
+
+```
+@aicmm Add Level 1 Healthcare scoring to the medassist-pro agent card
+```
+
+```
+@aicmm-contributor How do I add a new REST endpoint to the site module?
+```
+
+```
+@aicmm-contributor Run the full build and test suite and tell me if anything fails
+```
+
+```
+@aicmm-reviewer Review the agent card at examples/autonav-fleet-agent-card.json for governance compliance and completeness
+```
+
+### 🟠 Claude Code
+
+```
+@aicmm Create an agent card for Devin by inspecting https://docs.devin.ai
+```
+
+```
+@aicmm I have an agent that does automated code review. It reads PRs, analyzes diffs, suggests fixes, and can auto-apply approved changes. Score it across all 12 dimensions.
+```
+
+```
+@aicmm Generate an agent card for a financial trading bot. It executes trades autonomously within risk limits, uses ML for predictions, integrates with Bloomberg API, and has real-time portfolio monitoring.
+```
+
+```
+@aicmm Validate this card and fix any governance violations:
+{
+  "name": "AutoTrader",
+  "scores": [5, 3, 4, 3, 4, 2, 0, 2, 2, 3, 3, 4]
+}
+```
+
+```
+@aicmm What Level 1 domains are available? Add Education domain scoring to my tutoring agent.
+```
+
+```
+@aicmm-contributor Explain the MCP server architecture and how tools/call requests are routed
+```
+
+```
+@aicmm-reviewer Does the autonav-fleet card correctly represent an embodied agent? Check all scores make sense for a self-driving fleet system.
+```
+
+### 🔵 Gemini CLI
+
+```
+@aicmm Create an agent card for Google Gemini by inspecting https://ai.google.dev/gemini-api/docs
+```
+
+```
+@aicmm Score a customer service chatbot that: handles 5 languages, escalates to humans after 3 failed attempts, uses sentiment analysis, integrates with Zendesk and Salesforce, has no learning capability.
+```
+
+```
+@aicmm Create a card for our internal DevOps agent. It monitors deployments, auto-rolls back failures, sends Slack alerts, manages Kubernetes scaling, and logs all decisions for audit.
+```
+
+```
+@aicmm Inspect https://platform.openai.com/docs/assistants and create a full agent card with avatar and capabilities
+```
+
+```
+@aicmm-contributor I want to add a new governance rule. Where do I modify the validation logic?
+```
+
+```
+@aicmm-reviewer Review all 5 agent cards in the catalog and rank them by maturity level
+```
+
+### 🛠️ Universal Skill Prompts (Works in Any CLI)
+
+These prompts invoke the in-repo skills directly:
+
+#### Create a card from scratch
+```
+Create an AiCMM agent card for [AGENT NAME].
+Description: [what the agent does]
+Tools it uses: [list tools]
+Key capabilities: [list capabilities]
+Deployment context: [where/how it runs]
+```
+
+#### Score any AI system
+```
+Score this AI system using AiCMM 12 dimensions:
+- Name: [system name]
+- What it does: [description]
+- Autonomy level: [how self-directed]
+- Tools it uses: [tool list]
+- Safety measures: [safety features]
+- Who uses it: [humans, other agents, both]
+```
+
+#### Quick governance check
+```
+Check AiCMM governance for scores: [autonomy, reasoning, memory, learning, toolUse, collaboration, embodiment, explainability, safety, interoperability, costEfficiency, domainAlignment]
+```
+
+#### Compare two agents
+```
+Compare these two agents using AiCMM:
+Agent A: [name or path to card]
+Agent B: [name or path to card]
+Show dimension-by-dimension comparison with strengths and gaps.
+```
+
+#### Inspect from URL
+```
+Inspect the agent documented at [URL] and suggest AiCMM scores with evidence for each dimension.
+```
+
+#### Add domain scoring
+```
+Add Level 1 [Healthcare/Finance/Transportation/Manufacturing/Education/Customer Service] scoring to the agent card at [path].
+```
+
+### 💻 Shell Commands (No AI CLI Required)
+
+```bash
+# Start the AiCMM server
+cd Arima-AiCMM
+mvn clean package -DskipTests
+java -jar aicmm-site/target/aicmm-site-0.1.0-SNAPSHOT.jar
+
+# Open web UI
+open http://localhost:8080
+
+# Create card via API
+curl -X POST http://localhost:8080/api/agent-cards \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "my-agent",
+    "description": "My custom agent",
+    "category": "Digital",
+    "scores": [3, 3, 2, 1, 4, 2, 0, 3, 3, 3, 3, 3],
+    "tools": ["search", "summarize"],
+    "skills": ["question-answering"]
+  }'
+
+# Validate governance
+curl -X POST http://localhost:8080/api/validate \
+  -H "Content-Type: application/json" \
+  -d '{"scores": [3, 3, 2, 1, 4, 2, 0, 3, 3, 3, 3, 3]}'
+
+# Inspect an agent from URL
+curl -X POST http://localhost:8080/api/inspect \
+  -H "Content-Type: application/json" \
+  -d '{"url": "https://docs.example.com/agent", "name": "Example Agent"}'
+
+# List catalog
+curl http://localhost:8080/api/agent-cards | python -m json.tool
+
+# Start MCP server for programmatic access
+java -jar aicmm-cli/target/aicmm-cli-0.1.0-SNAPSHOT.jar --mcp
+```
 
 ---
 
@@ -493,16 +917,14 @@ AiCMM Agent Cards are designed to embed into existing AI protocols:
 ```mermaid
 graph LR
     Card[AiCMM Agent Card]
-
-    subgraph Standards["Embeddable Into"]
-        A2A[Google A2A<br/>Agent-to-Agent Protocol]
-        MCP2[Anthropic MCP<br/>Model Context Protocol]
-        OpenAI[OpenAI<br/>Plugin/GPT Manifest]
+    subgraph Standards[Embeddable Into]
+        A2A[Google A2A]
+        MCP2[Anthropic MCP]
+        OpenAI[OpenAI Plugin Manifest]
     end
-
-    Card -->|"extensions.aicmm"| A2A
-    Card -->|"metadata.capabilities"| MCP2
-    Card -->|"ai_plugin.capabilities"| OpenAI
+    Card -->|extensions.aicmm| A2A
+    Card -->|metadata.capabilities| MCP2
+    Card -->|ai_plugin.capabilities| OpenAI
 ```
 
 ### A2A Integration Example
@@ -546,21 +968,19 @@ AiCMM enforces **7 mandatory governance rules** that ensure responsible AI deplo
 
 ```mermaid
 graph TD
-    subgraph Rules["7 Governance Rules"]
-        R1[1. Autonomy-Reasoning<br/>Foundation]
-        R2[2. Explainability<br/>Gate]
-        R3[3. Safety<br/>Gate]
-        R4[4. Collaboration-Interop<br/>Link]
-        R5[5. Cost<br/>Awareness]
-        R6[6. Domain<br/>Alignment]
-        R7[7. Reasoning<br/>Foundation]
+    subgraph Rules[7 Governance Rules]
+        R1[1. Autonomy-Reasoning Foundation]
+        R2[2. Explainability Gate]
+        R3[3. Safety Gate]
+        R4[4. Collaboration-Interop Link]
+        R5[5. Cost Awareness]
+        R6[6. Domain Alignment]
+        R7[7. Reasoning Foundation]
     end
-
-    subgraph Outcome["Validation Result"]
-        Pass[✅ PASSED<br/>Card is valid]
-        Fail[❌ FAILED<br/>Must fix scores]
+    subgraph Outcome[Validation Result]
+        Pass[PASSED - Card is valid]
+        Fail[FAILED - Must fix scores]
     end
-
     Rules --> |All pass| Pass
     Rules --> |Any fails| Fail
 ```
@@ -583,17 +1003,15 @@ Beyond the universal 12-dimension Level 0, AiCMM supports **Level 1 domain-speci
 
 ```mermaid
 graph TB
-    L0[Level 0: Universal<br/>12 Dimensions]
-
-    subgraph Domains["Level 1 Domains"]
-        HC[🏥 Healthcare<br/>10 dimensions]
-        TR[🚗 Transportation<br/>8 dimensions]
-        FI[💰 Finance<br/>8 dimensions]
-        MF[🏭 Manufacturing<br/>8 dimensions]
-        ED[📚 Education<br/>8 dimensions]
-        CS[🎧 Customer Service<br/>8 dimensions]
+    L0[Level 0: Universal 12 Dimensions]
+    subgraph Domains[Level 1 Domains]
+        HC[Healthcare - 10 dimensions]
+        TR[Transportation - 8 dimensions]
+        FI[Finance - 8 dimensions]
+        MF[Manufacturing - 8 dimensions]
+        ED[Education - 8 dimensions]
+        CS[Customer Service - 8 dimensions]
     end
-
     L0 --> HC
     L0 --> TR
     L0 --> FI

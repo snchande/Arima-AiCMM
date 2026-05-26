@@ -197,7 +197,7 @@ public class DocumentationController {
                     <title>%s</title>
                     <link rel="stylesheet" href="/css/style.css">
                     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-                    <script>mermaid.initialize({startOnLoad: true, theme: 'neutral'});</script>
+                    <script>mermaid.initialize({startOnLoad: true, theme: 'neutral', securityLevel: 'loose'});</script>
                 </head>
                 <body>
                     <nav class="navbar">
