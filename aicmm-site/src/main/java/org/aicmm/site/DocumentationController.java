@@ -197,7 +197,6 @@ public class DocumentationController {
                     <title>%s</title>
                     <link rel="stylesheet" href="/css/style.css">
                     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-                    <script>mermaid.initialize({startOnLoad: true, theme: 'neutral', securityLevel: 'loose'});</script>
                 </head>
                 <body>
                     <nav class="navbar">
@@ -232,6 +231,15 @@ public class DocumentationController {
                         </p>
                     </footer>
                     <script src="/js/app.js"></script>
+                    <script>
+                        mermaid.initialize({startOnLoad: false, theme: 'neutral', securityLevel: 'loose'});
+                        document.addEventListener('DOMContentLoaded', function() {
+                            var elements = document.querySelectorAll('.mermaid');
+                            if (elements.length > 0) {
+                                mermaid.run({nodes: elements});
+                            }
+                        });
+                    </script>
                 </body>
                 </html>
                 """.formatted(
