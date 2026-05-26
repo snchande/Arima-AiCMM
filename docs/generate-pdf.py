@@ -1,7 +1,17 @@
 """Generate branded AiCMM Product Brochure PDF from Markdown.
-Executive-friendly formatting with proper tables, diagram placeholders, and clean layout."""
+Renders Mermaid diagrams as images using mmdc (mermaid-cli) and embeds them.
+Tables rendered with proper formatting. Executive-friendly layout."""
+import os
 import re
+import subprocess
+import tempfile
 from fpdf import FPDF
+
+
+DOCS_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(DOCS_DIR)
+MD_PATH = os.path.join(DOCS_DIR, 'PRODUCT-BROCHURE.md')
+PDF_PATH = os.path.join(DOCS_DIR, 'AiCMM-Product-Brochure.pdf')
 
 
 def sanitize(text):
@@ -9,14 +19,9 @@ def sanitize(text):
     text = re.sub(r'[\U0001F300-\U0001F9FF]', '', text)
     text = re.sub(r'[\U00002600-\U000027BF]', '', text)
     text = re.sub(r'[\U0000FE00-\U0000FEFF]', '', text)
-    text = text.replace('\u2192', '->')
-    text = text.replace('\u2190', '<-')
-    text = text.replace('\u2022', '-')
-    text = text.replace('\u2714', '[x]')
-    text = text.replace('\u2718', '[ ]')
-    text = text.replace('\u2265', '>=')
-    text = text.replace('\u2264', '<=')
-    text = text.replace('\u00a9', '(c)')
+    text = text.replace('\u2192', '->').replace('\u2190', '<-')
+    text = text.replace('\u2022', '-').replace('\u2714', '[x]').replace('\u2718', '[ ]')
+    text = text.replace('\u2265', '>=').replace('\u2264', '<=').replace('\u00a9', '(c)')
     text = text.replace('\u2502', '|').replace('\u2500', '-')
     text = text.replace('\u250c', '+').replace('\u2510', '+')
     text = text.replace('\u2514', '+').replace('\u2518', '+')
@@ -33,6 +38,34 @@ def clean(text):
     text = re.sub(r'\[(.*?)\]\(.*?\)', r'\1', text)
     text = re.sub(r'`(.*?)`', r'\1', text)
     return text
+
+
+def render_mermaid_to_png(mermaid_code, output_path):
+    """Use mmdc (mermaid-cli) to render mermaid code to PNG."""
+    mmdc_cmd = os.path.join(os.environ.get('APPDATA', ''), 'npm', 'mmdc.cmd')
+    if not os.path.exists(mmdc_cmd):
+        mmdc_cmd = 'mmdc'  # fallback to PATH
+
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.mmd', delete=False, encoding='utf-8') as f:
+        f.write(mermaid_code)
+        mmd_path = f.name
+
+    try:
+        result = subprocess.run(
+            [mmdc_cmd, '-i', mmd_path, '-o', output_path,
+             '--width', '900', '--backgroundColor', 'white',
+             '--theme', 'neutral', '--quiet'],
+            capture_output=True, text=True, timeout=30, shell=True
+        )
+        if result.returncode != 0:
+            print(f'  Warning: mmdc failed: {result.stderr[:100]}')
+            return False
+        return os.path.exists(output_path)
+    except Exception as e:
+        print(f'  Warning: mmdc error: {e}')
+        return False
+    finally:
+        os.unlink(mmd_path)
 
 
 class BrochurePDF(FPDF):
@@ -81,10 +114,7 @@ class BrochurePDF(FPDF):
         except Exception:
             pass
         self.set_text_color(0, 0, 0)
-        if level <= 2:
-            self.ln(2)
-        else:
-            self.ln(1)
+        self.ln(2 if level <= 2 else 1)
 
     def para(self, text):
         self.set_font('Arial', size=9)
@@ -112,9 +142,8 @@ class BrochurePDF(FPDF):
         self.set_fill_color(248, 248, 248)
         self.set_draw_color(200, 200, 200)
         x = self.get_x()
-        y = self.get_y()
         self.set_line_width(0.2)
-        self.line(x, y, x + 174, y)
+        self.line(x, self.get_y(), x + 174, self.get_y())
         self.ln(1)
         for line in lines[:20]:
             line = sanitize(line)
@@ -126,10 +155,22 @@ class BrochurePDF(FPDF):
                 pass
         if len(lines) > 20:
             self.cell(174, 3.5, '  ... (truncated)', new_x='LMARGIN', new_y='NEXT', fill=True)
-        y2 = self.get_y()
-        self.line(x, y2, x + 174, y2)
+        self.line(x, self.get_y(), x + 174, self.get_y())
         self.set_font('Arial', size=9)
         self.ln(3)
+
+    def embed_diagram(self, png_path):
+        """Embed a rendered diagram PNG into the PDF."""
+        if not os.path.exists(png_path):
+            return
+        # Check if we need a page break (estimate image height ~60mm)
+        if self.get_y() + 65 > 270:
+            self.add_page()
+        try:
+            self.image(png_path, x=20, w=170)
+            self.ln(4)
+        except Exception as e:
+            print(f'  Warning: Could not embed image: {e}')
 
     def render_table(self, headers, rows):
         """Render a proper formatted table with colored header and alternating rows."""
@@ -139,7 +180,6 @@ class BrochurePDF(FPDF):
         page_width = 174
         num_cols = len(headers)
 
-        # Calculate column widths based on content
         col_widths = []
         for i in range(num_cols):
             max_len = len(sanitize(clean(headers[i])))
@@ -153,12 +193,11 @@ class BrochurePDF(FPDF):
         scale = page_width / sum(col_widths)
         col_widths = [w * scale for w in col_widths]
 
-        # Page break check
         needed = (len(rows) + 1) * 5.5 + 8
         if self.get_y() + min(needed, 60) > 270:
             self.add_page()
 
-        # Header row - navy background
+        # Header - navy background
         self.set_font('Arial', 'B', 8)
         self.set_fill_color(25, 25, 112)
         self.set_text_color(255, 255, 255)
@@ -194,74 +233,26 @@ class BrochurePDF(FPDF):
         self.set_text_color(0, 0, 0)
         self.ln(3)
 
-    def diagram_box(self, mermaid_lines):
-        """Render mermaid diagram as a styled info box with structure summary."""
-        self.set_fill_color(240, 248, 255)
-        self.set_draw_color(25, 25, 112)
-        self.set_line_width(0.4)
-
-        # Collect structure info
-        groups = []
-        connections = []
-        for line in mermaid_lines:
-            stripped = line.strip()
-            if stripped.startswith('subgraph'):
-                name = stripped.replace('subgraph', '').strip().split('[')[0].strip()
-                if name:
-                    groups.append(name)
-            elif '-->' in stripped or '->>' in stripped:
-                connections.append(sanitize(stripped))
-
-        # Draw box
-        box_height = 6 + min(len(groups), 4) * 4 + min(len(connections), 4) * 3.5 + 4
-        x = self.get_x()
-        y = self.get_y()
-
-        if y + box_height > 270:
-            self.add_page()
-            y = self.get_y()
-
-        self.rect(x, y, 174, box_height, 'DF')
-
-        # Title
-        self.set_xy(x + 3, y + 2)
-        self.set_font('Arial', 'B', 8)
-        self.set_text_color(25, 25, 112)
-        self.cell(0, 4, 'Architecture Diagram (see web UI for interactive version)')
-        self.ln(5)
-
-        # Groups
-        if groups:
-            self.set_x(x + 5)
-            self.set_font('Arial', 'I', 7)
-            self.set_text_color(60, 60, 60)
-            self.cell(0, 3.5, 'Components: ' + ' | '.join(groups[:6]), new_x='LMARGIN', new_y='NEXT')
-
-        # Connections
-        for conn in connections[:4]:
-            self.set_x(x + 5)
-            self.set_font('Consolas', size=6)
-            self.set_text_color(80, 80, 80)
-            if len(conn) > 80:
-                conn = conn[:77] + '...'
-            try:
-                self.cell(0, 3.5, conn, new_x='LMARGIN', new_y='NEXT')
-            except Exception:
-                pass
-
-        self.set_xy(x, y + box_height + 2)
-        self.set_text_color(0, 0, 0)
-        self.set_font('Arial', size=9)
-        self.ln(2)
-
 
 def generate_brochure():
-    md_path = r'C:\Users\sures\Projects\copilot\Arima-AiCMM\docs\PRODUCT-BROCHURE.md'
-    pdf_path = r'C:\Users\sures\Projects\copilot\Arima-AiCMM\docs\AiCMM-Product-Brochure.pdf'
-
-    with open(md_path, 'r', encoding='utf-8') as f:
+    with open(MD_PATH, 'r', encoding='utf-8') as f:
         content = f.read()
 
+    # Pre-render all mermaid diagrams to PNG
+    print('Rendering Mermaid diagrams...')
+    mermaid_blocks = re.findall(r'```mermaid\n(.*?)```', content, re.DOTALL)
+    diagram_pngs = []
+    temp_dir = tempfile.mkdtemp(prefix='aicmm_diagrams_')
+
+    for i, block in enumerate(mermaid_blocks):
+        png_path = os.path.join(temp_dir, f'diagram_{i}.png')
+        print(f'  Rendering diagram {i + 1}/{len(mermaid_blocks)}...')
+        success = render_mermaid_to_png(block, png_path)
+        diagram_pngs.append(png_path if success else None)
+
+    print(f'  {sum(1 for p in diagram_pngs if p)} of {len(mermaid_blocks)} diagrams rendered.')
+
+    # Build PDF
     pdf = BrochurePDF()
 
     # === TITLE PAGE ===
@@ -312,7 +303,7 @@ def generate_brochure():
     in_code = False
     code_buf = []
     in_mermaid = False
-    mermaid_buf = []
+    mermaid_idx = 0
     in_table = False
     table_headers = []
     table_rows = []
@@ -324,7 +315,6 @@ def generate_brochure():
     for line in lines:
         line = line.rstrip()
 
-        # Skip badge/title header
         if skip_header:
             if line.startswith('## ') and 'Table of Contents' in line:
                 skip_toc = True
@@ -335,7 +325,6 @@ def generate_brochure():
             else:
                 continue
 
-        # Skip TOC
         if skip_toc:
             if line.startswith('## ') and 'Table of Contents' not in line:
                 skip_toc = False
@@ -358,12 +347,15 @@ def generate_brochure():
                 code_buf = []
             elif in_mermaid:
                 in_mermaid = False
-                if mermaid_buf:
-                    pdf.diagram_box(mermaid_buf)
-                mermaid_buf = []
+                # Embed the pre-rendered diagram
+                if mermaid_idx <= len(diagram_pngs) and diagram_pngs[mermaid_idx - 1]:
+                    pdf.embed_diagram(diagram_pngs[mermaid_idx - 1])
+                else:
+                    pdf.para('[Diagram could not be rendered]')
             else:
                 if 'mermaid' in line:
                     in_mermaid = True
+                    mermaid_idx += 1
                 else:
                     in_code = True
             continue
@@ -372,15 +364,13 @@ def generate_brochure():
             code_buf.append(line)
             continue
         if in_mermaid:
-            mermaid_buf.append(line)
-            continue
+            continue  # Skip mermaid content lines (already pre-rendered)
 
         if not line.strip():
             if not in_table:
                 pdf.ln(1.5)
             continue
 
-        # Skip HTML tags
         if line.strip().startswith('<') and not line.strip().startswith('<a'):
             continue
 
@@ -442,10 +432,21 @@ def generate_brochure():
     if in_table:
         pdf.render_table(table_headers, table_rows)
 
-    pdf.output(pdf_path)
-    print(f'Created: {pdf_path}')
+    pdf.output(PDF_PATH)
+
+    # Cleanup temp files
+    for p in diagram_pngs:
+        if p and os.path.exists(p):
+            os.unlink(p)
+    try:
+        os.rmdir(temp_dir)
+    except OSError:
+        pass
+
+    size_kb = round(os.path.getsize(PDF_PATH) / 1024)
+    print(f'\nCreated: {PDF_PATH}')
     print(f'Pages: {pdf.page_no()}')
-    print(f'Size: {round(len(open(pdf_path, "rb").read()) / 1024)}KB')
+    print(f'Size: {size_kb}KB')
 
 
 if __name__ == '__main__':
