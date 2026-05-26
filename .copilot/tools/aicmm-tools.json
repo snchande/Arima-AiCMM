@@ -1,0 +1,43 @@
+{
+  "name": "aicmm-tools",
+  "version": "0.2.0",
+  "description": "AiCMM framework tools for agent card lifecycle management",
+  "tools": {
+    "create-card": {
+      "description": "Create a new AiCMM Agent Card with 12-dimension scoring",
+      "endpoint": "POST /api/agent-cards",
+      "requires": "aicmm-site running"
+    },
+    "validate-card": {
+      "description": "Validate card against schema + 7 governance rules",
+      "endpoint": "POST /api/validate",
+      "requires": "aicmm-site running"
+    },
+    "score-card": {
+      "description": "Calculate score breakdown and maturity level",
+      "endpoint": "POST /api/agent-cards/_/score",
+      "requires": "aicmm-site running"
+    },
+    "inspect-agent": {
+      "description": "Inspect agent from URL or description, generate template",
+      "endpoint": "POST /api/inspect",
+      "requires": "aicmm-site running"
+    },
+    "list-catalog": {
+      "description": "List all agent cards with optional category/score filters",
+      "endpoint": "GET /api/agent-cards",
+      "requires": "aicmm-site running"
+    },
+    "get-dimensions": {
+      "description": "Get dimension definitions, positions, and scoring rubrics",
+      "endpoint": "GET /api/dimensions",
+      "requires": "aicmm-site running"
+    }
+  },
+  "cli": {
+    "build": "mvn clean package -DskipTests",
+    "start-site": "java -jar aicmm-site/target/aicmm-site-0.1.0-SNAPSHOT.jar",
+    "start-mcp": "java -jar aicmm-cli/target/aicmm-cli-0.1.0-SNAPSHOT.jar --mcp",
+    "help": "java -jar aicmm-cli/target/aicmm-cli-0.1.0-SNAPSHOT.jar --help"
+  }
+}
