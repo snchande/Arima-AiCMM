@@ -8,7 +8,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License: MIT"></a>
   <a href="https://openjdk.org/"><img src="https://img.shields.io/badge/Java-17%2B-orange.svg" alt="Java 17+"></a>
   <a href="CONTRIBUTING.md"><img src="https://img.shields.io/badge/contributions-welcome-brightgreen.svg" alt="Contributions Welcome"></a>
-  <a href="https://github.com/snchande/AiCMM/actions"><img src="https://img.shields.io/badge/build-passing-brightgreen.svg" alt="Build"></a>
+  <a href="https://github.com/snchande/Arima-AiCMM/actions"><img src="https://img.shields.io/badge/build-passing-brightgreen.svg" alt="Build"></a>
 </p>
 
 ---
@@ -125,7 +125,7 @@ AiCMM/
 ### Build the Project
 
 ```bash
-git clone https://github.com/snchande/AiCMM.git
+git clone https://github.com/snchande/Arima-AiCMM.git
 cd AiCMM
 mvn clean install
 ```

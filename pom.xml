@@ -14,7 +14,7 @@
         A multi-dimensional capability-profile framework for evaluating, classifying,
         and describing modern AI agents across eight dimensions.
     </description>
-    <url>https://github.com/snchande/AiCMM</url>
+    <url>https://github.com/snchande/Arima-AiCMM</url>
 
     <licenses>
         <license>
@@ -33,9 +33,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git:https://github.com/snchande/AiCMM.git</connection>
-        <developerConnection>scm:git:git@github.com:snchande/AiCMM.git</developerConnection>
-        <url>https://github.com/snchande/AiCMM</url>
+        <connection>scm:git:https://github.com/snchande/Arima-AiCMM.git</connection>
+        <developerConnection>scm:git:git@github.com:snchande/Arima-AiCMM.git</developerConnection>
+        <url>https://github.com/snchande/Arima-AiCMM</url>
     </scm>
 
     <modules>

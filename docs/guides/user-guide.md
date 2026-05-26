@@ -9,7 +9,7 @@ How to use the a-CMM CLI and documentation site together to create, manage, and 
 ### 1. Build the Project
 
 ```bash
-git clone https://github.com/snchande/AiCMM.git
+git clone https://github.com/snchande/Arima-AiCMM.git
 cd AiCMM
 mvn clean install
 ```

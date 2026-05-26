@@ -210,7 +210,7 @@ public class DocumentationController {
                     </main>
                     <footer class="footer">
                         <p>AiCMM — Agent Capability Maturity Model &copy; 2026 Suresh Chande | 
-                           <a href="https://github.com/snchande/AiCMM">GitHub</a> |
+                           <a href="https://github.com/snchande/Arima-AiCMM">GitHub</a> |
                            <a href="https://www.linkedin.com/in/sureshchande">LinkedIn</a> |
                            <a href="https://medium.com/@sureshchande">Medium</a>
                         </p>
