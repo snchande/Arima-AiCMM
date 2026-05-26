@@ -104,6 +104,21 @@ public class DocumentationController {
         }
     }
 
+    public void brochure(Context ctx) {
+        Path brochureDoc = docsPath.resolve("PRODUCT-BROCHURE.md");
+        if (brochureDoc.toFile().exists()) {
+            try {
+                String content = Files.readString(brochureDoc);
+                String html = renderer.render(content);
+                ctx.html(wrapInLayout("Product Brochure", html, "brochure"));
+            } catch (IOException e) {
+                ctx.status(500).result("Error: " + e.getMessage());
+            }
+        } else {
+            ctx.status(404).result("Brochure not found");
+        }
+    }
+
     public void renderDoc(Context ctx) {
         String path = ctx.pathParam("path");
         Path docFile = docsPath.resolve(path);
@@ -196,6 +211,7 @@ public class DocumentationController {
                             <a href="/architecture" class="%s">Architecture</a>
                             <a href="/catalog" class="%s">Catalog</a>
                             <a href="/create-card" class="%s">Create Card</a>
+                            <a href="/brochure" class="%s">Brochure</a>
                             <a href="/user-guide" class="%s">Guide</a>
                             <a href="/release-notes" class="%s">Releases</a>
                             <a href="/schema" class="%s">Schema</a>
@@ -225,6 +241,7 @@ public class DocumentationController {
                 "architecture".equals(activePage) ? "active" : "",
                 "catalog".equals(activePage) || "cards".equals(activePage) ? "active" : "",
                 "create".equals(activePage) ? "active" : "",
+                "brochure".equals(activePage) ? "active" : "",
                 "user-guide".equals(activePage) ? "active" : "",
                 "release-notes".equals(activePage) ? "active" : "",
                 "schema".equals(activePage) ? "active" : "",
