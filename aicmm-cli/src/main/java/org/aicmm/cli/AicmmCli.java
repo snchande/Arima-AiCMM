@@ -29,6 +29,18 @@ public class AicmmCli implements Runnable {
     }
 
     public static void main(String[] args) {
+        // Check for --mcp flag to launch MCP stdio server
+        for (String arg : args) {
+            if ("--mcp".equals(arg)) {
+                try {
+                    McpServer.main(new String[0]);
+                } catch (Exception e) {
+                    System.err.println("MCP Server error: " + e.getMessage());
+                    System.exit(1);
+                }
+                return;
+            }
+        }
         int exitCode = new CommandLine(new AicmmCli()).execute(args);
         System.exit(exitCode);
     }

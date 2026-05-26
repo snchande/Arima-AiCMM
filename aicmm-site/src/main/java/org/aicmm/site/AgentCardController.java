@@ -3,6 +3,7 @@ package org.aicmm.site;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.javalin.http.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,233 @@ public class AgentCardController {
         this.examplesPath = examplesPath;
         this.schemasPath = schemasPath;
         this.mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
+    }
+
+    public void createCard(Context ctx) {
+        ctx.contentType("application/json");
+        try {
+            JsonNode card = mapper.readTree(ctx.body());
+            if (!(card instanceof ObjectNode cardObj)) {
+                ctx.status(400).json(Map.of("error", "Card body must be a JSON object"));
+                return;
+            }
+
+            if (!cardObj.has("agent") || !cardObj.path("agent").has("name")) {
+                ctx.status(400).json(Map.of("error", "Missing required field: agent.name"));
+                return;
+            }
+
+            if (!cardObj.has("schemaVersion")) {
+                cardObj.put("schemaVersion", "0.2.0");
+            }
+
+            List<Map<String, Object>> schemaChecks = evaluateSchemaChecks(cardObj);
+            boolean schemaValid = schemaChecks.stream().allMatch(check -> Boolean.TRUE.equals(check.get("passed")));
+            if (!schemaValid) {
+                ctx.status(400).json(Map.of(
+                        "error", "Card failed schema validation",
+                        "schemaValid", false,
+                        "checks", schemaChecks
+                ));
+                return;
+            }
+
+            Map<String, Object> governanceValidation = buildGovernanceValidation(cardObj);
+            cardObj.set("governanceValidation", mapper.valueToTree(governanceValidation));
+
+            String name = cardObj.path("agent").path("name").asText().toLowerCase()
+                    .replaceAll("[^a-z0-9]+", "-")
+                    .replaceAll("^-|-$", "");
+            if (name.isBlank()) {
+                ctx.status(400).json(Map.of("error", "agent.name must contain at least one alphanumeric character"));
+                return;
+            }
+            String fileName = name + "-agent-card.json";
+
+            Files.createDirectories(examplesPath);
+            Path filePath = examplesPath.resolve(fileName);
+            mapper.writerWithDefaultPrettyPrinter().writeValue(filePath.toFile(), cardObj);
+
+            ctx.status(201).json(Map.of(
+                    "status", "created",
+                    "fileName", fileName,
+                    "url", "/agent-cards/" + fileName.replace(".json", ""),
+                    "card", mapper.convertValue(cardObj, Map.class)
+            ));
+        } catch (Exception e) {
+            ctx.status(500).json(Map.of("error", e.getMessage()));
+        }
+    }
+
+    public void getCardJson(Context ctx) {
+        ctx.contentType("application/json");
+        String name = ctx.pathParam("name");
+        String fileName = name.endsWith(".json") ? name : name + ".json";
+        Path cardPath = examplesPath.resolve(fileName);
+        if (!cardPath.toFile().exists()) {
+            ctx.status(404).json(Map.of("error", "Card not found: " + name));
+            return;
+        }
+        try {
+            JsonNode card = mapper.readTree(cardPath.toFile());
+            ctx.json(mapper.convertValue(card, Map.class));
+        } catch (Exception e) {
+            ctx.status(500).json(Map.of("error", e.getMessage()));
+        }
+    }
+
+    public void scoreCard(Context ctx) {
+        ctx.contentType("application/json");
+        try {
+            JsonNode card = mapper.readTree(ctx.body());
+            JsonNode profile = card.path("capabilityProfile");
+
+            Map<String, Object> scoring = new LinkedHashMap<>();
+            int total = 0;
+            int count = 0;
+            for (Map<String, Object> dimension : buildLevel0Dimensions()) {
+                String key = (String) dimension.get("key");
+                int score = getScore(profile, key);
+                total += score;
+                count++;
+                scoring.put(key, Map.of(
+                        "position", dimension.get("position"),
+                        "label", dimension.get("label"),
+                        "score", score,
+                        "group", dimension.get("group")
+                ));
+            }
+
+            double average = count > 0 ? (double) total / count : 0;
+            String maturityLevel;
+            if (average >= 4.5) maturityLevel = "Mastery";
+            else if (average >= 3.5) maturityLevel = "Expert";
+            else if (average >= 2.5) maturityLevel = "Advanced";
+            else if (average >= 1.5) maturityLevel = "Intermediate";
+            else if (average >= 0.5) maturityLevel = "Basic";
+            else maturityLevel = "Nascent";
+
+            Map<String, Object> response = new LinkedHashMap<>();
+            response.put("scores", scoring);
+            response.put("totalScore", total);
+            response.put("maxPossible", 60);
+            response.put("average", Math.round(average * 100.0) / 100.0);
+            response.put("maturityLevel", maturityLevel);
+            response.put("dimensionCount", count);
+            response.put("governanceValidation", buildGovernanceValidation(card));
+            ctx.json(response);
+        } catch (Exception e) {
+            ctx.status(400).json(Map.of("error", e.getMessage()));
+        }
+    }
+
+    public void inspectAgent(Context ctx) {
+        ctx.contentType("application/json");
+        try {
+            JsonNode body = mapper.readTree(ctx.body());
+            String url = body.path("url").asText("");
+            String description = body.path("description").asText("");
+            String name = body.path("name").asText("Unknown Agent");
+
+            Map<String, Object> template = new LinkedHashMap<>();
+            template.put("schemaVersion", "0.2.0");
+            template.put("agent", Map.of(
+                    "name", name,
+                    "version", "1.0.0",
+                    "vendor", "",
+                    "category", "digital",
+                    "description", description.isEmpty() ? "Agent at " + url : description
+            ));
+
+            Map<String, Object> profile = new LinkedHashMap<>();
+            for (Map<String, Object> dimension : buildLevel0Dimensions()) {
+                profile.put((String) dimension.get("key"), Map.of(
+                        "position", dimension.get("position"),
+                        "score", 0,
+                        "confidence", "low",
+                        "evidence", "Needs assessment"
+                ));
+            }
+            template.put("capabilityProfile", profile);
+            template.put("tools", List.of());
+            template.put("skills", List.of());
+            template.put("plugins", List.of());
+            template.put("mcps", List.of());
+            template.put("agentRelationships", Map.of(
+                    "delegatesTo", List.of(),
+                    "usedBy", List.of(),
+                    "dependsOn", List.of()
+            ));
+            template.put("_inspectionSource", Map.of("url", url, "description", description));
+
+            ctx.json(template);
+        } catch (Exception e) {
+            ctx.status(400).json(Map.of("error", e.getMessage()));
+        }
+    }
+
+    public void getSchema(Context ctx) {
+        ctx.contentType("application/json");
+        Path schemaFile = schemasPath.resolve("agent-card.schema.json");
+        if (!schemaFile.toFile().exists()) {
+            ctx.status(404).json(Map.of("error", "Schema not found"));
+            return;
+        }
+        try {
+            JsonNode schema = mapper.readTree(schemaFile.toFile());
+            ctx.json(mapper.convertValue(schema, Map.class));
+        } catch (Exception e) {
+            ctx.status(500).json(Map.of("error", e.getMessage()));
+        }
+    }
+
+    public void getDimensions(Context ctx) {
+        ctx.contentType("application/json");
+        String level = Optional.ofNullable(ctx.queryParam("level")).orElse("all");
+        String domain = ctx.queryParam("domain");
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("schemaVersion", "0.2.0");
+        response.put("requestedLevel", level);
+        if (domain != null && !domain.isBlank()) {
+            response.put("requestedDomain", domain);
+        }
+
+        if (!"1".equals(level)) {
+            response.put("level0", buildLevel0Dimensions());
+        }
+        if (!"0".equals(level)) {
+            Map<String, List<Map<String, Object>>> level1 = buildLevel1Dimensions();
+            if (domain != null && !domain.isBlank()) {
+                response.put("level1", Map.of(domain, level1.getOrDefault(domain, List.of())));
+            } else {
+                response.put("level1", level1);
+            }
+        }
+
+        ctx.json(response);
+    }
+
+    public void validateCard(Context ctx) {
+        ctx.contentType("application/json");
+        try {
+            JsonNode card = mapper.readTree(ctx.body());
+            List<Map<String, Object>> schemaChecks = evaluateSchemaChecks(card);
+            boolean schemaValid = schemaChecks.stream().allMatch(check -> Boolean.TRUE.equals(check.get("passed")));
+            Map<String, Object> governance = buildGovernanceValidation(card);
+            boolean governanceValid = Boolean.TRUE.equals(governance.get("valid"));
+
+            Map<String, Object> response = new LinkedHashMap<>();
+            response.put("valid", schemaValid && governanceValid);
+            response.put("schemaValid", schemaValid);
+            response.put("governanceValid", governanceValid);
+            response.put("checks", schemaChecks);
+            response.put("rules", governance.get("rules"));
+            response.put("rulesChecked", governance.get("rulesChecked"));
+            ctx.json(response);
+        } catch (Exception e) {
+            ctx.status(400).json(Map.of("error", e.getMessage()));
+        }
     }
 
     public void listCards(Context ctx) {
@@ -624,7 +852,7 @@ public class AgentCardController {
             String prettyJson = mapper.writeValueAsString(node);
 
             String html = "<h1>Agent Card JSON Schema</h1>" +
-                    "<p>Version: 0.1.0 | Format: JSON Schema Draft 2020-12</p>" +
+                    "<p>Version: 0.2.0 | Format: JSON Schema Draft 2020-12</p>" +
                     "<pre class='json-view'><code>" + escapeHtml(prettyJson) + "</code></pre>";
             ctx.html(wrapInLayout("Agent Card Schema", html, "schema"));
         } catch (IOException e) {
@@ -633,10 +861,22 @@ public class AgentCardController {
     }
 
     public void listCardsJson(Context ctx) {
+        ctx.contentType("application/json");
         try {
-            ctx.json(loadAllCards());
+            String category = ctx.queryParam("category");
+            String minScoreParam = ctx.queryParam("minScore");
+            double minScore = minScoreParam != null ? Double.parseDouble(minScoreParam) : Double.NEGATIVE_INFINITY;
+
+            List<Map<String, Object>> cards = loadAllCards().stream()
+                    .filter(card -> category == null || category.isBlank() || "all".equalsIgnoreCase(category)
+                            || category.equalsIgnoreCase(String.valueOf(card.getOrDefault("category", ""))))
+                    .filter(card -> Double.isInfinite(minScore) || averageCardScore(card) >= minScore)
+                    .toList();
+            ctx.json(cards);
         } catch (IOException e) {
             ctx.status(500).json(Map.of("error", e.getMessage()));
+        } catch (NumberFormatException e) {
+            ctx.status(400).json(Map.of("error", "minScore must be numeric"));
         }
     }
 
@@ -666,6 +906,205 @@ public class AgentCardController {
             });
         }
         return cards;
+    }
+
+    private List<Map<String, Object>> buildLevel0Dimensions() {
+        return List.of(
+                dimensionDefinition(0, "autonomy", "Autonomy", "Cognitive Core", "How self-directed is it?"),
+                dimensionDefinition(1, "reasoning", "Reasoning", "Cognitive Core", "Can it solve problems under uncertainty?"),
+                dimensionDefinition(2, "memory", "Memory", "Cognitive Core", "Does it retain and use information over time?"),
+                dimensionDefinition(3, "learning", "Learning", "Cognitive Core", "Does it improve from experience safely?"),
+                dimensionDefinition(4, "toolUse", "Tool Use", "Action & Integration", "Can it orchestrate tools and APIs?"),
+                dimensionDefinition(5, "collaboration", "Collaboration & Social Intelligence", "Action & Integration", "Can it coordinate well with people and agents?"),
+                dimensionDefinition(6, "embodiment", "Embodiment", "Action & Integration", "Does it operate in physical or virtual environments?"),
+                dimensionDefinition(7, "explainability", "Explainability", "Trust & Deployment", "Can it justify actions and support review?"),
+                dimensionDefinition(8, "safety", "Safety", "Trust & Deployment", "Can it operate within safe bounded controls?"),
+                dimensionDefinition(9, "interoperability", "Interoperability", "Trust & Deployment", "Can it work across protocols and ecosystems?"),
+                dimensionDefinition(10, "costEfficiency", "Cost Efficiency", "Trust & Deployment", "Can it stay resource-aware and economical?"),
+                dimensionDefinition(11, "domainAlignment", "Domain Alignment", "Trust & Deployment", "Is it compliant, safe, auditable, and deployable?"));
+    }
+
+    private Map<String, Object> dimensionDefinition(int position, String key, String label, String group, String question) {
+        Map<String, Object> definition = new LinkedHashMap<>();
+        definition.put("position", position);
+        definition.put("key", key);
+        definition.put("label", label);
+        definition.put("group", group);
+        definition.put("question", question);
+        definition.put("maxScore", 5);
+        definition.put("rubric", Map.of(
+                "0", "Absent",
+                "1", "Basic / hardcoded",
+                "2", "Intermediate / structured",
+                "3", "Advanced with guardrails",
+                "4", "Expert within boundaries",
+                "5", "Mastery with self-governance"
+        ));
+        return definition;
+    }
+
+    private Map<String, List<Map<String, Object>>> buildLevel1Dimensions() {
+        Map<String, List<Map<String, Object>>> domains = new LinkedHashMap<>();
+        domains.put("healthcare", List.of(
+                level1Dimension(0, "clinicalSafety", "Clinical Safety", "Patient safety controls and escalation readiness"),
+                level1Dimension(1, "evidenceTraceability", "Evidence Traceability", "Citations, audit trails, and provenance"),
+                level1Dimension(2, "privacyCompliance", "Privacy Compliance", "HIPAA and patient-data handling"),
+                level1Dimension(3, "workflowIntegration", "Workflow Integration", "EHR, triage, and care team integration")));
+        domains.put("transportation", List.of(
+                level1Dimension(0, "routeOptimization", "Route Optimization", "Planning efficiency under dynamic conditions"),
+                level1Dimension(1, "operationalSafety", "Operational Safety", "Vehicle, fleet, and incident safety controls"),
+                level1Dimension(2, "trafficInterop", "Traffic Interoperability", "Signals, telematics, and fleet-system integration"),
+                level1Dimension(3, "regulatoryReadiness", "Regulatory Readiness", "Compliance with transport standards and reporting")));
+        domains.put("finance", List.of(
+                level1Dimension(0, "riskControls", "Risk Controls", "Exposure limits, approvals, and kill-switches"),
+                level1Dimension(1, "decisionAttribution", "Decision Attribution", "Transparent factor attribution for decisions"),
+                level1Dimension(2, "complianceCoverage", "Compliance Coverage", "Support for audit and financial regulations"),
+                level1Dimension(3, "marketIntegration", "Market Integration", "Brokerage, FIX, and portfolio workflow interoperability")));
+        domains.put("manufacturing", List.of(
+                level1Dimension(0, "productionCoordination", "Production Coordination", "Scheduling and line orchestration"),
+                level1Dimension(1, "predictiveMaintenance", "Predictive Maintenance", "Failure prediction and maintenance planning"),
+                level1Dimension(2, "humanRobotSafety", "Human-Robot Safety", "Safe operation around people and equipment"),
+                level1Dimension(3, "industrialInterop", "Industrial Interoperability", "OPC-UA, MES, PLC, and SCADA integration")));
+        domains.put("education", List.of(
+                level1Dimension(0, "pedagogicalAlignment", "Pedagogical Alignment", "Instruction quality and curriculum fit"),
+                level1Dimension(1, "learnerAdaptation", "Learner Adaptation", "Personalization for learner context"),
+                level1Dimension(2, "assessmentIntegrity", "Assessment Integrity", "Safe, fair, and explainable assessment support"),
+                level1Dimension(3, "accessibility", "Accessibility", "Inclusive and accessible learning delivery")));
+        domains.put("customer-service", List.of(
+                level1Dimension(0, "resolutionQuality", "Resolution Quality", "Ability to resolve issues accurately"),
+                level1Dimension(1, "handoffReadiness", "Handoff Readiness", "Escalation and human handoff quality"),
+                level1Dimension(2, "channelConsistency", "Channel Consistency", "Consistent support across channels"),
+                level1Dimension(3, "policyCompliance", "Policy Compliance", "Adherence to brand, privacy, and support policy")));
+        return domains;
+    }
+
+    private Map<String, Object> level1Dimension(int position, String key, String label, String description) {
+        Map<String, Object> dimension = new LinkedHashMap<>();
+        dimension.put("position", position);
+        dimension.put("key", key);
+        dimension.put("label", label);
+        dimension.put("description", description);
+        dimension.put("maxScore", 5);
+        dimension.put("rubric", Map.of(
+                "0", "Absent",
+                "1", "Ad hoc",
+                "2", "Repeatable",
+                "3", "Operationalized",
+                "4", "Robust",
+                "5", "Best-in-class"
+        ));
+        return dimension;
+    }
+
+    private List<Map<String, Object>> evaluateSchemaChecks(JsonNode card) {
+        List<Map<String, Object>> checks = new ArrayList<>();
+        checks.add(validationCheck("schemaVersion", "Schema version must be 0.2.0", "0.2.0".equals(card.path("schemaVersion").asText())));
+
+        JsonNode agent = card.path("agent");
+        checks.add(validationCheck("agent", "Agent object is required", agent.isObject()));
+        checks.add(validationCheck("agent.name", "agent.name is required", !agent.path("name").asText("").isBlank()));
+        checks.add(validationCheck("agent.category", "agent.category must be digital, embodied, or hybrid",
+                Set.of("digital", "embodied", "hybrid").contains(agent.path("category").asText(""))));
+        checks.add(validationCheck("agent.description", "agent.description is required", !agent.path("description").asText("").isBlank()));
+
+        JsonNode profile = card.path("capabilityProfile");
+        checks.add(validationCheck("capabilityProfile", "capabilityProfile object is required", profile.isObject()));
+        if (profile.isObject()) {
+            for (Map<String, Object> dimension : buildLevel0Dimensions()) {
+                String key = (String) dimension.get("key");
+                JsonNode scoreNode = profile.path(key);
+                boolean present = !scoreNode.isMissingNode() && !scoreNode.isNull();
+                checks.add(validationCheck("capabilityProfile." + key, key + " score is required", present));
+                if (present) {
+                    int score = getScore(profile, key);
+                    checks.add(validationCheck("capabilityProfile." + key + ".score", key + " score must be between 0 and 5", score >= 0 && score <= 5));
+                }
+            }
+        }
+        return checks;
+    }
+
+    private Map<String, Object> validationCheck(String field, String detail, boolean passed) {
+        Map<String, Object> check = new LinkedHashMap<>();
+        check.put("field", field);
+        check.put("detail", detail);
+        check.put("passed", passed);
+        return check;
+    }
+
+    private Map<String, Object> buildGovernanceValidation(JsonNode card) {
+        JsonNode profile = card.path("capabilityProfile");
+        int autonomy = getScore(profile, "autonomy");
+        int reasoning = getScore(profile, "reasoning");
+        int safety = getScore(profile, "safety");
+        int explainability = getScore(profile, "explainability");
+        int domainAlignment = getScore(profile, "domainAlignment");
+        int toolUse = getScore(profile, "toolUse");
+        int embodiment = getScore(profile, "embodiment");
+        int collaboration = getScore(profile, "collaboration");
+        int interoperability = getScore(profile, "interoperability");
+        int costEfficiency = getScore(profile, "costEfficiency");
+
+        List<Map<String, Object>> rules = new ArrayList<>();
+        rules.add(governanceRule("Autonomy-Reasoning Foundation", autonomy <= reasoning + 1,
+                "Autonomy(" + autonomy + ") <= Reasoning(" + reasoning + ") + 1"));
+        rules.add(governanceRule("Explainability Gate", autonomy < 4 || explainability >= 3,
+                "Autonomy >= 4 requires Explainability >= 3"));
+        rules.add(governanceRule("Safety Gate", autonomy < 4 || safety >= 3,
+                "Autonomy >= 4 requires Safety >= 3"));
+        rules.add(governanceRule("Collaboration-Interop Link", collaboration < 4 || interoperability >= 3,
+                "Collaboration >= 4 requires Interoperability >= 3"));
+        rules.add(governanceRule("Cost Awareness", toolUse < 4 || costEfficiency >= 2,
+                "Tool Use >= 4 requires Cost Efficiency >= 2"));
+        rules.add(governanceRule("Domain Alignment", embodiment < 3 || domainAlignment >= 3,
+                "Embodiment >= 3 requires Domain Alignment >= 3"));
+        rules.add(governanceRule("Reasoning Foundation", toolUse < 4 || reasoning >= 3,
+                "Tool Use >= 4 requires Reasoning >= 3"));
+
+        boolean allPassed = rules.stream().allMatch(rule -> Boolean.TRUE.equals(rule.get("passed")));
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("valid", allPassed);
+        result.put("overallCompliant", allPassed);
+        result.put("rules", rules);
+        result.put("rulesChecked", rules.size());
+        return result;
+    }
+
+    private Map<String, Object> governanceRule(String rule, boolean passed, String detail) {
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("rule", rule);
+        result.put("passed", passed);
+        result.put("detail", detail);
+        result.put("constraint", detail);
+        result.put("result", passed ? "PASS" : "FAIL");
+        return result;
+    }
+
+    private double averageCardScore(Map<String, Object> card) {
+        @SuppressWarnings("unchecked")
+        Map<String, Object> profile = (Map<String, Object>) card.get("capabilityProfile");
+        if (profile == null) {
+            return 0;
+        }
+
+        int total = 0;
+        int count = 0;
+        for (Map<String, Object> dimension : buildLevel0Dimensions()) {
+            int score = getScoreFromProfile(profile, (String) dimension.get("key"));
+            if (score >= 0) {
+                total += score;
+                count++;
+            }
+        }
+        return count == 0 ? 0 : total / (double) count;
+    }
+
+    private int getScore(JsonNode profile, String key) {
+        JsonNode dim = profile.path(key);
+        if (dim.has("score")) {
+            return dim.path("score").asInt(0);
+        }
+        return dim.asInt(0);
     }
 
     private String formatDimension(String key) {

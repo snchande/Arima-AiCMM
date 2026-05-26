@@ -1,0 +1,120 @@
+{
+  "name": "aicmm-mcp-server",
+  "version": "0.2.0",
+  "description": "AiCMM Agent Capability Maturity Model - MCP Server for creating, scoring, and managing Agent Cards",
+  "protocol": "mcp",
+  "transport": {
+    "stdio": {
+      "command": "java",
+      "args": ["-jar", "aicmm-cli/target/aicmm-cli-0.1.0-SNAPSHOT.jar", "--mcp"],
+      "env": { "AICMM_API_URL": "http://localhost:8080/api" }
+    },
+    "http": {
+      "baseUrl": "http://localhost:8080/api"
+    }
+  },
+  "tools": [
+    {
+      "name": "aicmm_create_card",
+      "description": "Create a new AiCMM Agent Card with 12-dimension capability profile, avatar, tools, skills, plugins, MCPs, and agent relationships",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "agent": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string", "description": "Agent name" },
+              "version": { "type": "string", "description": "Agent version" },
+              "vendor": { "type": "string", "description": "Creator/vendor" },
+              "category": { "type": "string", "enum": ["digital", "embodied", "hybrid"] },
+              "description": { "type": "string" }
+            },
+            "required": ["name", "category", "description"]
+          },
+          "capabilityProfile": {
+            "type": "object",
+            "description": "12 Level 0 dimensions, each with position (0-11), score (0-5), confidence, evidence"
+          },
+          "tools": { "type": "array", "items": { "type": "string" } },
+          "skills": { "type": "array", "items": { "type": "string" } },
+          "plugins": { "type": "array", "items": { "type": "string" } },
+          "mcps": { "type": "array", "items": { "type": "string" } },
+          "agentRelationships": { "type": "object" }
+        },
+        "required": ["agent", "capabilityProfile"]
+      }
+    },
+    {
+      "name": "aicmm_inspect_agent",
+      "description": "Inspect an AI agent from its URL or description and generate a suggested AiCMM capability profile with 12-dimension scores",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "url": { "type": "string", "description": "URL to agent documentation or homepage" },
+          "description": { "type": "string", "description": "Text description of the agent's capabilities" },
+          "name": { "type": "string", "description": "Agent name if known" }
+        }
+      }
+    },
+    {
+      "name": "aicmm_validate_card",
+      "description": "Validate an Agent Card against AiCMM schema and governance rules (Autonomy-Reasoning Foundation, Explainability Gate, Safety Gate, etc.)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "card": { "type": "object", "description": "The full agent card JSON to validate" }
+        },
+        "required": ["card"]
+      }
+    },
+    {
+      "name": "aicmm_score_card",
+      "description": "Score/re-score an agent card and return governance validation results",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "card": { "type": "object", "description": "Agent card to score" }
+        },
+        "required": ["card"]
+      }
+    },
+    {
+      "name": "aicmm_list_cards",
+      "description": "List all Agent Cards in the AiCMM catalog with summary info",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "category": { "type": "string", "enum": ["digital", "embodied", "hybrid", "all"] },
+          "minScore": { "type": "number", "description": "Minimum average score filter" }
+        }
+      }
+    },
+    {
+      "name": "aicmm_get_card",
+      "description": "Get full details of a specific Agent Card by name",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "description": "Agent card filename (without .json extension)" }
+        },
+        "required": ["name"]
+      }
+    },
+    {
+      "name": "aicmm_get_dimensions",
+      "description": "Get the full AiCMM dimension definitions including Level 0 (12 dims) and Level 1 domain-specific dimensions with scoring rubrics",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "level": { "type": "string", "enum": ["0", "1", "all"] },
+          "domain": { "type": "string", "description": "For Level 1: healthcare, transportation, finance, manufacturing, education, customer-service" }
+        }
+      }
+    },
+    {
+      "name": "aicmm_get_schema",
+      "description": "Get the JSON schema for AiCMM Agent Cards (v0.2.0)",
+      "inputSchema": { "type": "object", "properties": {} }
+    }
+  ]
+}

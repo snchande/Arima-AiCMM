@@ -48,15 +48,31 @@ Use Level 1 radar charts for domains such as Healthcare, Transportation, Finance
 - Autonomy >= 4 requires Domain Alignment >= 3
 - Autonomy >= 4 requires Reasoning >= 3
 
-## Key Skills
+## Key Skills (in-repo `.copilot/skills/`)
 
-- **agent-card-creation** — Generate Agent Cards from descriptions/URLs
-- **agent-inspection** — Inspect agents to gather capability evidence
-- **aicmm-scoring** — Score agents using the 12-dimension rubric
-- **catalog-management** — Manage the Agent Card catalog
-- **article-to-markdown** — Convert articles to Markdown
-- **pdf-text-extraction** — Extract text from PDFs
-- **java-project-scaffolding** — Scaffold Maven modules
+- **create-agent-card** — Create full Agent Card from URL/description
+- **register-agent-card** — Validate and register existing card into catalog
+- **score-agent** — Score 12 dimensions with governance validation
+- **inspect-agent** — Investigate agent capabilities from docs/URL
+
+## MCP Server (Pure Java)
+
+AiCMM exposes a full MCP server via stdio transport:
+```bash
+java -jar aicmm-cli/target/aicmm-cli-0.1.0-SNAPSHOT.jar --mcp
+```
+
+MCP config for Claude Code: `.mcp.json` in project root (auto-detected).
+
+API endpoints at http://localhost:8080/api:
+- POST /api/agent-cards — Create card
+- GET /api/agent-cards — List catalog
+- GET /api/agent-cards/{name} — Get card
+- POST /api/validate — Validate governance
+- POST /api/agent-cards/_/score — Score breakdown
+- POST /api/inspect — Inspect from URL/description
+- GET /api/dimensions — Dimension definitions
+- GET /api/schema — JSON Schema
 
 ## Key Capabilities
 
@@ -77,6 +93,7 @@ Use Level 1 radar charts for domains such as Healthcare, Transportation, Finance
 - Create Card form with live preview + download/copy
 
 ### CLI Commands
+- `--mcp` — Start MCP stdio server (for Claude/Copilot/Gemini integration)
 - `inspect --url <url>` — Analyze agent from documentation
 - `classify --card <path>` — Classify agent category
 - `validate --card <path>` — Check schema and governance
@@ -88,25 +105,32 @@ Use Level 1 radar charts for domains such as Healthcare, Transportation, Finance
 # Build
 mvn clean package -DskipTests
 
-# Run site
-java -jar aicmm-site/target/aicmm-site-0.1.0-SNAPSHOT.jar --port 8090
+# Run site (serves web UI + REST API)
+java -jar aicmm-site/target/aicmm-site-0.1.0-SNAPSHOT.jar
 
-# CLI
-java -jar aicmm-cli/target/aicmm-cli-0.1.0-SNAPSHOT.jar inspect --url <url>
+# Start MCP server (requires site running)
+java -jar aicmm-cli/target/aicmm-cli-0.1.0-SNAPSHOT.jar --mcp
+
+# Create and register a card via API
+curl -X POST http://localhost:8080/api/agent-cards -H "Content-Type: application/json" -d @examples/my-agent-card.json
 ```
 
 ## Project Structure
 
 ```
 AiCMM/
-├── aicmm-core/        Core library (models, scoring, cards)
-├── aicmm-inspector/   Agent investigation framework
-├── aicmm-cli/         Command-line interface (Picocli)
-├── aicmm-site/        Documentation web server (Javalin)
-├── docs/              Framework documentation
-├── schemas/           JSON Schema definitions
-├── examples/          Example Agent Cards (catalog source)
-└── templates/         Reusable templates
+├── .copilot/agents/    In-repo agents (aicmm.md)
+├── .copilot/skills/    In-repo skills (create, register, score, inspect)
+├── .mcp.json           MCP server config (auto-detected by Claude Code)
+├── aicmm-core/         Core library (models, scoring, cards)
+├── aicmm-inspector/    Agent investigation framework
+├── aicmm-cli/          CLI + MCP stdio server (fat JAR, pure Java)
+├── aicmm-site/         Web server + REST API (Javalin)
+├── mcp/                MCP config and tool definitions
+├── docs/               Framework documentation
+├── schemas/            JSON Schema definitions
+├── examples/           Agent Cards (catalog source)
+└── templates/          Reusable templates
 ```
 
 ## Cross-CLI Sync

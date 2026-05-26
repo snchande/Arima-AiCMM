@@ -8,12 +8,12 @@
   "properties": {
     "schemaVersion": {
       "type": "string",
-      "const": "0.1.0",
+      "const": "0.2.0",
       "description": "Version of the AiCMM Agent Card schema"
     },
     "agent": {
       "type": "object",
-      "required": ["name", "version"],
+      "required": ["name", "category", "description"],
       "properties": {
         "name": {
           "type": "string",
@@ -45,15 +45,19 @@
     },
     "capabilityProfile": {
       "type": "object",
-      "required": ["autonomy", "reasoning", "learning", "memory", "toolUse", "collaboration", "embodiment", "domainAlignment"],
+      "required": ["autonomy", "reasoning", "memory", "learning", "toolUse", "collaboration", "embodiment", "explainability", "safety", "interoperability", "costEfficiency", "domainAlignment"],
       "properties": {
         "autonomy": { "$ref": "#/$defs/dimensionScore" },
         "reasoning": { "$ref": "#/$defs/dimensionScore" },
-        "learning": { "$ref": "#/$defs/dimensionScore" },
         "memory": { "$ref": "#/$defs/dimensionScore" },
+        "learning": { "$ref": "#/$defs/dimensionScore" },
         "toolUse": { "$ref": "#/$defs/dimensionScore" },
         "collaboration": { "$ref": "#/$defs/dimensionScore" },
         "embodiment": { "$ref": "#/$defs/dimensionScore" },
+        "explainability": { "$ref": "#/$defs/dimensionScore" },
+        "safety": { "$ref": "#/$defs/dimensionScore" },
+        "interoperability": { "$ref": "#/$defs/dimensionScore" },
+        "costEfficiency": { "$ref": "#/$defs/dimensionScore" },
         "domainAlignment": { "$ref": "#/$defs/dimensionScore" }
       }
     },
@@ -147,11 +151,15 @@
       "properties": {
         "autonomy": { "type": "integer", "minimum": 0, "maximum": 5 },
         "reasoning": { "type": "integer", "minimum": 0, "maximum": 5 },
-        "learning": { "type": "integer", "minimum": 0, "maximum": 5 },
         "memory": { "type": "integer", "minimum": 0, "maximum": 5 },
+        "learning": { "type": "integer", "minimum": 0, "maximum": 5 },
         "toolUse": { "type": "integer", "minimum": 0, "maximum": 5 },
         "collaboration": { "type": "integer", "minimum": 0, "maximum": 5 },
         "embodiment": { "type": "integer", "minimum": 0, "maximum": 5 },
+        "explainability": { "type": "integer", "minimum": 0, "maximum": 5 },
+        "safety": { "type": "integer", "minimum": 0, "maximum": 5 },
+        "interoperability": { "type": "integer", "minimum": 0, "maximum": 5 },
+        "costEfficiency": { "type": "integer", "minimum": 0, "maximum": 5 },
         "domainAlignment": { "type": "integer", "minimum": 0, "maximum": 5 }
       }
     }

@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "aicmm": {
+      "command": "java",
+      "args": ["-jar", "aicmm-cli/target/aicmm-cli-0.1.0-SNAPSHOT.jar", "--mcp"],
+      "env": {
+        "AICMM_API_URL": "http://localhost:8080/api"
+      }
+    }
+  }
+}

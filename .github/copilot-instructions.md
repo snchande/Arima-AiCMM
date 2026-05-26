@@ -1,24 +1,42 @@
 # AiCMM Copilot Instructions
 
-This is the **Agent Capability Maturity Model (a-CMM)** project — an open-source Java framework for classifying AI agent capabilities across 12 dimensions (scored 0-5 at Level 0).
+This is the **Agent Capability Maturity Model (AiCMM)** project — an open-source Java framework for classifying AI agent capabilities across 12 dimensions (scored 0-5 at Level 0) + domain-specific Level 1 scoring.
 
-## Available Custom Agents
+## Available Agents (in-repo)
 
-Use `@aicmm-project-agent` for all AiCMM framework development tasks.
+- **@aicmm** — Create, score, validate, and register Agent Cards (`.copilot/agents/aicmm.md`)
 
-## Skills
+## Skills (in-repo `.copilot/skills/`)
 
-The following skills are registered in `~/.copilot/skills/`:
+- **create-agent-card** — Create full Agent Card from URL/description
+- **register-agent-card** — Validate and register existing card into catalog
+- **score-agent** — Score 12 dimensions with governance validation
+- **inspect-agent** — Investigate agent capabilities from docs/URL
 
-- **agent-card-creation** — Generate Agent Cards from descriptions/URLs
-- **agent-inspection** — Inspect agents to gather capability evidence
-- **aicmm-scoring** — Score agents using the 12-dimension rubric
-- **catalog-management** — Manage the Agent Card catalog
-- **article-to-markdown** — Convert articles to Markdown
-- **pdf-text-extraction** — Extract text from PDFs
-- **java-project-scaffolding** — Scaffold Maven modules
-- **json-schema-design** — Design JSON Schemas
-- **markdown-to-pdf** — Generate PDFs from Markdown
+## MCP Server (Pure Java)
+
+```bash
+# Start AiCMM site (API server)
+java -jar aicmm-site/target/aicmm-site-0.1.0-SNAPSHOT.jar
+
+# Start MCP stdio server (connects to site API)
+java -jar aicmm-cli/target/aicmm-cli-0.1.0-SNAPSHOT.jar --mcp
+```
+
+MCP config: `.mcp.json` (auto-detected by Claude Code, configurable for others)
+
+### API Endpoints (http://localhost:8080/api)
+
+| Method | Endpoint | Purpose |
+|--------|----------|---------|
+| POST | /api/agent-cards | Create new Agent Card |
+| GET | /api/agent-cards | List all cards |
+| GET | /api/agent-cards/{name} | Get card details |
+| POST | /api/validate | Validate governance rules |
+| POST | /api/agent-cards/_/score | Score breakdown |
+| POST | /api/inspect | Inspect from URL/description |
+| GET | /api/dimensions | Dimension definitions |
+| GET | /api/schema | JSON Schema |
 
 ## Project Commands
 
@@ -27,58 +45,66 @@ The following skills are registered in `~/.copilot/skills/`:
 mvn clean package -DskipTests
 
 # Run documentation site
-java -jar aicmm-site/target/aicmm-site-0.1.0-SNAPSHOT.jar --port 8090
+java -jar aicmm-site/target/aicmm-site-0.1.0-SNAPSHOT.jar
 
 # CLI
-java -jar aicmm-cli/target/aicmm-cli-0.1.0-SNAPSHOT.jar inspect --url <url>
-java -jar aicmm-cli/target/aicmm-cli-0.1.0-SNAPSHOT.jar classify --card <path>
-java -jar aicmm-cli/target/aicmm-cli-0.1.0-SNAPSHOT.jar score --card <path>
+java -jar aicmm-cli/target/aicmm-cli-0.1.0-SNAPSHOT.jar --help
+java -jar aicmm-cli/target/aicmm-cli-0.1.0-SNAPSHOT.jar --mcp
+
+# Quick: Create and register an agent card
+curl -X POST http://localhost:8080/api/agent-cards -H "Content-Type: application/json" -d @examples/my-agent-card.json
 ```
 
 ## The 12 Level 0 Dimensions
 
-**Cognitive Core**
-1. **Autonomy** — Self-directed action (0=none, 5=full goal autonomy)
-2. **Reasoning & Planning** — Problem solving under uncertainty
-3. **Memory & Context** — Information retention and temporal awareness
-4. **Learning & Adaptation** — Improvement from experience
+**Cognitive Core (0-3)**
+| Pos | Key | Dimension |
+|-----|-----|-----------|
+| 0 | autonomy | Autonomy |
+| 1 | reasoning | Reasoning |
+| 2 | memory | Memory |
+| 3 | learning | Learning |
 
-**Action & Integration**
-5. **Tool Use & Integration** — Orchestrating external tools/APIs
-6. **Collaboration & Social Intelligence** — Coordination with humans/agents, empathy, inclusivity
-7. **Embodiment** — Physical/virtual presence (0 for software-only)
+**Action & Integration (4-6)**
+| Pos | Key | Dimension |
+|-----|-----|-----------|
+| 4 | toolUse | Tool Use |
+| 5 | collaboration | Collaboration & Social Intelligence |
+| 6 | embodiment | Embodiment |
 
-**Trust & Deployment**
-8. **Explainability & Transparency** — Decision visibility and reviewability
-9. **Safety & Containment** — Bounded operation and harm prevention
-10. **Interoperability** — Cross-protocol and multi-agent compatibility
-11. **Cost Efficiency** — Resource-aware execution at scale
-12. **Domain Alignment** — Policy compliance, safety, auditability
+**Trust & Deployment (7-11)**
+| Pos | Key | Dimension |
+|-----|-----|-----------|
+| 7 | explainability | Explainability |
+| 8 | safety | Safety |
+| 9 | interoperability | Interoperability |
+| 10 | costEfficiency | Cost Efficiency |
+| 11 | domainAlignment | Domain Alignment |
 
-## Governance Rules (CRITICAL)
+## 7 Governance Rules (MUST ALL PASS)
 
-- Autonomy >= 4 requires Reasoning >= 4
-- Autonomy >= 4 requires Explainability >= 3
-- Embodiment >= 3 requires Safety >= 4
-- Collaboration >= 4 requires Interoperability >= 3
-- Autonomy >= 4 requires Cost Efficiency >= 2
-- Autonomy >= 4 requires Domain Alignment >= 3
-- Autonomy >= 4 requires Reasoning >= 3
-
-## Agent Card Output
-
-Save cards to: `examples/<agent-name-kebab>-agent-card.json`
+1. Autonomy ≤ Reasoning + 1
+2. Autonomy ≥ 4 → Explainability ≥ 3
+3. Autonomy ≥ 4 → Safety ≥ 3
+4. Collaboration ≥ 4 → Interoperability ≥ 3
+5. Tool Use ≥ 4 → Cost Efficiency ≥ 2
+6. Embodiment ≥ 3 → Domain Alignment ≥ 3
+7. Tool Use ≥ 4 → Reasoning ≥ 3
 
 ## Project Structure
 
 ```
 AiCMM/
-├── aicmm-core/        Core library (models, scoring, cards)
-├── aicmm-inspector/   Agent investigation framework
-├── aicmm-cli/         Command-line interface (Picocli)
-├── aicmm-site/        Documentation web server (Javalin)
-├── docs/              Framework documentation
-├── schemas/           JSON Schema definitions
-├── examples/          Example Agent Cards
-└── templates/         Reusable templates
+├── .copilot/agents/    In-repo agents (aicmm.md)
+├── .copilot/skills/    In-repo skills (create, register, score, inspect)
+├── .mcp.json           MCP server config (auto-detected)
+├── aicmm-core/         Core library (models, scoring, cards)
+├── aicmm-inspector/    Agent investigation framework
+├── aicmm-cli/          CLI + MCP stdio server (fat JAR)
+├── aicmm-site/         Web server + REST API (Javalin)
+├── mcp/                MCP config and tool definitions
+├── docs/               Framework documentation
+├── schemas/            JSON Schema definitions
+├── examples/           Agent Cards (catalog source)
+└── templates/          Reusable templates
 ```

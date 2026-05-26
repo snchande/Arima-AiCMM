@@ -63,6 +63,13 @@ public class AicmmSite {
         app.get("/user-guide", docsController::userGuide);
         app.get("/api/docs", docsController::listDocs);
         app.get("/api/agent-cards", cardController::listCardsJson);
+        app.post("/api/agent-cards", cardController::createCard);
+        app.get("/api/agent-cards/{name}", cardController::getCardJson);
+        app.post("/api/agent-cards/{name}/score", cardController::scoreCard);
+        app.post("/api/inspect", cardController::inspectAgent);
+        app.get("/api/schema", cardController::getSchema);
+        app.get("/api/dimensions", cardController::getDimensions);
+        app.post("/api/validate", cardController::validateCard);
 
         app.start(port);
         log.info("AiCMM Site running at http://localhost:{}", port);
