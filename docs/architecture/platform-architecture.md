@@ -1,6 +1,6 @@
-# a•CMM Platform Architecture
+# AiCMM Platform Architecture
 
-This document describes the internal architecture of the a•CMM agent platform — how agents are defined, loaded, evaluated, and how the runtime orchestrates the entire lifecycle.
+This document describes the internal architecture of the AiCMM agent platform — how agents are defined, loaded, evaluated, and how the runtime orchestrates the entire lifecycle.
 
 ---
 
@@ -68,7 +68,7 @@ graph LR
         AM["Agent Metadata"]
     end
 
-    subgraph "aCMM/"
+    subgraph "AiCMM/"
         FW["Framework Definitions"]
         RB["Scoring Rubrics"]
         GR["Governance Rules"]
@@ -178,12 +178,12 @@ flowchart LR
 
 ---
 
-## `aCMM/` — Framework Definitions
+## `AiCMM/` — Framework Definitions
 
-The `aCMM/` directory contains the **framework specification** itself — the scoring rubrics, governance rules, dimension definitions, and evaluation criteria that form the a•CMM standard.
+The `AiCMM/` directory contains the **framework specification** itself — the scoring rubrics, governance rules, dimension definitions, and evaluation criteria that form the AiCMM standard.
 
 ```
-aCMM/
+AiCMM/
 ├── dimensions/
 │   ├── autonomy.md               # Level 0-5 rubric with evidence criteria
 │   ├── reasoning-planning.md
@@ -424,7 +424,7 @@ cardWriter.write(card, outputPath);
 
 ```mermaid
 graph TB
-    subgraph "a•CMM Platform"
+    subgraph "AiCMM Platform"
         Core["Core Framework"]
         RT["Agent Runtime"]
         Cards["Agent Cards"]
@@ -520,7 +520,7 @@ aicmm:
 
   # Scoring
   scoring:
-    rubrics_path: aCMM/dimensions/
+    rubrics_path: AiCMM/dimensions/
     require_evidence: true
     minimum_evidence_sources: 2
 ```
@@ -532,7 +532,7 @@ aicmm:
 | Component | Responsibility |
 |-----------|---------------|
 | **`agents/`** | Agent descriptor definitions — what to evaluate |
-| **`aCMM/`** | Framework specification — how to evaluate |
+| **`AiCMM/`** | Framework specification — how to evaluate |
 | **`agent_runtime/`** | Execution engine — orchestrates evaluation |
 | **`aicmm-core/`** | Domain models & scoring — the evaluation logic |
 | **`aicmm-inspector/`** | Investigation interface — gathers evidence |

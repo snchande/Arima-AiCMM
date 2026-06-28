@@ -1,4 +1,4 @@
-# a-CMM Dimension Ordering Specification
+# AiCMM Dimension Ordering Specification
 
 ## Design Principles
 
@@ -46,6 +46,76 @@ Ordered by logical progression: *"What makes it an agent?"* → *"What can it re
 | **9** | **Interoperability & Standards** | Does it fit into the ecosystem (A2A, MCP, etc.)? | Deployment requires integration |
 | **10** | **Cost & Resource Efficiency** | Is it practical at scale? | Production viability |
 | **11** | **Domain Alignment & Governance** | Does it meet regulatory/compliance needs? | Final gate before deployment — wraps everything |
+
+---
+
+## Position 12 — Agency Qualification Layer (Derived)
+
+A **derived 13th dimension** appended after the twelve core dimensions. It does **not**
+use the 0–5 capability scale and is **never authored by hand** — it is computed from the
+twelve core scores plus the seven governance rules. Positions 0–11 stay fixed; the Agency
+Qualification simply *follows* position 11 without re-indexing anything, so radar charts of
+the twelve core dimensions remain directly comparable across agents and over time.
+
+Its purpose: answer *"Is this system a genuine agent, and how agentic is it?"* — preventing
+trivial automations from being mislabeled as agents while recognizing truly autonomous ones.
+
+### The Agency Ladder (signed scale, −2 … +5)
+
+| Level | Code | Label | Agent? | Typical Profile / Example |
+|------:|------|-------|:------:|---------------------------|
+| **−2** | `SCRIPTED_AUTOMATION` | Non-Agent — Scripted Automation | No | Autonomy 0–1, **Reasoning 0**. RPA macro, ETL pipeline |
+| **−1** | `REACTIVE_ASSISTANT` | Non-Agent — Reactive Assistant | No | Autonomy 0–1, Reasoning ~1. FAQ bot, early Siri/Alexa, basic Q&A LLM |
+| **0** | `PROTO_AGENT` | Proto-Agent — Emerging Agency | Yes | Clears thresholds but fails trust/governance. AutoGPT |
+| **1** | `BASIC_AGENT` | Basic Agent — Qualified | Yes | Balanced, governed, bounded domain |
+| **2** | `ADVANCED_AGENT` | Advanced Agent — Autonomous & Trust-Aligned | Yes | Expert reasoning + strong trust. Copilot CLI, MedAssist Pro, Tesla FSD |
+| **3** | `GENERALIZED_AGENT` | Generalized Agent — Cutting-Edge | Yes | High across core + trust; world models, multi-agent coordination |
+| **4** | `HUMAN_LEVEL_AGENT` | Human-Level Agent | Yes | Human-level general intelligence across the cognitive core |
+| **5** | `HUMANOID_AGENT` | Humanoid Agent — Indistinguishable from Human | Yes | Full embodiment mastery — synthetic skin/touch/taste, indistinguishable from a person |
+
+### Agent threshold
+
+A system qualifies as an **agent** (level ≥ 0) only when **Autonomy ≥ 2 and Reasoning ≥ 2** —
+the Cognitive Core litmus test. Below that it lands on the negative "non-agent" ladder:
+`Reasoning = 0` → −2 (pure script), `Reasoning ≥ 1` → −1 (reactive but AI-driven).
+
+### Classification algorithm (single source of truth)
+
+```
+minCore = min(autonomy, reasoning, memory, learning)
+trustOk = governancePass AND safety >= 3 AND explainability >= 3
+avg12   = mean of the twelve scores
+avgExEm = mean of the eleven non-embodiment scores
+
+if   autonomy < 2 OR reasoning < 2:                                 level = (reasoning >= 1) ? -1 : -2
+elif NOT trustOk:                                                   level = 0   # Proto-Agent
+elif embodiment >= 5 AND minCore >= 5 AND avg12 >= 4.8:             level = 5   # Humanoid
+elif minCore >= 5 AND avgExEm >= 4.5:                               level = 4   # Human-Level
+elif avg12 >= 4.0 AND reasoning >= 4 AND autonomy >= 4 AND memory >= 4: level = 3   # Generalized
+elif reasoning >= 4 AND safety >= 3 AND explainability >= 3 AND avg12 >= 3.0: level = 2   # Advanced
+else:                                                              level = 1   # Basic
+```
+
+> Level 4 uses the **non-embodiment** average so a purely digital agent (Embodiment = 0)
+> is not penalized for lacking a body; Level 5 explicitly requires full embodiment (≥ 5).
+
+### The Agency Barometer (weighted index + needle)
+
+The discrete `level` is the authoritative band. For visualization, two continuous values are also derived:
+
+- **`index`** — a weighted **Agency Index (0–100)** emphasizing the agentic drivers, used as the barometer reading:
+  ```text
+  W = {autonomy .20, reasoning .18, toolUse .12, memory .10, learning .08,
+       collaboration .07, explainability .07, safety .07, domainAlignment .04,
+       interoperability .03, costEfficiency .02, embodiment .02}   # sums to 1.0
+  index = round( 100 × Σ(Wᵢ · scoreᵢ) / 5 )
+  ```
+- **`needle`** — a continuous position on the signed −2…+5 ladder. For agents it is
+  `level + within-band fraction` (from `avg12` against per-level bands); for non-agents it
+  parks mid-band. Both render as a horizontal **barometer strip** on the Agent Card.
+
+This mirrors `org.aicmm.scoring.AgencyClassifier` (Java core), the site API
+(`buildAgencyQualification`, `GET /api/agency-levels`), and `computeAgency()` in the web client.
 
 ---
 

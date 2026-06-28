@@ -45,6 +45,7 @@
     },
     "capabilityProfile": {
       "type": "object",
+      "description": "The twelve core AiCMM dimensions, fixed at positions 0-11. The derived Agency Qualification (position 12) is described separately under 'agencyQualification'.",
       "required": ["autonomy", "reasoning", "memory", "learning", "toolUse", "collaboration", "embodiment", "explainability", "safety", "interoperability", "costEfficiency", "domainAlignment"],
       "properties": {
         "autonomy": { "$ref": "#/$defs/dimensionScore" },
@@ -60,6 +61,10 @@
         "costEfficiency": { "$ref": "#/$defs/dimensionScore" },
         "domainAlignment": { "$ref": "#/$defs/dimensionScore" }
       }
+    },
+    "agencyQualification": {
+      "$ref": "#/$defs/agencyQualification",
+      "description": "Derived 13th dimension (position 12): the Agency Qualification Layer. Classifies whether the system is a genuine agent and how agentic it is, computed from the twelve core scores. Never authored by hand."
     },
     "operationalConstraints": {
       "type": "object",
@@ -126,6 +131,32 @@
     }
   },
   "$defs": {
+    "agencyQualification": {
+      "type": "object",
+      "description": "Derived Agency Qualification Layer (position 12). Computed from the twelve core dimension scores via the AiCMM agency algorithm; not authored directly.",
+      "required": ["level"],
+      "properties": {
+        "position": { "type": "integer", "const": 12 },
+        "dimension": { "type": "string", "const": "Agency Qualification" },
+        "derived": { "type": "boolean", "const": true },
+        "level": {
+          "type": "integer",
+          "minimum": -2,
+          "maximum": 5,
+          "description": "Signed agency ladder: -2 Scripted Automation, -1 Reactive Assistant, 0 Proto-Agent, 1 Basic Agent, 2 Advanced Agent, 3 Generalized Agent, 4 Human-Level Agent, 5 Humanoid Agent"
+        },
+        "code": {
+          "type": "string",
+          "enum": ["SCRIPTED_AUTOMATION", "REACTIVE_ASSISTANT", "PROTO_AGENT", "BASIC_AGENT", "ADVANCED_AGENT", "GENERALIZED_AGENT", "HUMAN_LEVEL_AGENT", "HUMANOID_AGENT"]
+        },
+        "label": { "type": "string", "description": "Human-readable agency level label" },
+        "isAgent": { "type": "boolean", "description": "True when level >= 0 (clears the agent threshold: Autonomy >= 2 and Reasoning >= 2)" },
+        "governancePass": { "type": "boolean", "description": "Whether all seven governance rules passed" },
+        "index": { "type": "integer", "minimum": 0, "maximum": 100, "description": "Weighted Agency Index barometer reading (0-100) derived from the twelve scores; expresses momentum within a band." },
+        "needle": { "type": "number", "minimum": -2, "maximum": 5, "description": "Continuous needle position on the signed -2..+5 ladder, for barometer rendering." },
+        "rationale": { "type": "string", "description": "Explanation of why this agency level was assigned" }
+      }
+    },
     "dimensionScore": {
       "type": "object",
       "required": ["score"],

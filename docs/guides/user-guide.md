@@ -1,6 +1,6 @@
-# a-CMM User Guide
+# AiCMM User Guide
 
-How to use the a-CMM CLI and documentation site together to create, manage, and search Agent Cards.
+How to use the AiCMM CLI and documentation site together to create, manage, and search Agent Cards.
 
 ---
 
@@ -52,7 +52,7 @@ java -jar aicmm-cli/target/aicmm-cli.jar validate --card my-agent-card.json
 | Page | URL | Purpose |
 |------|-----|---------|
 | **Home** | `/` | Project overview and README |
-| **Framework** | `/framework` | Full a-CMM specification |
+| **Framework** | `/framework` | Full AiCMM specification |
 | **Architecture** | `/architecture` | Platform architecture with Mermaid diagrams |
 | **Catalog** | `/catalog` | Central registry of all Agent Cards — searchable table + visual profiles |
 | **Create Card** | `/create-card` | Form to generate new Agent Cards from agent descriptions |
@@ -70,7 +70,7 @@ The **Create Card** page at `/create-card` provides a form-based workflow:
 2. **Agent Identity** — Name, version, creator/vendor, category, homepage
 3. **Capabilities** — Tools, skills, plugins, MCP connections (comma-separated)
 4. **Agent Relationships** — What agents it delegates to, what uses it, dependencies
-5. **a-CMM Level 0 Scores** — Slide each universal dimension 0-5 based on evidence
+5. **AiCMM Level 0 Scores** — Slide each universal dimension 0-5 based on evidence
 6. **Level 1 Domain Profile** — Add domain-specific scoring when the agent operates in healthcare, transportation, finance, manufacturing, or another specialized environment
 7. **Generate** — Produces a full Agent Card JSON with radar chart preview
 
@@ -119,6 +119,7 @@ Every Agent Card contains:
 | **Capability Profile** | Autonomy, Reasoning, Memory, Learning, Tool Use, Collaboration, Embodiment, Explainability, Safety, Interoperability, Cost Efficiency, Domain Alignment (0-5 each) with position + confidence metadata | What can it do? |
 | **Level 1 Profile** | Domain-specific radar chart (8 dimensions per domain) | How does it perform in a specific sector? |
 | **Governance Validation** | 7 rule checks with violations/remediation | Is it deployable under the new architecture? |
+| **Agency Qualification** | Derived agency level (−2…+5), code, label, isAgent, rationale | Is it a genuine agent, and how agentic? |
 | **Avatar** | archetype, tagline, personality, strengths, weaknesses | Visual representation |
 | **Tools** | List of external tools it can invoke | What does it use? |
 | **Skills** | Core competencies without tools | What is it good at? |
@@ -201,7 +202,7 @@ For production scale, cards would be stored in a database with full-text search 
 The `aicmm-project-agent` is registered at `~/.copilot/agents/aicmm-project-agent.md`:
 
 ```bash
-# In Copilot CLI, the agent has full a-CMM knowledge
+# In Copilot CLI, the agent has full AiCMM knowledge
 > Create an agent card for Claude Sonnet 4
 > Compare Copilot CLI vs ChatGPT on the reasoning dimension
 > Which agents in the catalog score highest on tool use?
@@ -249,6 +250,29 @@ Every generated card is automatically checked:
 7. **Autonomy >= 4 requires Reasoning >= 3** — baseline reasoning floor remains enforced
 
 Non-compliant cards are flagged with warnings and remediation steps.
+
+---
+
+## Agency Qualification (Derived — Position 12)
+
+Every card also receives a **derived Agency Level**, computed automatically from the 12 scores
+plus the governance result. It answers *"Is this a genuine agent, and how agentic is it?"* on a
+signed ladder, and is never hand-authored.
+
+A system counts as an **agent** (level ≥ 0) only when **Autonomy ≥ 2 and Reasoning ≥ 2**.
+
+| Level | Code | Label |
+|------:|------|-------|
+| −2 | `SCRIPTED_AUTOMATION` | Non-Agent — Scripted Automation (RPA/ETL) |
+| −1 | `REACTIVE_ASSISTANT` | Non-Agent — Reactive Assistant (FAQ bot, early Siri/Alexa) |
+| 0 | `PROTO_AGENT` | Proto-Agent — Emerging Agency (e.g. AutoGPT) |
+| 1 | `BASIC_AGENT` | Basic Agent — Qualified |
+| 2 | `ADVANCED_AGENT` | Advanced Agent — Autonomous & Trust-Aligned |
+| 3 | `GENERALIZED_AGENT` | Generalized Agent — Cutting-Edge |
+| 4 | `HUMAN_LEVEL_AGENT` | Human-Level Agent (human-level general intelligence) |
+| 5 | `HUMANOID_AGENT` | Humanoid Agent — Indistinguishable from Human |
+
+Retrieve the full ladder via `GET /api/agency-levels` or the MCP tool `aicmm_get_agency_levels`.
 
 ---
 

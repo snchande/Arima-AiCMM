@@ -13,7 +13,7 @@ That's why understanding what we mean by "agent" is no longer optional. The diff
 
 ## The Argument
 
-If we want to build and scale agents responsibly, we need a clearer language — and that's where the **Agent Capability Maturity Model (aCMM)** comes in.
+If we want to build and scale agents responsibly, we need a clearer language — and that's where the **Agent Capability Maturity Model (AiCMM)** comes in.
 
 We're all using the word "AI agent" — but we often mean completely different things. A task-automation agent that files tickets, an LLM tool-orchestrator, a multi-agent coordination system, and an autonomous mobile robot can all be labeled "agents" — yet their capabilities, risks, and governance needs are nowhere near comparable.
 
@@ -35,7 +35,7 @@ A single linear "level" breaks down almost immediately in real deployments. Team
 
 This asymmetry becomes even more pronounced with embodied agents such as robots and drones, or agents deployed in regulated environments. And as LLM-based agents gain self-improving behaviors, their capabilities no longer fit neatly into any single linear maturity ladder.
 
-## The Proposal: Agent Capability Maturity Model (aCMM)
+## The Proposal: Agent Capability Maturity Model (AiCMM)
 
 A multi-dimensional capability-profile framework that evaluates agents across **twelve universal dimensions organized in three groups** instead of collapsing everything into a single maturity score:
 
@@ -67,4 +67,4 @@ That second layer matters because the capabilities that make a healthcare agent 
 
 ---
 
-*#AI #Agents #AgenticAI #aCMM #ArtificialIntelligence #Autonomy #AIEngineering #AIGovernance #FutureOfWork #LLM*
+*#AI #Agents #AgenticAI #AiCMM #ArtificialIntelligence #Autonomy #AIEngineering #AIGovernance #FutureOfWork #LLM*

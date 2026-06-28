@@ -115,6 +115,11 @@
       "name": "aicmm_get_schema",
       "description": "Get the JSON schema for AiCMM Agent Cards (v0.2.0)",
       "inputSchema": { "type": "object", "properties": {} }
+    },
+    {
+      "name": "aicmm_get_agency_levels",
+      "description": "Get the Agency Qualification ladder (derived 13th dimension, position 12): levels -2 (Scripted Automation) and -1 (Reactive Assistant) for non-agents, through 0 (Proto-Agent), 1 (Basic), 2 (Advanced), 3 (Generalized), 4 (Human-Level), and 5 (Humanoid Agent)",
+      "inputSchema": { "type": "object", "properties": {} }
     }
   ]
 }

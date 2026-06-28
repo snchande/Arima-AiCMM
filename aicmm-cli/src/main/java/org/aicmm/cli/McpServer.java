@@ -98,7 +98,7 @@ public class McpServer {
                 "Validate an Agent Card against schema and 7 governance rules",
                 "{\"type\":\"object\",\"properties\":{\"card\":{\"type\":\"object\"}},\"required\":[\"card\"]}"));
         tools.add(tool("aicmm_score_card",
-                "Score/re-score an agent card, return governance validation and maturity level",
+                "Score/re-score an agent card, return governance validation, maturity level, and derived Agency Qualification level",
                 "{\"type\":\"object\",\"properties\":{\"card\":{\"type\":\"object\"}},\"required\":[\"card\"]}"));
         tools.add(tool("aicmm_list_cards",
                 "List all Agent Cards in the AiCMM catalog",
@@ -107,8 +107,11 @@ public class McpServer {
                 "Get full details of a specific Agent Card by name",
                 "{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\"}},\"required\":[\"name\"]}"));
         tools.add(tool("aicmm_get_dimensions",
-                "Get AiCMM dimension definitions with positions, groups, and scoring rubrics",
+                "Get AiCMM dimension definitions with positions, groups, and scoring rubrics (12 core dimensions plus the derived Agency Qualification layer)",
                 "{\"type\":\"object\",\"properties\":{\"level\":{\"type\":\"string\"},\"domain\":{\"type\":\"string\"}}}"));
+        tools.add(tool("aicmm_get_agency_levels",
+                "Get the Agency Qualification ladder (derived 13th dimension, position 12): levels -2 (Scripted Automation) through +5 (Humanoid Agent) that classify agents vs non-agents",
+                "{\"type\":\"object\",\"properties\":{}}"));
         tools.add(tool("aicmm_get_schema",
                 "Get the AiCMM Agent Card JSON schema (v0.2.0)",
                 "{\"type\":\"object\",\"properties\":{}}"));
@@ -168,6 +171,8 @@ public class McpServer {
                 return httpGet("/dimensions" + dQuery);
             case "aicmm_get_schema":
                 return httpGet("/schema");
+            case "aicmm_get_agency_levels":
+                return httpGet("/agency-levels");
             default:
                 return "{\"error\":\"Unknown tool: " + toolName + "\"}";
         }

@@ -11,10 +11,19 @@
   "avatar": {
     "archetype": "Vigilant Guardian",
     "tagline": "An ever-watchful clinical partner that combines rapid pattern recognition with deep medical knowledge, always deferring final decisions to human clinicians",
-    "personality": ["precise", "empathetic", "evidence-driven", "alert"],
+    "personality": [
+      "precise",
+      "empathetic",
+      "evidence-driven",
+      "alert"
+    ],
     "visualTraits": {
       "form": "Shield shape with medical cross and pulse line",
-      "palette": ["#059669", "#10b981", "#d1fae5"],
+      "palette": [
+        "#059669",
+        "#10b981",
+        "#d1fae5"
+      ],
       "symbol": "Stethoscope wrapped around a neural network",
       "style": "Clinical, trustworthy, calm authority"
     },
@@ -174,23 +183,71 @@
   },
   "governanceValidation": {
     "rules": [
-      {"rule": "Autonomy Gap", "constraint": "Autonomy(0) <= DomainAlignment(11) + 1", "result": "PASS", "values": "3 <= 6"},
-      {"rule": "Explainability Gate", "constraint": "Autonomy(0) >= 4 requires Explainability(7) >= 3", "result": "N/A", "values": "Autonomy=3"},
-      {"rule": "Embodiment Safety", "constraint": "Embodiment(6) >= 3 requires Safety(8) >= 4", "result": "N/A", "values": "Embodiment=2"},
-      {"rule": "Tool Oversight", "constraint": "ToolUse(4) >= 4 requires DomainAlignment(11) >= 3", "result": "PASS", "values": "4, 5"},
-      {"rule": "Reasoning Foundation", "constraint": "Autonomy(0) >= 4 requires Reasoning(1) >= 3", "result": "N/A", "values": "Autonomy=3"}
+      {
+        "rule": "Autonomy Gap",
+        "constraint": "Autonomy(0) <= DomainAlignment(11) + 1",
+        "result": "PASS",
+        "values": "3 <= 6"
+      },
+      {
+        "rule": "Explainability Gate",
+        "constraint": "Autonomy(0) >= 4 requires Explainability(7) >= 3",
+        "result": "N/A",
+        "values": "Autonomy=3"
+      },
+      {
+        "rule": "Embodiment Safety",
+        "constraint": "Embodiment(6) >= 3 requires Safety(8) >= 4",
+        "result": "N/A",
+        "values": "Embodiment=2"
+      },
+      {
+        "rule": "Tool Oversight",
+        "constraint": "ToolUse(4) >= 4 requires DomainAlignment(11) >= 3",
+        "result": "PASS",
+        "values": "4, 5"
+      },
+      {
+        "rule": "Reasoning Foundation",
+        "constraint": "Autonomy(0) >= 4 requires Reasoning(1) >= 3",
+        "result": "N/A",
+        "values": "Autonomy=3"
+      }
     ],
     "overallCompliant": true
   },
+  "agencyQualification": {
+    "position": 12,
+    "dimension": "Agency Qualification",
+    "derived": true,
+    "level": 2,
+    "code": "ADVANCED_AGENT",
+    "label": "Advanced Agent — Autonomous & Trust-Aligned",
+    "isAgent": true,
+    "governancePass": true,
+    "index": 78,
+    "needle": 2.75,
+    "rationale": "Expert reasoning with strong trust controls and governance compliance."
+  },
   "tools": [
-    "Epic EHR API", "Cerner Millennium API", "HL7 FHIR R4",
-    "DICOM Viewer", "Lab Information System", "Pharmacy DB",
-    "Vital Signs Monitor Feed", "Radiology PACS"
+    "Epic EHR API",
+    "Cerner Millennium API",
+    "HL7 FHIR R4",
+    "DICOM Viewer",
+    "Lab Information System",
+    "Pharmacy DB",
+    "Vital Signs Monitor Feed",
+    "Radiology PACS"
   ],
   "skills": [
-    "Differential Diagnosis", "Patient Triage", "Drug Interaction Check",
-    "Clinical Alert Generation", "Care Coordination", "Shift Handoff Briefing",
-    "Evidence Synthesis", "Risk Stratification"
+    "Differential Diagnosis",
+    "Patient Triage",
+    "Drug Interaction Check",
+    "Clinical Alert Generation",
+    "Care Coordination",
+    "Shift Handoff Briefing",
+    "Evidence Synthesis",
+    "Risk Stratification"
   ],
   "plugins": [
     "Epic MyChart Integration",
