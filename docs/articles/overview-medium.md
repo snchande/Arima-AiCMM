@@ -1,7 +1,9 @@
-# Agent Capability Maturity Model (aCMM): A Unified Framework for Evaluating Modern AI Agents
+# Agent Capability Maturity Model (AiCMM): A Unified Framework for Evaluating Modern AI Agents
 
 **Author:** Suresh Chande  
 **Originally Published:** March 30, 2026 — [Medium](https://medium.com/@sureshchande/agent-capability-maturity-model-a-unified-framework-for-evaluating-modern-ai-agents-bcb5b7a64bd7)
+
+![AiCMM: The Agentic Intelligence Capability Maturity Model](images/pptx/image9.png)
 
 ---
 
@@ -43,6 +45,8 @@ This article proposes a unified, twelve-dimension, two-level capability architec
 ## The Twelve Level 0 Dimensions
 
 Scoring each dimension independently produces a Level 0 capability fingerprint you can visualize (for example, as a radar chart) and track across releases as a **Capability Resume**.
+
+![The 12-dimension capability fingerprint](images/pptx/image10.png)
 
 ### Cognitive Core
 
@@ -125,6 +129,45 @@ Domain Alignment is the deployment-fit layer: policy compliance, regulatory read
 
 ---
 
+## The Agency Qualification Layer (Position 12 — Derived)
+
+The 12 dimensions describe *what* a system can do. AiCMM adds a **derived 13th dimension** — the **Agency Qualification Layer** — that answers a different question: *is this even an agent, and how agentic is it?* It is computed automatically from the 12 scores plus the 7 governance rules, never authored by hand, so a glorified script cannot be marketed as an "agent" and a truly autonomous system earns the recognition it deserves.
+
+![The Agency Qualification Layer — from Scripted Non-Agent to Sovereign Intelligence](images/pptx/image12.png)
+
+A system qualifies as an **agent** (level ≥ 0) only when **Autonomy ≥ 2 and Reasoning ≥ 2**. Below that, it lands on the negative **non-agent** rungs (−1, −2).
+
+| Level | Label | Agent? |
+|------:|-------|:------:|
+| −2 | Scripted Automation (RPA, ETL, deterministic scripts) | ❌ |
+| −1 | Reactive Assistant (FAQ bots, early Siri/Alexa) | ❌ |
+| 0 | Proto-Agent — emerging agency (e.g. AutoGPT) | ✅ |
+| 1 | Basic Agent — qualified, passes governance | ✅ |
+| 2 | Advanced Agent — autonomous & trust-aligned | ✅ |
+| 3 | Generalized Agent — cutting-edge, multi-domain | ✅ |
+| 4 | Human-Level Agent | ✅ |
+| 5 | Humanoid Agent — indistinguishable from a human | ✅ |
+
+### The Agency Barometer
+
+The discrete level is authoritative; for visualization AiCMM also derives a continuous **Agency Index (0–100)** that weights the agentic drivers (autonomy, reasoning, tool use). It renders as a horizontal barometer strip on every Agent Card — colored zones per level, with a needle showing momentum toward the next.
+
+![Agency Barometer from the catalog: Copilot CLI, +2 Advanced Agent, Index 72/100](images/cards/copilot-agency.png)
+
+![Classifying real-world agent patterns by agency level](images/pptx/image13.png)
+
+---
+
+## Three Generations of Agent Evolution
+
+AiCMM is a common lens across the three eras of agent evolution. The 12 dimensions measure capability uniformly across all three; the Agency Qualification Layer then places every system — from a Gen 1 script to a Gen 3 autonomous agent — on a single, comparable ladder.
+
+![Three generations of agent evolution](images/pptx/image5.png)
+
+![Visualizing the evolution of capability across all three generations](images/pptx/image11.png)
+
+---
+
 ## Why a Numeric Scale Matters
 
 A 0–5 scale is useful because it is:
@@ -141,6 +184,8 @@ A 0–5 scale is useful because it is:
 ### AutoGPT (Digital LLM Agent)
 
 Strongest when the environment is software-defined (documents, tickets, repositories). Typically scores high on Reasoning & Planning and Tool Use, has no Embodiment, and Domain Alignment depends on surrounding system design.
+
+![Live capability fingerprint from the AiCMM catalog](images/cards/copilot-radar.png)
 
 ### Tesla Full Self-Driving (FSD)
 
@@ -257,4 +302,4 @@ Done well, the framework becomes a living "capability resume" you can review at 
 
 ---
 
-*Tags: #Framework #MaturityModel #AIAgents #aCMM #AgenticAI*
+*Tags: #Framework #MaturityModel #AIAgents #AiCMM #AgenticAI*

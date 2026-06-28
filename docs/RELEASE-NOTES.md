@@ -1,10 +1,10 @@
-# a-CMM Release Notes
+# AiCMM Release Notes
 
 ## v0.2.0 — Level 0 / Level 1 Architecture (2026-05-24)
 
 ### Overview
 
-Introduces the **Agent Capability Maturity Model (a-CMM)** 12-dimension, two-level architecture: a universal Level 0 baseline plus Level 1 domain-specific radar charts for specialized deployment contexts.
+Introduces the **Agent Capability Maturity Model (AiCMM)** 12-dimension, two-level architecture: a universal Level 0 baseline plus Level 1 domain-specific radar charts for specialized deployment contexts.
 
 ---
 
@@ -30,7 +30,7 @@ Introduces the **Agent Capability Maturity Model (a-CMM)** 12-dimension, two-lev
 - **Agent Card Catalog** — Central registry with table view, score bars, mini radar charts
 - **Create Card page** — Form-based Agent Card generation with live radar preview
 - **Architecture page** — 10 Mermaid diagrams showing platform design
-- **Framework page** — Complete a-CMM specification
+- **Framework page** — Complete AiCMM specification
 - **Standards Integration Guide** — A2A, MCP, OpenAI embedding examples
 - **Responsive design** — Works on desktop and mobile
 
@@ -108,13 +108,13 @@ Registered at `~/.copilot/skills/` and `~/.copilot/agents/` for use across Copil
 - `java-project-scaffolding` — Scaffold Maven projects
 - `json-schema-design` — Design JSON Schemas
 - `markdown-to-pdf` — Generate PDFs from Markdown
-- `agent-card-creation` — Generate a-CMM Agent Cards
+- `agent-card-creation` — Generate AiCMM Agent Cards
 - `agent-inspection` — Inspect agents from URLs
 - `aicmm-scoring` — Score agents on 12 dimensions
 - `catalog-management` — Manage Agent Card catalog
 
 **Agents:**
-- `aicmm-project-agent` — Full a-CMM domain knowledge
+- `aicmm-project-agent` — Full AiCMM domain knowledge
 - `open-source-maintainer` — OSS project management
 - `framework-evaluator` — Agent classification specialist
 

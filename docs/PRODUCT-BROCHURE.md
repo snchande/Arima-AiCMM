@@ -15,6 +15,8 @@
 
 **AiCMM** provides a standardized, multi-dimensional capability profile for every AI agent — from simple chatbots to autonomous robotic fleets. One framework. One language. Universal comparison.
 
+<img src="images/pptx/image1.png" alt="Measuring Agentic Intelligence in the Real World" width="780" />
+
 </div>
 
 ---
@@ -51,6 +53,8 @@ Today's AI ecosystem has:
 - 🚫 No governance framework for autonomous systems
 - 📊 No standardized "maturity level" for AI capabilities
 
+![Semantic Collapse: the definition spectrum](images/pptx/image2.png)
+
 ### The Solution
 
 AiCMM provides:
@@ -60,11 +64,15 @@ AiCMM provides:
 - ✅ **Agent Cards** — Portable, embeddable capability descriptions
 - ✅ **Standards integration** — Works with A2A, MCP, OpenAI protocols
 
+![AiCMM: The Agentic Intelligence Capability Maturity Model](images/pptx/image9.png)
+
 ---
 
 ## The 12-Dimension Framework
 
 AiCMM evaluates every AI agent across **12 fixed-position dimensions**, grouped into three logical areas:
+
+![The 12-dimension capability fingerprint](images/pptx/image10.png)
 
 ```mermaid
 graph LR
@@ -116,6 +124,119 @@ graph LR
 | 3 | **Advanced** | Handles complexity with guardrails |
 | 4 | **Expert** | Autonomous within boundaries |
 | 5 | **Mastery** | Full autonomy with self-governance |
+
+---
+
+## The Agency Qualification Layer (Position 12 — Derived)
+
+> *"Is this even an agent — and if so, how agentic is it?"*
+
+The 12 dimensions describe *what a system can do*. The **Agency Qualification Layer** is a
+**derived 13th dimension** that sits on top of them and answers a different question: **whether
+the system qualifies as a genuine agent at all, and where it lands on an evolutionary ladder.**
+It is *computed automatically* from the 12 scores plus the 7 governance rules — never authored
+by hand — so a glorified script can't be marketed as an "agent," and a truly autonomous system
+gets the recognition it earns.
+
+![The Agency Qualification Layer — from Scripted Non-Agent to Sovereign Intelligence](images/pptx/image12.png)
+
+A system is an **agent** (level ≥ 0) only when **Autonomy ≥ 2 and Reasoning ≥ 2**. Anything
+below that lands on the negative **non-agent** rungs.
+
+| Level | Label | What It Is | Agent? |
+|------:|-------|-----------|:------:|
+| **−2** | Scripted Automation | RPA, ETL pipelines, deterministic scripts | ❌ |
+| **−1** | Reactive Assistant | FAQ bots, early Siri/Alexa, basic Q&A LLM | ❌ |
+| **0** | Proto-Agent | Emerging agency, fails trust/governance (e.g. AutoGPT) | ✅ |
+| **1** | Basic Agent | Qualified, balanced, passes governance | ✅ |
+| **2** | Advanced Agent | Autonomous & trust-aligned (Copilot CLI, MedAssist, Tesla FSD) | ✅ |
+| **3** | Generalized Agent | Cutting-edge, broad capability across domains | ✅ |
+| **4** | Human-Level Agent | Human-level general intelligence | ✅ |
+| **5** | Humanoid Agent | Indistinguishable from a human — synthetic skin, touch, taste | ✅ |
+
+Levels 4 and 5 are *forward-looking*: Level 4 marks human-level cognition, and Level 5 marks
+the point at which appearance, touch, and presence can no longer be distinguished from a real
+human — the trajectory robotics is on today. The layer is exposed via the API
+(`GET /api/agency-levels`) and the MCP tool `aicmm_get_agency_levels`.
+
+### The Agency Barometer (Weighted Index)
+
+The discrete level above is the **authoritative band**. For visualization, AiCMM also derives a
+continuous **Agency Index (0–100)** — a weighted aggregate of the twelve scores that emphasizes
+the *agentic drivers* (autonomy, reasoning, tool use). It renders as a horizontal **barometer
+strip** on every Agent Card: colored zones for each ladder level, and a needle whose position on
+the signed −2…+5 scale shows momentum toward the next level (or below zero for non-agents).
+
+> **Live from the catalog — GitHub Copilot CLI's barometer:**
+>
+> ![Agency Barometer — Copilot CLI: +2 Advanced Agent, Index 72/100](images/cards/copilot-agency.png)
+
+| Dim | Weight | Dim | Weight | Dim | Weight |
+|-----|:------:|-----|:------:|-----|:------:|
+| Autonomy | 0.20 | Tool Use | 0.12 | Safety | 0.07 |
+| Reasoning | 0.18 | Collaboration | 0.07 | Domain Alignment | 0.04 |
+| Memory | 0.10 | Explainability | 0.07 | Interoperability | 0.03 |
+| Learning | 0.08 | Embodiment | 0.02 | Cost Efficiency | 0.02 |
+
+```java
+// org.aicmm.scoring.AgencyClassifier
+double[] W = {0.20,0.18,0.10,0.08,0.12,0.07,0.02,0.07,0.07,0.03,0.02,0.04};
+int agencyIndex(int[] s) {            // s = the 12 scores, position order 0–11
+    double acc = 0;
+    for (int i = 0; i < 12; i++) acc += W[i] * s[i];
+    return (int) Math.round(100.0 * acc / 5.0);   // 0..100
+}
+```
+
+The barometer needle and Agency Index appear in the `agencyQualification` block of every card:
+
+```json
+"agencyQualification": {
+  "position": 12,
+  "dimension": "Agency Qualification",
+  "derived": true,
+  "level": 2,
+  "code": "ADVANCED_AGENT",
+  "label": "Advanced Agent — Autonomous & Trust-Aligned",
+  "isAgent": true,
+  "governancePass": true,
+  "index": 72,
+  "needle": 2.17,
+  "rationale": "Expert reasoning with strong trust controls and governance compliance."
+}
+```
+
+```bash
+# Fetch the full ladder, or compute a reading by validating a profile
+curl -s http://localhost:8080/api/agency-levels | jq '.ladder[].label'
+curl -s -X POST http://localhost:8080/api/validate \
+  -H "Content-Type: application/json" -d @examples/copilot-cli-agent-card.json \
+  | jq '.agencyQualification | {level, index, needle, code}'
+# → { "level": 2, "index": 72, "needle": 2.17, "code": "ADVANCED_AGENT" }
+```
+
+**Example readings:** Copilot CLI → `+2` Advanced, Index 72 · AutoNav → `+3` Generalized, Index 79 ·
+an RPA macro → `−2` Scripted Automation (NON-AGENT), needle below zero.
+
+![Classifying real-world agent patterns by agency level](images/pptx/image13.png)
+
+### Three Generations of Agent Evolution
+
+AiCMM is a common lens across the **three eras of agent evolution**:
+
+![Three generations of agent evolution](images/pptx/image5.png)
+
+| Generation | Era | Hallmarks | Example Systems |
+|-----------|-----|-----------|-----------------|
+| **Gen 1 — Classical / Expert Systems** | 1990s | Hand-coded rules, reactive, deterministic | Expert systems, rule engines |
+| **Gen 2 — Distributed / Learning Systems** | 2000s–2010s | Neural nets, adaptive, enterprise integration | Early Siri/Alexa, recommendation engines |
+| **Gen 3 — Modern Agentic GenAI** | 2020s | Transformers/LLMs, reasoning, tool use, collaboration | Copilot, AutoGPT, agentic assistants |
+
+The 12 dimensions measure capability uniformly across all three generations; the Agency
+Qualification Layer then places every system — from a Gen 1 script to a Gen 3 autonomous
+agent — on a single, comparable ladder.
+
+![Visualizing the evolution of capability across three generations](images/pptx/image11.png)
 
 ---
 
@@ -393,6 +514,7 @@ The `GEMINI.md` file provides framework context and instructions.
 | `aicmm_list_cards` | Browse the catalog |
 | `aicmm_get_card` | Get full card details |
 | `aicmm_get_dimensions` | Get dimension definitions |
+| `aicmm_get_agency_levels` | Get the Agency Qualification ladder (−2…+5) |
 | `aicmm_get_schema` | Get JSON schema |
 
 ---
@@ -863,7 +985,11 @@ java -jar aicmm-cli/target/aicmm-cli-0.1.0-SNAPSHOT.jar --mcp
 
 ## Agent Card Examples
 
+*Real cards rendered live on the AiCMM catalog — radar fingerprint, governance, and Agency Barometer:*
+
 ### 🖥️ Digital Agent: GitHub Copilot CLI
+
+![GitHub Copilot CLI — Level 0 capability fingerprint (live catalog)](images/cards/copilot-radar.png)
 
 ```
 Category: Digital | Maturity: Expert | Average: 3.5/5
@@ -894,6 +1020,8 @@ Level 1 Domain: Healthcare (10 dimensions)
 
 MCPs: hl7-fhir-mcp, clinical-decision-support-mcp, pharmacy-interaction-mcp
 ```
+
+![MedAssist Pro — Agency Barometer: +2 Advanced Agent, Index 78/100 (live catalog)](images/cards/medassist-agency.png)
 
 ### 🚗 Embodied Agent: AutoNav Fleet Commander
 
@@ -1050,6 +1178,7 @@ Use the `add-level1-domain` skill or follow the pattern in `docs/specifications/
 | **POST** | `/api/agent-cards/_/score` | Score breakdown | Agent Card JSON |
 | **POST** | `/api/inspect` | Inspect from URL/desc | `{url, description, name}` |
 | **GET** | `/api/dimensions` | Dimension definitions | — |
+| **GET** | `/api/agency-levels` | Agency Qualification ladder (−2…+5) | — |
 | **GET** | `/api/schema` | JSON Schema (v0.2.0) | — |
 
 ### Response Examples

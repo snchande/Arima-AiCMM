@@ -1,6 +1,6 @@
 # Agent Card Template
 
-> **a•CMM Agent Card v0.2.0** — A standardized capability description for AI agents.
+> **AiCMM Agent Card v0.2.0** — A standardized capability description for AI agents.
 >
 > Copy this template, fill in all sections, and save as `<agent-name>-agent-card.json` (or `.yaml`/`.md`).
 
@@ -19,7 +19,7 @@
 
 ---
 
-## a•CMM Capability Scores
+## AiCMM Capability Scores
 
 Score each dimension **0–5** with observable evidence.
 
@@ -41,6 +41,27 @@ Score each dimension **0–5** with observable evidence.
 **Capability Fingerprint**: `[_, _, _, _, _, _, _, _, _, _, _, _]`
 
 **Total Score**: _/60_ | **Average**: _/5_ | **Governance Compliant**: _[Yes/No]_
+
+---
+
+## Agency Qualification (Derived — Position 12)
+
+The Agency Qualification Layer is **computed automatically** from the 12 scores above plus the
+governance result — *do not hand-author it*. A system is an **agent** (level ≥ 0) only when
+**Autonomy ≥ 2 and Reasoning ≥ 2**; otherwise it is a non-agent.
+
+| Level | Code | Label | Agent? |
+|------:|------|-------|:------:|
+| −2 | `SCRIPTED_AUTOMATION` | Non-Agent — Scripted Automation | No |
+| −1 | `REACTIVE_ASSISTANT` | Non-Agent — Reactive Assistant | No |
+| 0 | `PROTO_AGENT` | Proto-Agent — Emerging Agency | Yes |
+| 1 | `BASIC_AGENT` | Basic Agent — Qualified | Yes |
+| 2 | `ADVANCED_AGENT` | Advanced Agent — Autonomous & Trust-Aligned | Yes |
+| 3 | `GENERALIZED_AGENT` | Generalized Agent — Cutting-Edge | Yes |
+| 4 | `HUMAN_LEVEL_AGENT` | Human-Level Agent | Yes |
+| 5 | `HUMANOID_AGENT` | Humanoid Agent — Indistinguishable from Human | Yes |
+
+**Computed Agency Level**: _[auto: e.g. 2 — Advanced Agent]_
 
 ---
 
@@ -257,6 +278,19 @@ The following events should trigger a reassessment of this Agent Card:
     "rulesChecked": 7,
     "violations": []
   },
+  "agencyQualification": {
+    "position": 12,
+    "dimension": "Agency Qualification",
+    "derived": true,
+    "level": 0,
+    "code": "PROTO_AGENT",
+    "label": "Proto-Agent — Emerging Agency",
+    "isAgent": true,
+    "governancePass": true,
+    "index": 0,
+    "needle": 0,
+    "rationale": "Auto-computed from the 12 scores + governance; do not hand-edit."
+  },
   "skills": [],
   "tools": [],
   "plugins": [],
@@ -301,7 +335,7 @@ The following events should trigger a reassessment of this Agent Card:
 
 1. **Copy** this template to your project
 2. **Fill in** all sections with evidence-based information
-3. **Score** each dimension using the [a•CMM Scoring Rubric](../docs/articles/overview-medium.md)
+3. **Score** each dimension using the [AiCMM Scoring Rubric](../docs/articles/overview-medium.md)
 4. **Validate** governance compliance against the 7 Level 0 rules
 5. **Add** a Level 1 domain profile when the deployment context requires domain-specific scoring
 6. **Submit** as a PR to the [AiCMM examples](../examples/) directory or embed in your agent's metadata
@@ -319,4 +353,4 @@ java -jar aicmm-site/target/aicmm-site-0.1.0-SNAPSHOT.jar --port 8090
 
 ---
 
-*Template version: 0.2.0 | Framework: a•CMM Agent Capability Maturity Model*
+*Template version: 0.2.0 | Framework: AiCMM Agent Capability Maturity Model*

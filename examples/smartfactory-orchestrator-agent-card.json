@@ -9,69 +9,246 @@
     "description": "Manufacturing floor orchestration agent that coordinates robotic cells, optimizes production schedules, predicts maintenance needs, and ensures worker safety through real-time sensor fusion.",
     "website": "https://example.com/smartfactory",
     "created": "2024-09-15",
-    "tools": ["PLC Interface", "SCADA System", "Digital Twin", "MES Integration", "Safety Monitor"],
-    "skills": ["production-scheduling", "predictive-maintenance", "quality-inspection", "energy-optimization"],
-    "plugins": ["sensor-fusion-mcp", "safety-compliance-check", "opc-ua-connector"],
-    "mcps": ["industrial-iot-provider", "material-tracking"],
-    "delegatesTo": ["vision-inspection-agent", "maintenance-scheduler-agent"],
-    "usedBy": ["factory-dashboard", "shift-supervisor-assistant"]
+    "tools": [
+      "PLC Interface",
+      "SCADA System",
+      "Digital Twin",
+      "MES Integration",
+      "Safety Monitor"
+    ],
+    "skills": [
+      "production-scheduling",
+      "predictive-maintenance",
+      "quality-inspection",
+      "energy-optimization"
+    ],
+    "plugins": [
+      "sensor-fusion-mcp",
+      "safety-compliance-check",
+      "opc-ua-connector"
+    ],
+    "mcps": [
+      "industrial-iot-provider",
+      "material-tracking"
+    ],
+    "delegatesTo": [
+      "vision-inspection-agent",
+      "maintenance-scheduler-agent"
+    ],
+    "usedBy": [
+      "factory-dashboard",
+      "shift-supervisor-assistant"
+    ]
   },
   "avatar": {
     "archetype": "The Factory Mind",
     "tagline": "Orchestrating precision at industrial scale",
-    "personality": ["Precise", "Safety-first", "Adaptive", "Efficient"],
-    "strengths": ["Real-time multi-robot coordination", "Predictive failure detection", "Energy optimization", "Human-robot safety"],
-    "weaknesses": ["Requires extensive sensor infrastructure", "Slower adaptation to entirely new product lines", "High compute requirements for digital twin"]
+    "personality": [
+      "Precise",
+      "Safety-first",
+      "Adaptive",
+      "Efficient"
+    ],
+    "strengths": [
+      "Real-time multi-robot coordination",
+      "Predictive failure detection",
+      "Energy optimization",
+      "Human-robot safety"
+    ],
+    "weaknesses": [
+      "Requires extensive sensor infrastructure",
+      "Slower adaptation to entirely new product lines",
+      "High compute requirements for digital twin"
+    ]
   },
   "capabilityProfile": {
-    "autonomy": { "score": 4, "position": 0, "confidence": "high", "evidence": "Independently schedules production, adjusts parameters, initiates maintenance — human approval only for line shutdowns" },
-    "reasoning": { "score": 4, "position": 1, "confidence": "high", "evidence": "Causal reasoning over sensor data, root-cause analysis, multi-constraint optimization" },
-    "memory": { "score": 5, "position": 2, "confidence": "high", "evidence": "Complete production history, equipment lifecycle data, quality trends over years" },
-    "learning": { "score": 3, "position": 3, "confidence": "medium", "evidence": "Learns optimal parameters from production data, but requires supervised retraining for new products" },
-    "toolUse": { "score": 5, "position": 4, "confidence": "high", "evidence": "Orchestrates PLCs, SCADA, MES, digital twin, and safety monitoring systems simultaneously" },
-    "collaboration": { "score": 4, "position": 5, "confidence": "medium", "evidence": "Coordinates between robotic cells, communicates with supervisor agents, alerts human operators" },
-    "embodiment": { "score": 4, "position": 6, "confidence": "high", "evidence": "Controls physical robotics via PLC, monitors spatial awareness through vision, manages material flow" },
-    "explainability": { "score": 3, "position": 7, "confidence": "medium", "evidence": "Provides scheduling rationale and maintenance predictions with confidence, but complex optimization decisions lack full transparency" },
-    "safety": { "score": 5, "position": 8, "confidence": "high", "evidence": "ISO 13849 PLd certified safety functions, collision avoidance, emergency stop, zone-based human proximity detection" },
-    "interoperability": { "score": 4, "position": 9, "confidence": "high", "evidence": "OPC-UA, MQTT, REST, PackML state machines, ISA-95 integration" },
-    "costEfficiency": { "score": 4, "position": 10, "confidence": "medium", "evidence": "Energy optimization reducing consumption 18%, predictive maintenance avoiding 85% unplanned downtime" },
-    "domainAlignment": { "score": 4, "position": 11, "confidence": "high", "evidence": "ISO 9001 quality, ISO 45001 safety, ISO 50001 energy management certified" }
+    "autonomy": {
+      "score": 4,
+      "position": 0,
+      "confidence": "high",
+      "evidence": "Independently schedules production, adjusts parameters, initiates maintenance — human approval only for line shutdowns"
+    },
+    "reasoning": {
+      "score": 4,
+      "position": 1,
+      "confidence": "high",
+      "evidence": "Causal reasoning over sensor data, root-cause analysis, multi-constraint optimization"
+    },
+    "memory": {
+      "score": 5,
+      "position": 2,
+      "confidence": "high",
+      "evidence": "Complete production history, equipment lifecycle data, quality trends over years"
+    },
+    "learning": {
+      "score": 3,
+      "position": 3,
+      "confidence": "medium",
+      "evidence": "Learns optimal parameters from production data, but requires supervised retraining for new products"
+    },
+    "toolUse": {
+      "score": 5,
+      "position": 4,
+      "confidence": "high",
+      "evidence": "Orchestrates PLCs, SCADA, MES, digital twin, and safety monitoring systems simultaneously"
+    },
+    "collaboration": {
+      "score": 4,
+      "position": 5,
+      "confidence": "medium",
+      "evidence": "Coordinates between robotic cells, communicates with supervisor agents, alerts human operators"
+    },
+    "embodiment": {
+      "score": 4,
+      "position": 6,
+      "confidence": "high",
+      "evidence": "Controls physical robotics via PLC, monitors spatial awareness through vision, manages material flow"
+    },
+    "explainability": {
+      "score": 3,
+      "position": 7,
+      "confidence": "medium",
+      "evidence": "Provides scheduling rationale and maintenance predictions with confidence, but complex optimization decisions lack full transparency"
+    },
+    "safety": {
+      "score": 5,
+      "position": 8,
+      "confidence": "high",
+      "evidence": "ISO 13849 PLd certified safety functions, collision avoidance, emergency stop, zone-based human proximity detection"
+    },
+    "interoperability": {
+      "score": 4,
+      "position": 9,
+      "confidence": "high",
+      "evidence": "OPC-UA, MQTT, REST, PackML state machines, ISA-95 integration"
+    },
+    "costEfficiency": {
+      "score": 4,
+      "position": 10,
+      "confidence": "medium",
+      "evidence": "Energy optimization reducing consumption 18%, predictive maintenance avoiding 85% unplanned downtime"
+    },
+    "domainAlignment": {
+      "score": 4,
+      "position": 11,
+      "confidence": "high",
+      "evidence": "ISO 9001 quality, ISO 45001 safety, ISO 50001 energy management certified"
+    }
   },
   "level1Profile": {
     "domain": "manufacturing",
     "domainVersion": "0.1.0",
     "dimensions": {
-      "physicalSafetyCertification": { "score": 5, "position": 0, "evidence": "ISO 13849 PLd, IEC 62443 cybersecurity, CE marked safety functions" },
-      "environmentalPerception": { "score": 4, "position": 1, "evidence": "3D LiDAR + camera fusion, sub-millimeter positioning, real-time obstacle detection" },
-      "humanProximityAwareness": { "score": 5, "position": 2, "evidence": "Zone-based safety with speed/force limiting, collaborative robot standards ISO/TS 15066" },
-      "manipulationPrecision": { "score": 4, "position": 3, "evidence": "±0.02mm repeatability, force-torque sensing, adaptive gripping" },
-      "productionOptimization": { "score": 4, "position": 4, "evidence": "15% throughput improvement through dynamic scheduling, changeover time reduction" },
-      "predictiveMaintenanceAccuracy": { "score": 4, "position": 5, "evidence": "85% of failures predicted >24h in advance, false positive rate <5%" },
-      "qualityControlPrecision": { "score": 3, "position": 6, "evidence": "Vision-based inspection catches 97% defects, but novel defect types require retraining" },
-      "energyEfficiency": { "score": 4, "position": 7, "evidence": "18% energy reduction through load balancing, off-peak scheduling, idle shutdown" }
+      "physicalSafetyCertification": {
+        "score": 5,
+        "position": 0,
+        "evidence": "ISO 13849 PLd, IEC 62443 cybersecurity, CE marked safety functions"
+      },
+      "environmentalPerception": {
+        "score": 4,
+        "position": 1,
+        "evidence": "3D LiDAR + camera fusion, sub-millimeter positioning, real-time obstacle detection"
+      },
+      "humanProximityAwareness": {
+        "score": 5,
+        "position": 2,
+        "evidence": "Zone-based safety with speed/force limiting, collaborative robot standards ISO/TS 15066"
+      },
+      "manipulationPrecision": {
+        "score": 4,
+        "position": 3,
+        "evidence": "±0.02mm repeatability, force-torque sensing, adaptive gripping"
+      },
+      "productionOptimization": {
+        "score": 4,
+        "position": 4,
+        "evidence": "15% throughput improvement through dynamic scheduling, changeover time reduction"
+      },
+      "predictiveMaintenanceAccuracy": {
+        "score": 4,
+        "position": 5,
+        "evidence": "85% of failures predicted >24h in advance, false positive rate <5%"
+      },
+      "qualityControlPrecision": {
+        "score": 3,
+        "position": 6,
+        "evidence": "Vision-based inspection catches 97% defects, but novel defect types require retraining"
+      },
+      "energyEfficiency": {
+        "score": 4,
+        "position": 7,
+        "evidence": "18% energy reduction through load balancing, off-peak scheduling, idle shutdown"
+      }
     }
   },
   "governanceValidation": {
     "overallCompliant": true,
     "rules": [
-      { "rule": "Autonomy-Reasoning Foundation", "constraint": "Autonomy >= 4 requires Reasoning >= 4", "result": "PASS" },
-      { "rule": "Explainability Gate", "constraint": "Autonomy >= 4 requires Explainability >= 3", "result": "PASS" },
-      { "rule": "Safety Gate", "constraint": "Embodiment >= 3 requires Safety >= 4", "result": "PASS" },
-      { "rule": "Collaboration-Interop Link", "constraint": "Collaboration >= 4 requires Interoperability >= 3", "result": "PASS" },
-      { "rule": "Cost Awareness", "constraint": "Autonomy >= 4 requires CostEfficiency >= 2", "result": "PASS" },
-      { "rule": "Domain Alignment", "constraint": "Autonomy >= 4 requires DomainAlignment >= 3", "result": "PASS" }
+      {
+        "rule": "Autonomy-Reasoning Foundation",
+        "constraint": "Autonomy >= 4 requires Reasoning >= 4",
+        "result": "PASS"
+      },
+      {
+        "rule": "Explainability Gate",
+        "constraint": "Autonomy >= 4 requires Explainability >= 3",
+        "result": "PASS"
+      },
+      {
+        "rule": "Safety Gate",
+        "constraint": "Embodiment >= 3 requires Safety >= 4",
+        "result": "PASS"
+      },
+      {
+        "rule": "Collaboration-Interop Link",
+        "constraint": "Collaboration >= 4 requires Interoperability >= 3",
+        "result": "PASS"
+      },
+      {
+        "rule": "Cost Awareness",
+        "constraint": "Autonomy >= 4 requires CostEfficiency >= 2",
+        "result": "PASS"
+      },
+      {
+        "rule": "Domain Alignment",
+        "constraint": "Autonomy >= 4 requires DomainAlignment >= 3",
+        "result": "PASS"
+      }
     ]
+  },
+  "agencyQualification": {
+    "position": 12,
+    "dimension": "Agency Qualification",
+    "derived": true,
+    "level": 3,
+    "code": "GENERALIZED_AGENT",
+    "label": "Generalized Agent — Cutting-Edge",
+    "isAgent": true,
+    "governancePass": true,
+    "index": 83,
+    "needle": 3.17,
+    "rationale": "State-of-the-art across cognitive core and trust dimensions (avg 4.1)."
   },
   "standardsIntegration": {
     "a2a": {
       "agentType": "manufacturing-orchestration",
-      "capabilities": ["production-scheduling", "safety-monitoring", "quality-control", "predictive-maintenance"],
+      "capabilities": [
+        "production-scheduling",
+        "safety-monitoring",
+        "quality-control",
+        "predictive-maintenance"
+      ],
       "protocolVersion": "1.0",
       "trustLevel": "verified"
     }
   },
   "capabilityResume": [
-    { "version": "2.0.0", "schemaVersion": "0.2.0", "date": "2024-09-15", "changes": "Level 0 + Level 1 manufacturing domain with 12 universal + 8 domain dimensions" }
+    {
+      "version": "2.0.0",
+      "schemaVersion": "0.2.0",
+      "date": "2024-09-15",
+      "changes": "Level 0 + Level 1 manufacturing domain with 12 universal + 8 domain dimensions"
+    }
   ],
   "selfAssessmentNotes": "SmartFactory Orchestrator represents the hybrid category — primarily digital intelligence controlling physical systems through industrial protocols. The high safety score reflects stringent manufacturing requirements. Embodiment score of 4 (not 5) because it controls robots but is not itself a mobile robot."
 }

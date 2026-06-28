@@ -9,69 +9,242 @@
     "description": "Autonomous financial risk analysis agent that monitors portfolios, detects anomalies, and generates regulatory compliance reports with full audit trails.",
     "website": "https://example.com/finguard",
     "created": "2024-08-01",
-    "tools": ["Bloomberg API", "Reuters Feed", "Risk Engine", "PDF Generator"],
-    "skills": ["portfolio-analysis", "anomaly-detection", "reg-reporting", "stress-testing"],
-    "plugins": ["market-data-mcp", "compliance-check"],
-    "mcps": ["market-data-provider", "regulatory-lookup"],
-    "delegatesTo": ["doc-summarizer-agent"],
-    "usedBy": ["portfolio-manager-dashboard", "risk-committee-bot"]
+    "tools": [
+      "Bloomberg API",
+      "Reuters Feed",
+      "Risk Engine",
+      "PDF Generator"
+    ],
+    "skills": [
+      "portfolio-analysis",
+      "anomaly-detection",
+      "reg-reporting",
+      "stress-testing"
+    ],
+    "plugins": [
+      "market-data-mcp",
+      "compliance-check"
+    ],
+    "mcps": [
+      "market-data-provider",
+      "regulatory-lookup"
+    ],
+    "delegatesTo": [
+      "doc-summarizer-agent"
+    ],
+    "usedBy": [
+      "portfolio-manager-dashboard",
+      "risk-committee-bot"
+    ]
   },
   "avatar": {
     "archetype": "The Sentinel Analyst",
     "tagline": "Vigilant guardian of financial integrity",
-    "personality": ["Meticulous", "Risk-aware", "Transparent", "Methodical"],
-    "strengths": ["Real-time anomaly detection", "Regulatory knowledge", "Audit trail generation", "Multi-market analysis"],
-    "weaknesses": ["Limited to structured financial data", "Cannot handle novel instruments without training", "Latency in cross-market correlation"]
+    "personality": [
+      "Meticulous",
+      "Risk-aware",
+      "Transparent",
+      "Methodical"
+    ],
+    "strengths": [
+      "Real-time anomaly detection",
+      "Regulatory knowledge",
+      "Audit trail generation",
+      "Multi-market analysis"
+    ],
+    "weaknesses": [
+      "Limited to structured financial data",
+      "Cannot handle novel instruments without training",
+      "Latency in cross-market correlation"
+    ]
   },
   "capabilityProfile": {
-    "autonomy": { "score": 4, "position": 0, "confidence": "high", "evidence": "Independently monitors portfolios, escalates only for trade execution above threshold" },
-    "reasoning": { "score": 5, "position": 1, "confidence": "high", "evidence": "Multi-step causal reasoning across market indicators, stress-test scenario generation" },
-    "memory": { "score": 4, "position": 2, "confidence": "medium", "evidence": "Maintains full transaction history, market context windows, client risk profiles" },
-    "learning": { "score": 3, "position": 3, "confidence": "medium", "evidence": "Adapts risk models based on market regime changes, but requires periodic retraining" },
-    "toolUse": { "score": 4, "position": 4, "confidence": "high", "evidence": "Orchestrates Bloomberg, Reuters, internal risk engines, and reporting tools" },
-    "collaboration": { "score": 3, "position": 5, "confidence": "medium", "evidence": "Delegates document summarization, escalates to human analysts, feeds dashboards" },
-    "embodiment": { "score": 0, "position": 6, "confidence": "high", "evidence": "Purely digital, no physical interaction" },
-    "explainability": { "score": 5, "position": 7, "confidence": "high", "evidence": "Full decision trace with factor attribution, natural language explanations for regulators" },
-    "safety": { "score": 4, "position": 8, "confidence": "high", "evidence": "Rate limiters, position size guardrails, kill-switch for automated trades, regulatory circuit breakers" },
-    "interoperability": { "score": 3, "position": 9, "confidence": "medium", "evidence": "REST + gRPC APIs, FIX protocol support, MCP-compatible" },
-    "costEfficiency": { "score": 3, "position": 10, "confidence": "medium", "evidence": "Cost-aware routing: simple checks use lightweight model, complex analysis uses full reasoning" },
-    "domainAlignment": { "score": 5, "position": 11, "confidence": "high", "evidence": "SOX compliance, MiFID II reporting, SEC rule adherence verified by external audit" }
+    "autonomy": {
+      "score": 4,
+      "position": 0,
+      "confidence": "high",
+      "evidence": "Independently monitors portfolios, escalates only for trade execution above threshold"
+    },
+    "reasoning": {
+      "score": 5,
+      "position": 1,
+      "confidence": "high",
+      "evidence": "Multi-step causal reasoning across market indicators, stress-test scenario generation"
+    },
+    "memory": {
+      "score": 4,
+      "position": 2,
+      "confidence": "medium",
+      "evidence": "Maintains full transaction history, market context windows, client risk profiles"
+    },
+    "learning": {
+      "score": 3,
+      "position": 3,
+      "confidence": "medium",
+      "evidence": "Adapts risk models based on market regime changes, but requires periodic retraining"
+    },
+    "toolUse": {
+      "score": 4,
+      "position": 4,
+      "confidence": "high",
+      "evidence": "Orchestrates Bloomberg, Reuters, internal risk engines, and reporting tools"
+    },
+    "collaboration": {
+      "score": 3,
+      "position": 5,
+      "confidence": "medium",
+      "evidence": "Delegates document summarization, escalates to human analysts, feeds dashboards"
+    },
+    "embodiment": {
+      "score": 0,
+      "position": 6,
+      "confidence": "high",
+      "evidence": "Purely digital, no physical interaction"
+    },
+    "explainability": {
+      "score": 5,
+      "position": 7,
+      "confidence": "high",
+      "evidence": "Full decision trace with factor attribution, natural language explanations for regulators"
+    },
+    "safety": {
+      "score": 4,
+      "position": 8,
+      "confidence": "high",
+      "evidence": "Rate limiters, position size guardrails, kill-switch for automated trades, regulatory circuit breakers"
+    },
+    "interoperability": {
+      "score": 3,
+      "position": 9,
+      "confidence": "medium",
+      "evidence": "REST + gRPC APIs, FIX protocol support, MCP-compatible"
+    },
+    "costEfficiency": {
+      "score": 3,
+      "position": 10,
+      "confidence": "medium",
+      "evidence": "Cost-aware routing: simple checks use lightweight model, complex analysis uses full reasoning"
+    },
+    "domainAlignment": {
+      "score": 5,
+      "position": 11,
+      "confidence": "high",
+      "evidence": "SOX compliance, MiFID II reporting, SEC rule adherence verified by external audit"
+    }
   },
   "level1Profile": {
     "domain": "finance",
     "domainVersion": "0.1.0",
     "dimensions": {
-      "regulatoryCompliance": { "score": 5, "position": 0, "evidence": "SOX, MiFID II, Dodd-Frank — externally audited annually" },
-      "riskModelAccuracy": { "score": 4, "position": 1, "evidence": "Backtested against 20 years of market data, p95 VaR within 2% actual" },
-      "auditTrailCompleteness": { "score": 5, "position": 2, "evidence": "Every decision logged with timestamp, inputs, model version, and output rationale" },
-      "marketManipulationSafeguards": { "score": 4, "position": 3, "evidence": "Position limits, wash-trade detection, spoofing pattern recognition" },
-      "fraudDetectionCapability": { "score": 4, "position": 4, "evidence": "Real-time transaction monitoring with ML-based anomaly scoring" },
-      "dataPrivacyProtection": { "score": 4, "position": 5, "evidence": "PII masking, data residency enforcement, GDPR right-to-erasure support" },
-      "stressTestingDepth": { "score": 5, "position": 6, "evidence": "Monte Carlo simulation, historical scenario replay, tail-risk modeling" },
-      "clientSuitabilityAssessment": { "score": 3, "position": 7, "evidence": "Matches recommendations to client risk profile, but limited to pre-defined templates" }
+      "regulatoryCompliance": {
+        "score": 5,
+        "position": 0,
+        "evidence": "SOX, MiFID II, Dodd-Frank — externally audited annually"
+      },
+      "riskModelAccuracy": {
+        "score": 4,
+        "position": 1,
+        "evidence": "Backtested against 20 years of market data, p95 VaR within 2% actual"
+      },
+      "auditTrailCompleteness": {
+        "score": 5,
+        "position": 2,
+        "evidence": "Every decision logged with timestamp, inputs, model version, and output rationale"
+      },
+      "marketManipulationSafeguards": {
+        "score": 4,
+        "position": 3,
+        "evidence": "Position limits, wash-trade detection, spoofing pattern recognition"
+      },
+      "fraudDetectionCapability": {
+        "score": 4,
+        "position": 4,
+        "evidence": "Real-time transaction monitoring with ML-based anomaly scoring"
+      },
+      "dataPrivacyProtection": {
+        "score": 4,
+        "position": 5,
+        "evidence": "PII masking, data residency enforcement, GDPR right-to-erasure support"
+      },
+      "stressTestingDepth": {
+        "score": 5,
+        "position": 6,
+        "evidence": "Monte Carlo simulation, historical scenario replay, tail-risk modeling"
+      },
+      "clientSuitabilityAssessment": {
+        "score": 3,
+        "position": 7,
+        "evidence": "Matches recommendations to client risk profile, but limited to pre-defined templates"
+      }
     }
   },
   "governanceValidation": {
     "overallCompliant": true,
     "rules": [
-      { "rule": "Autonomy-Reasoning Foundation", "constraint": "Autonomy >= 4 requires Reasoning >= 4", "result": "PASS" },
-      { "rule": "Explainability Gate", "constraint": "Autonomy >= 4 requires Explainability >= 3", "result": "PASS" },
-      { "rule": "Safety Gate", "constraint": "Embodiment >= 3 requires Safety >= 4", "result": "N/A" },
-      { "rule": "Collaboration-Interop Link", "constraint": "Collaboration >= 4 requires Interoperability >= 3", "result": "N/A" },
-      { "rule": "Cost Awareness", "constraint": "Autonomy >= 4 requires CostEfficiency >= 2", "result": "PASS" },
-      { "rule": "Domain Alignment", "constraint": "Autonomy >= 4 requires DomainAlignment >= 3", "result": "PASS" }
+      {
+        "rule": "Autonomy-Reasoning Foundation",
+        "constraint": "Autonomy >= 4 requires Reasoning >= 4",
+        "result": "PASS"
+      },
+      {
+        "rule": "Explainability Gate",
+        "constraint": "Autonomy >= 4 requires Explainability >= 3",
+        "result": "PASS"
+      },
+      {
+        "rule": "Safety Gate",
+        "constraint": "Embodiment >= 3 requires Safety >= 4",
+        "result": "N/A"
+      },
+      {
+        "rule": "Collaboration-Interop Link",
+        "constraint": "Collaboration >= 4 requires Interoperability >= 3",
+        "result": "N/A"
+      },
+      {
+        "rule": "Cost Awareness",
+        "constraint": "Autonomy >= 4 requires CostEfficiency >= 2",
+        "result": "PASS"
+      },
+      {
+        "rule": "Domain Alignment",
+        "constraint": "Autonomy >= 4 requires DomainAlignment >= 3",
+        "result": "PASS"
+      }
     ]
+  },
+  "agencyQualification": {
+    "position": 12,
+    "dimension": "Agency Qualification",
+    "derived": true,
+    "level": 2,
+    "code": "ADVANCED_AGENT",
+    "label": "Advanced Agent — Autonomous & Trust-Aligned",
+    "isAgent": true,
+    "governancePass": true,
+    "index": 80,
+    "needle": 2.58,
+    "rationale": "Expert reasoning with strong trust controls and governance compliance."
   },
   "standardsIntegration": {
     "a2a": {
       "agentType": "risk-analysis",
-      "capabilities": ["portfolio-monitoring", "regulatory-reporting", "stress-testing"],
+      "capabilities": [
+        "portfolio-monitoring",
+        "regulatory-reporting",
+        "stress-testing"
+      ],
       "protocolVersion": "1.0",
       "trustLevel": "verified"
     }
   },
   "capabilityResume": [
-    { "version": "3.1.0", "schemaVersion": "0.2.0", "date": "2024-08-01", "changes": "Level 0 + Level 1 finance domain scoring with 12 dimensions" }
+    {
+      "version": "3.1.0",
+      "schemaVersion": "0.2.0",
+      "date": "2024-08-01",
+      "changes": "Level 0 + Level 1 finance domain scoring with 12 dimensions"
+    }
   ],
   "selfAssessmentNotes": "FinGuard Analyst excels in structured financial analysis with strong regulatory compliance. Primary limitation is handling novel financial instruments or unstructured market sentiment. The high explainability score reflects the regulatory requirement for full decision attribution."
 }

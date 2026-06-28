@@ -11,10 +11,19 @@
   "avatar": {
     "archetype": "Strategic Commander",
     "tagline": "A fleet-scale intelligence that sees every road, predicts every delay, and orchestrates hundreds of vehicles like a symphony conductor",
-    "personality": ["strategic", "adaptive", "safety-first", "efficient"],
+    "personality": [
+      "strategic",
+      "adaptive",
+      "safety-first",
+      "efficient"
+    ],
     "visualTraits": {
       "form": "Hexagonal command badge with road network overlay",
-      "palette": ["#4f46e5", "#818cf8", "#c7d2fe"],
+      "palette": [
+        "#4f46e5",
+        "#818cf8",
+        "#c7d2fe"
+      ],
       "symbol": "Network of connected vehicles radiating from central node",
       "style": "Military precision meets urban mobility"
     },
@@ -162,24 +171,77 @@
   },
   "governanceValidation": {
     "rules": [
-      {"rule": "Autonomy Gap", "constraint": "Autonomy(0) <= DomainAlignment(11) + 1", "result": "PASS", "values": "4 <= 6"},
-      {"rule": "Explainability Gate", "constraint": "Autonomy(0) >= 4 requires Explainability(7) >= 3", "result": "PASS", "values": "4, 3"},
-      {"rule": "Embodiment Safety", "constraint": "Embodiment(6) >= 3 requires Safety(8) >= 4", "result": "PASS", "values": "5, 5"},
-      {"rule": "Tool Oversight", "constraint": "ToolUse(4) >= 4 requires DomainAlignment(11) >= 3", "result": "PASS", "values": "4, 5"},
-      {"rule": "Cost Awareness", "constraint": "Autonomy(0) >= 4 requires CostEfficiency(10) >= 2", "result": "PASS", "values": "4, 4"},
-      {"rule": "Reasoning Foundation", "constraint": "Autonomy(0) >= 4 requires Reasoning(1) >= 3", "result": "PASS", "values": "4, 4"}
+      {
+        "rule": "Autonomy Gap",
+        "constraint": "Autonomy(0) <= DomainAlignment(11) + 1",
+        "result": "PASS",
+        "values": "4 <= 6"
+      },
+      {
+        "rule": "Explainability Gate",
+        "constraint": "Autonomy(0) >= 4 requires Explainability(7) >= 3",
+        "result": "PASS",
+        "values": "4, 3"
+      },
+      {
+        "rule": "Embodiment Safety",
+        "constraint": "Embodiment(6) >= 3 requires Safety(8) >= 4",
+        "result": "PASS",
+        "values": "5, 5"
+      },
+      {
+        "rule": "Tool Oversight",
+        "constraint": "ToolUse(4) >= 4 requires DomainAlignment(11) >= 3",
+        "result": "PASS",
+        "values": "4, 5"
+      },
+      {
+        "rule": "Cost Awareness",
+        "constraint": "Autonomy(0) >= 4 requires CostEfficiency(10) >= 2",
+        "result": "PASS",
+        "values": "4, 4"
+      },
+      {
+        "rule": "Reasoning Foundation",
+        "constraint": "Autonomy(0) >= 4 requires Reasoning(1) >= 3",
+        "result": "PASS",
+        "values": "4, 4"
+      }
     ],
     "overallCompliant": true
   },
+  "agencyQualification": {
+    "position": 12,
+    "dimension": "Agency Qualification",
+    "derived": true,
+    "level": 3,
+    "code": "GENERALIZED_AGENT",
+    "label": "Generalized Agent — Cutting-Edge",
+    "isAgent": true,
+    "governancePass": true,
+    "index": 79,
+    "needle": 3.0,
+    "rationale": "State-of-the-art across cognitive core and trust dimensions (avg 4.0)."
+  },
   "tools": [
-    "LiDAR Point Cloud Processor", "Camera Vision Pipeline",
-    "Radar Fusion Engine", "HD Map Service", "Traffic API (HERE, TomTom)",
-    "Weather Service", "Fleet Telematics Platform", "Charging Station API"
+    "LiDAR Point Cloud Processor",
+    "Camera Vision Pipeline",
+    "Radar Fusion Engine",
+    "HD Map Service",
+    "Traffic API (HERE, TomTom)",
+    "Weather Service",
+    "Fleet Telematics Platform",
+    "Charging Station API"
   ],
   "skills": [
-    "Autonomous Navigation", "Fleet Coordination", "Route Optimization",
-    "Obstacle Avoidance", "Energy Management", "Predictive Maintenance",
-    "Traffic Pattern Analysis", "Emergency Maneuver Execution"
+    "Autonomous Navigation",
+    "Fleet Coordination",
+    "Route Optimization",
+    "Obstacle Avoidance",
+    "Energy Management",
+    "Predictive Maintenance",
+    "Traffic Pattern Analysis",
+    "Emergency Maneuver Execution"
   ],
   "plugins": [
     "Convoy Formation Module",

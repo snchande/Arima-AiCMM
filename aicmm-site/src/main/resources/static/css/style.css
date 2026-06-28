@@ -97,12 +97,20 @@ body {
 
 /* Main Content */
 .content {
-    max-width: 960px;
+    max-width: 1280px;
     margin: 2rem auto;
-    padding: 2rem;
+    padding: 2rem 3rem;
     background: var(--surface);
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.content img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.25rem auto;
+    border-radius: 6px;
 }
 
 .content h1 {
@@ -462,6 +470,7 @@ body {
 /* Create Card Form */
 .create-card-form {
     max-width: 800px;
+    margin: 0 auto;
 }
 
 .form-section {
@@ -872,6 +881,90 @@ textarea.form-input {
     color: #991b1b;
     border: 2px solid #dc2626;
 }
+
+/* Agency Qualification Layer (derived position-12 dimension) */
+.agency-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 1.25rem;
+    border-radius: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+}
+.agency-badge .agency-level {
+    font-size: 1.1rem;
+    font-weight: 800;
+    padding: 0.1rem 0.6rem;
+    border-radius: 1rem;
+    background: rgba(0, 0, 0, 0.08);
+}
+.agency-badge .agency-flag {
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    opacity: 0.85;
+}
+.agency-badge.agency-agent {
+    background: #dbeafe;
+    color: #1e3a8a;
+    border: 2px solid #2563eb;
+}
+.agency-badge.agency-nonagent {
+    background: #f3f4f6;
+    color: #4b5563;
+    border: 2px solid #9ca3af;
+}
+.agency-rationale {
+    font-size: 0.9rem;
+    color: var(--text-muted, #6b7280);
+    margin-top: 0.25rem;
+}
+.dim-position {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted, #6b7280);
+    margin-left: 0.5rem;
+}
+.agency-cell {
+    font-weight: 800;
+    text-align: center;
+}
+.agency-cell.agency-agent { color: #2563eb; }
+.agency-cell.agency-nonagent { color: #9ca3af; }
+.agency-cell-level { display: block; font-size: 0.95rem; line-height: 1.1; }
+.agency-strip-mini { display: block; margin: 0.2rem auto 0; }
+
+/* Agency Barometer — horizontal ladder strip */
+.agency-strip-wrap {
+    display: inline-block;
+    padding: 0.6rem 0.8rem;
+    border-radius: 10px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+}
+.agency-strip-wrap.agency-agent { border-left: 4px solid #059669; }
+.agency-strip-wrap.agency-nonagent { border-left: 4px solid #b91c1c; }
+.agency-strip { display: block; max-width: 100%; }
+.agency-strip-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.4rem;
+    font-size: 0.85rem;
+}
+.agency-strip-meta .agency-flag {
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    padding: 0.1rem 0.45rem;
+    border-radius: 4px;
+}
+.agency-agent .agency-strip-meta .agency-flag { background: #dcfce7; color: #166534; }
+.agency-nonagent .agency-strip-meta .agency-flag { background: #fee2e2; color: #991b1b; }
+.agency-strip-meta .agency-label { font-weight: 600; color: #334155; }
+.agency-strip-meta .agency-index { color: #64748b; margin-left: auto; }
 
 .governance-table {
     width: 100%;

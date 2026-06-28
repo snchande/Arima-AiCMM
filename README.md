@@ -1,4 +1,4 @@
-# a•CMM — Agent Capability Maturity Model
+# AiCMM — Agent Capability Maturity Model
 
 <p align="center">
   <strong>A unified, multi-dimensional framework for classifying AI agent capabilities</strong>
@@ -15,9 +15,9 @@
 
 ## Overview
 
-**a•CMM (Agent Capability Maturity Model)** is an open-source framework that helps developers, architects, and organizations **classify, evaluate, and communicate** the capabilities of AI agents in a structured, comparable way.
+**AiCMM (Agent Capability Maturity Model)** is an open-source framework that helps developers, architects, and organizations **classify, evaluate, and communicate** the capabilities of AI agents in a structured, comparable way.
 
-Instead of treating all AI agents as equal — or relying on vague marketing terms — a•CMM provides a **12-dimension, two-level scoring architecture** (each scored 0–5) that produces a unique **capability fingerprint** for any agent, whether it's a simple chatbot, an autonomous coding assistant, or an embodied robot.
+Instead of treating all AI agents as equal — or relying on vague marketing terms — AiCMM provides a **12-dimension, two-level scoring architecture** (each scored 0–5) that produces a unique **capability fingerprint** for any agent, whether it's a simple chatbot, an autonomous coding assistant, or an embodied robot.
 
 The result is an **Agent Card**: a standardized, machine-readable description of what an agent can and cannot do — enabling informed decisions about deployment, governance, and interoperability.
 
@@ -40,23 +40,62 @@ The result is an **Agent Card**: a standardized, machine-readable description of
 
 These 12 Level 0 dimensions are organized into three groups: **Cognitive Core**, **Action & Integration**, and **Trust & Deployment**.
 
+### Position 12 — Agency Qualification Layer (Derived)
+
+After the 12 core dimensions, AiCMM appends a **derived 13th dimension** — the **Agency
+Qualification Layer**. It is *never authored by hand*: it is computed from the twelve scores
+(plus the 7 governance rules) to answer *"Is this a genuine agent, and how agentic is it?"*
+This stops trivial automations from being mislabeled as "agents" while still recognizing
+truly autonomous systems. Positions 0–11 stay fixed; the agency layer simply *follows*
+position 11, so radar charts stay comparable.
+
+A system qualifies as an **agent** (level ≥ 0) only when **Autonomy ≥ 2 and Reasoning ≥ 2**.
+Below that it lands on the negative "non-agent" ladder.
+
+| Level | Code | Label | Agent? |
+|------:|------|-------|:------:|
+| **−2** | `SCRIPTED_AUTOMATION` | Non-Agent — Scripted Automation (RPA/ETL) | No |
+| **−1** | `REACTIVE_ASSISTANT` | Non-Agent — Reactive Assistant (FAQ bot, early Siri/Alexa) | No |
+| **0** | `PROTO_AGENT` | Proto-Agent — Emerging Agency (e.g. AutoGPT) | Yes |
+| **1** | `BASIC_AGENT` | Basic Agent — Qualified | Yes |
+| **2** | `ADVANCED_AGENT` | Advanced Agent — Autonomous & Trust-Aligned (Copilot CLI, Tesla FSD) | Yes |
+| **3** | `GENERALIZED_AGENT` | Generalized Agent — Cutting-Edge | Yes |
+| **4** | `HUMAN_LEVEL_AGENT` | Human-Level Agent (human-level general intelligence) | Yes |
+| **5** | `HUMANOID_AGENT` | Humanoid Agent — Indistinguishable from Human (synthetic skin, touch, taste) | Yes |
+
+The layer is implemented in `org.aicmm.scoring.AgencyClassifier`, exposed by the site API
+(`GET /api/agency-levels`), and surfaced as the MCP tool `aicmm_get_agency_levels`. Each card
+also carries a derived **Agency Index (0–100)** — a weighted "barometer" reading rendered as a
+horizontal ladder strip whose needle shows momentum toward the next level. See
+[`docs/specifications/dimension-ordering.md`](docs/specifications/dimension-ordering.md) for
+the full classification algorithm and index weights.
+
+### Three Generations of Agent Evolution
+
+AiCMM provides a common capability lens across the three eras of agent evolution:
+**Gen 1 — Classical/Expert Systems** (1990s: rules, reactive, deterministic),
+**Gen 2 — Distributed/Learning Systems** (2000s–2010s: neural nets, adaptive, enterprise
+integration, early Siri/Alexa), and **Gen 3 — Modern Agentic GenAI** (2020s: transformers,
+reasoning, tool use, collaboration). The Agency Qualification Layer sits on top to classify
+any system from any era on a single ladder.
+
 ### Level 1 — Domain Deep-Dive
 
 Level 1 adds **domain-specific radar charts** for sectors such as Healthcare, Transportation, Finance, and Manufacturing. These domain profiles are **drill-downs**, not replacements for Level 0, and let teams score specialized requirements alongside the universal 12-dimension baseline.
 
 ---
 
-## Why a•CMM?
+## Why AiCMM?
 
 Today's AI agent ecosystem is exploding — but we lack a common language to describe what agents actually do. This creates real problems:
 
-| Problem | How a•CMM Helps |
+| Problem | How AiCMM Helps |
 |---------|----------------|
 | **"All agents are the same"** | Multi-dimensional scoring reveals that a coding agent and a robot are fundamentally different systems |
 | **No way to compare agents** | Capability fingerprints enable apples-to-apples comparison across vendors |
 | **Governance is an afterthought** | Trust & Deployment dimensions and 7 governance rules make deployment constraints explicit |
 | **Vendor marketing is opaque** | Agent Cards provide evidence-based, verifiable capability claims |
-| **Standards lack capability metadata** | a•CMM integrates with A2A, MCP, and other protocols via embeddable classifications |
+| **Standards lack capability metadata** | AiCMM integrates with A2A, MCP, and other protocols via embeddable classifications |
 
 ### Key Design Principles
 
@@ -340,7 +379,7 @@ git push origin feature/your-feature
 
 ## Background & Articles
 
-The a•CMM framework originated from these published articles:
+The AiCMM framework originated from these published articles:
 
 - 📰 [Not All AI Agents Are the Same — So Why Do We Treat Them Like It?](https://www.linkedin.com/pulse/all-ai-agents-same-so-why-do-we-treat-them-like-suresh-chande-oxgqc/) — LinkedIn
 - 📖 [Agent Capability Maturity Model: A Unified Framework for Evaluating Modern AI Agents](https://medium.com/@sureshchande/agent-capability-maturity-model-a-unified-framework-for-evaluating-modern-ai-agents-bcb5b7a64bd7) — Medium

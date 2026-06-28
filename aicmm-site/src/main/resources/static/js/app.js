@@ -430,6 +430,132 @@ function getFormScores() {
     return profile;
 }
 
+// Agency Qualification ladder (derived 13th dimension, position 12)
+const AGENCY_LADDER = {
+    '-2': 'Non-Agent — Scripted Automation',
+    '-1': 'Non-Agent — Reactive Assistant',
+    '0': 'Proto-Agent — Emerging Agency',
+    '1': 'Basic Agent — Qualified',
+    '2': 'Advanced Agent — Autonomous & Trust-Aligned',
+    '3': 'Generalized Agent — Cutting-Edge',
+    '4': 'Human-Level Agent',
+    '5': 'Humanoid Agent — Indistinguishable from Human'
+};
+
+function governancePasses(s) {
+    return s.autonomy <= s.reasoning + 1
+        && (s.autonomy < 4 || s.explainability >= 3)
+        && (s.autonomy < 4 || s.safety >= 3)
+        && (s.collaboration < 4 || s.interoperability >= 3)
+        && (s.toolUse < 4 || s.costEfficiency >= 2)
+        && (s.embodiment < 3 || s.domainAlignment >= 3)
+        && (s.toolUse < 4 || s.reasoning >= 3);
+}
+
+// Derive the Agency Level from a capability profile. Mirrors AgencyClassifier (Java).
+function computeAgency(profile) {
+    const s = {};
+    ['autonomy', 'reasoning', 'memory', 'learning', 'toolUse', 'collaboration', 'embodiment',
+     'explainability', 'safety', 'interoperability', 'costEfficiency', 'domainAlignment']
+        .forEach(k => { s[k] = (profile[k] && profile[k].score) || 0; });
+
+    const govPass = governancePasses(s);
+    const minCore = Math.min(s.autonomy, s.reasoning, s.memory, s.learning);
+    const trustOk = govPass && s.safety >= 3 && s.explainability >= 3;
+    const sum12 = Object.values(s).reduce((a, b) => a + b, 0);
+    const avg12 = sum12 / 12;
+    const avgExEm = (sum12 - s.embodiment) / 11;
+
+    let level, rationale;
+    if (s.autonomy < 2 || s.reasoning < 2) {
+        if (s.reasoning >= 1) { level = -1; rationale = 'Fails the agent threshold (Autonomy >= 2 and Reasoning >= 2): reactive, AI-driven responses with no self-directed goals.'; }
+        else { level = -2; rationale = 'Fails the agent threshold with no reasoning (Reasoning = 0): a deterministic, pre-scripted automation.'; }
+    } else if (!trustOk) {
+        level = 0; rationale = 'Clears the cognitive thresholds but is not yet trustworthy (governance ' + (govPass ? 'passes' : 'fails') + ', Safety=' + s.safety + ', Explainability=' + s.explainability + ').';
+    } else if (s.embodiment >= 5 && minCore >= 5 && avg12 >= 4.8) {
+        level = 5; rationale = 'Full embodiment mastery atop human-level cognition — indistinguishable from a human.';
+    } else if (minCore >= 5 && avgExEm >= 4.5) {
+        level = 4; rationale = 'Masters the full cognitive core (>=5) with broad, robust, governed capability.';
+    } else if (avg12 >= 4.0 && s.reasoning >= 4 && s.autonomy >= 4 && s.memory >= 4) {
+        level = 3; rationale = 'State-of-the-art across cognitive core and trust dimensions (avg ' + avg12.toFixed(1) + ').';
+    } else if (s.reasoning >= 4 && s.safety >= 3 && s.explainability >= 3 && avg12 >= 3.0) {
+        level = 2; rationale = 'Expert reasoning with strong trust controls and governance compliance.';
+    } else {
+        level = 1; rationale = 'Balanced, governed agent that clears the cognitive thresholds within a bounded domain.';
+    }
+
+    const codes = {'-2':'SCRIPTED_AUTOMATION','-1':'REACTIVE_ASSISTANT','0':'PROTO_AGENT','1':'BASIC_AGENT','2':'ADVANCED_AGENT','3':'GENERALIZED_AGENT','4':'HUMAN_LEVEL_AGENT','5':'HUMANOID_AGENT'};
+    return {
+        position: 12,
+        dimension: 'Agency Qualification',
+        derived: true,
+        level: level,
+        code: codes[String(level)],
+        label: AGENCY_LADDER[String(level)],
+        isAgent: level >= 0,
+        governancePass: govPass,
+        index: agencyIndex(s),
+        needle: agencyNeedle(level, avg12),
+        rationale: rationale
+    };
+}
+
+// Weighted contribution of each dimension to the Agency Index barometer (positions 0-11). Sums to 1.0.
+const AGENCY_INDEX_WEIGHTS = {
+    autonomy: 0.20, reasoning: 0.18, memory: 0.10, learning: 0.08, toolUse: 0.12, collaboration: 0.07,
+    embodiment: 0.02, explainability: 0.07, safety: 0.07, interoperability: 0.03, costEfficiency: 0.02, domainAlignment: 0.04
+};
+const AGENCY_NEEDLE_BANDS = {0:[1.2,2.5],1:[2.0,3.0],2:[3.0,4.0],3:[4.0,4.5],4:[4.5,4.9],5:[4.9,5.01]};
+const AGENCY_ZONE_COLORS = ['#b91c1c','#ea580c','#d97706','#65a30d','#059669','#0891b2','#6d28d9','#be185d'];
+
+// Weighted 0-100 Agency Index. Mirrors AgencyClassifier.agencyIndex (Java).
+function agencyIndex(s) {
+    let acc = 0;
+    Object.keys(AGENCY_INDEX_WEIGHTS).forEach(k => { acc += AGENCY_INDEX_WEIGHTS[k] * (s[k] || 0); });
+    return Math.round(100 * acc / 5);
+}
+
+// Continuous needle position on the signed -2..+5 ladder.
+function agencyNeedle(level, avg12) {
+    if (level < 0) return level + 0.5;
+    const [lo, hi] = AGENCY_NEEDLE_BANDS[level];
+    let f = (avg12 - lo) / (hi - lo);
+    f = Math.max(0, Math.min(0.96, f));
+    return Math.round((level + f) * 100) / 100;
+}
+
+// Renders the Agency Barometer as a horizontal ladder strip SVG (signed -2..+5).
+function agencyStripSvg(level, needle) {
+    const w = 520, h = 78, pad = 16, top = 30, bh = 20, lo = -2, hi = 5;
+    const x = v => pad + ((v - lo) / (hi - lo)) * (w - 2 * pad);
+    let svg = "<svg class='agency-strip' width='" + w + "' height='" + h + "' viewBox='0 0 " + w + " " + h + "' xmlns='http://www.w3.org/2000/svg'>";
+    for (let v = -2; v <= 5; v++) {
+        const x0 = x(v), x1 = x(v + 1), op = (v === level) ? 1 : 0.45;
+        svg += "<rect x='" + x0.toFixed(1) + "' y='" + top + "' width='" + (x1 - x0).toFixed(1) + "' height='" + bh + "' fill='" + AGENCY_ZONE_COLORS[v + 2] + "' opacity='" + op + "'/>";
+        svg += "<text x='" + ((x0 + x1) / 2).toFixed(1) + "' y='" + (top + bh + 13) + "' font-size='8' fill='#475569' text-anchor='middle'>" + (v >= 0 ? '+' + v : v) + "</text>";
+    }
+    const xz = x(0);
+    svg += "<line x1='" + xz.toFixed(1) + "' y1='" + (top - 4) + "' x2='" + xz.toFixed(1) + "' y2='" + (top + bh + 4) + "' stroke='#0f172a' stroke-width='1.5' stroke-dasharray='3 2'/>";
+    const nx = x(needle);
+    svg += "<polygon points='" + nx.toFixed(1) + "," + (top - 1) + " " + (nx - 6).toFixed(1) + "," + (top - 12) + " " + (nx + 6).toFixed(1) + "," + (top - 12) + "' fill='#0f172a'/>";
+    return svg;
+}
+
+function renderAgencyBadge(agency) {
+    const el = document.getElementById('preview-agency');
+    if (!el) return;
+    const cls = agency.isAgent ? 'agency-agent' : 'agency-nonagent';
+    const lvl = agency.level >= 0 ? '+' + agency.level : '' + agency.level;
+    el.innerHTML = "<div class='agency-strip-wrap " + cls + "'>" +
+        agencyStripSvg(agency.level, agency.needle) +
+        "<text x='16' y='16' font-size='12' font-weight='700' fill='" + AGENCY_ZONE_COLORS[agency.level + 2] + "'></text>" +
+        "<div class='agency-strip-meta'>" +
+        "<span class='agency-flag'>" + (agency.isAgent ? 'AGENT' : 'NON-AGENT') + "</span>" +
+        "<span class='agency-label'>" + lvl + " · " + agency.label + "</span>" +
+        "<span class='agency-index'>Agency Index <strong>" + agency.index + "</strong>/100</span>" +
+        "</div></div><p class='agency-rationale'>" + agency.rationale + "</p>";
+}
+
 function previewRadar() {
     const profile = getFormScores();
     const preview = document.getElementById('preview-area');
@@ -438,6 +564,7 @@ function previewRadar() {
     const radarEl = document.getElementById('preview-radar');
     radarEl.setAttribute('data-profile', JSON.stringify(profile));
     renderRadarChart(radarEl);
+    renderAgencyBadge(computeAgency(profile));
 }
 
 function generateCard() {
@@ -446,9 +573,10 @@ function generateCard() {
 
     const profile = getFormScores();
     const total = Object.values(profile).reduce((s, d) => s + d.score, 0);
+    const agency = computeAgency(profile);
 
     const card = {
-        schemaVersion: "0.1.0",
+        schemaVersion: "0.2.0",
         agent: {
             name: formData.get('name') || 'Unnamed Agent',
             version: formData.get('version') || '1.0.0',
@@ -468,9 +596,10 @@ function generateCard() {
             dependsOn: splitComma(formData.get('dependsOn'))
         },
         sourceUrl: formData.get('agentUrl') || '',
-        governanceCompliant: profile.autonomy.score <= (profile.domainAlignment.score + 1),
+        governanceCompliant: governancePasses(Object.fromEntries(Object.entries(profile).map(([k, v]) => [k, v.score]))),
+        agencyQualification: agency,
         totalScore: total,
-        averageScore: parseFloat((total / 8).toFixed(2)),
+        averageScore: parseFloat((total / 12).toFixed(2)),
         assessmentMetadata: {
             assessedBy: "Manual (via AiCMM Create Card)",
             assessedDate: new Date().toISOString().split('T')[0],
@@ -486,6 +615,7 @@ function generateCard() {
     const radarEl = document.getElementById('preview-radar');
     radarEl.setAttribute('data-profile', JSON.stringify(profile));
     renderRadarChart(radarEl);
+    renderAgencyBadge(agency);
 
     const jsonEl = document.getElementById('preview-json');
     jsonEl.querySelector('code').textContent = JSON.stringify(card, null, 2);

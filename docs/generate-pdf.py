@@ -371,6 +371,16 @@ def generate_brochure():
                 pdf.ln(1.5)
             continue
 
+        # Markdown ![alt](path) or HTML <img src="path"> image embeds
+        img_match = re.match(r'^!\[.*?\]\((.+?)\)', line.strip())
+        if not img_match:
+            img_match = re.search(r'<img[^>]*src="([^"]+)"', line)
+        if img_match:
+            img_rel = img_match.group(1)
+            img_path = img_rel if os.path.isabs(img_rel) else os.path.join(DOCS_DIR, img_rel)
+            pdf.embed_diagram(img_path)
+            continue
+
         if line.strip().startswith('<') and not line.strip().startswith('<a'):
             continue
 

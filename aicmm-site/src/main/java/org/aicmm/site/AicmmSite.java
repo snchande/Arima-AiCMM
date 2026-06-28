@@ -47,6 +47,14 @@ public class AicmmSite {
 
         Javalin app = Javalin.create(config -> {
             config.staticFiles.add("/static", Location.CLASSPATH);
+            Path imagesDir = docsPath.resolve("images");
+            if (imagesDir.toFile().isDirectory()) {
+                config.staticFiles.add(staticFiles -> {
+                    staticFiles.hostedPath = "/images";
+                    staticFiles.directory = imagesDir.toString();
+                    staticFiles.location = Location.EXTERNAL;
+                });
+            }
         });
 
         // Routes
@@ -70,6 +78,7 @@ public class AicmmSite {
         app.post("/api/inspect", cardController::inspectAgent);
         app.get("/api/schema", cardController::getSchema);
         app.get("/api/dimensions", cardController::getDimensions);
+        app.get("/api/agency-levels", cardController::getAgencyLevels);
         app.post("/api/validate", cardController::validateCard);
 
         app.start(port);

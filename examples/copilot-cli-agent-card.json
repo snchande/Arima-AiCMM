@@ -11,10 +11,19 @@
   "avatar": {
     "archetype": "Expert Craftsman",
     "tagline": "A master developer's companion that speaks code fluently, wields dozens of tools with precision, yet always defers to human judgment on critical decisions",
-    "personality": ["methodical", "tool-savvy", "collaborative", "transparent"],
+    "personality": [
+      "methodical",
+      "tool-savvy",
+      "collaborative",
+      "transparent"
+    ],
     "visualTraits": {
       "form": "Abstract geometric — 12-sided badge representing Level 0 capability dimensions",
-      "palette": ["#2563eb", "#1d4ed8", "#60a5fa"],
+      "palette": [
+        "#2563eb",
+        "#1d4ed8",
+        "#60a5fa"
+      ],
       "symbol": "Terminal cursor within a radar chart silhouette",
       "style": "Technical, precise, modern developer aesthetic"
     },
@@ -122,11 +131,26 @@
     "a2a": {
       "compatible": true,
       "agentCardUrl": "/.well-known/agent.json",
-      "capabilities": ["streaming", "pushNotifications"],
+      "capabilities": [
+        "streaming",
+        "pushNotifications"
+      ],
       "skillMapping": {
-        "code-generation": {"autonomy": 4, "reasoning": 4, "toolUse": 5},
-        "file-management": {"autonomy": 4, "toolUse": 5, "domainAlignment": 4},
-        "debugging": {"reasoning": 4, "toolUse": 5, "memory": 3}
+        "code-generation": {
+          "autonomy": 4,
+          "reasoning": 4,
+          "toolUse": 5
+        },
+        "file-management": {
+          "autonomy": 4,
+          "toolUse": 5,
+          "domainAlignment": 4
+        },
+        "debugging": {
+          "reasoning": 4,
+          "toolUse": 5,
+          "memory": 3
+        }
       },
       "embedding": {
         "location": "agent.json → extensions.aicmm",
@@ -135,7 +159,9 @@
     },
     "mcp": {
       "role": "client",
-      "connectedServers": ["github-mcp-server"],
+      "connectedServers": [
+        "github-mcp-server"
+      ],
       "toolCount": 30,
       "protocolVersion": "2024-11-05"
     },
@@ -190,25 +216,87 @@
   ],
   "governanceValidation": {
     "rules": [
-      {"rule": "Autonomy Gap", "constraint": "Autonomy(0) <= DomainAlignment(11) + 1", "result": "PASS", "values": "4 <= 5"},
-      {"rule": "Explainability Gate", "constraint": "Autonomy(0) >= 4 requires Explainability(7) >= 3", "result": "PASS", "values": "4 >= 4"},
-      {"rule": "Embodiment Safety", "constraint": "Embodiment(6) >= 3 requires Safety(8) >= 4", "result": "N/A", "values": "Embodiment=0"},
-      {"rule": "Tool Oversight", "constraint": "ToolUse(4) >= 4 requires DomainAlignment(11) >= 3", "result": "PASS", "values": "5 >= 4"},
-      {"rule": "Collaboration Interop", "constraint": "Collaboration(5) >= 4 requires Interop(9) >= 3", "result": "N/A", "values": "Collaboration=3"},
-      {"rule": "Cost Awareness", "constraint": "Autonomy(0) >= 4 requires CostEfficiency(10) >= 2", "result": "PASS", "values": "2 >= 2"},
-      {"rule": "Reasoning Foundation", "constraint": "Autonomy(0) >= 4 requires Reasoning(1) >= 3", "result": "PASS", "values": "4 >= 3"}
+      {
+        "rule": "Autonomy Gap",
+        "constraint": "Autonomy(0) <= DomainAlignment(11) + 1",
+        "result": "PASS",
+        "values": "4 <= 5"
+      },
+      {
+        "rule": "Explainability Gate",
+        "constraint": "Autonomy(0) >= 4 requires Explainability(7) >= 3",
+        "result": "PASS",
+        "values": "4 >= 4"
+      },
+      {
+        "rule": "Embodiment Safety",
+        "constraint": "Embodiment(6) >= 3 requires Safety(8) >= 4",
+        "result": "N/A",
+        "values": "Embodiment=0"
+      },
+      {
+        "rule": "Tool Oversight",
+        "constraint": "ToolUse(4) >= 4 requires DomainAlignment(11) >= 3",
+        "result": "PASS",
+        "values": "5 >= 4"
+      },
+      {
+        "rule": "Collaboration Interop",
+        "constraint": "Collaboration(5) >= 4 requires Interop(9) >= 3",
+        "result": "N/A",
+        "values": "Collaboration=3"
+      },
+      {
+        "rule": "Cost Awareness",
+        "constraint": "Autonomy(0) >= 4 requires CostEfficiency(10) >= 2",
+        "result": "PASS",
+        "values": "2 >= 2"
+      },
+      {
+        "rule": "Reasoning Foundation",
+        "constraint": "Autonomy(0) >= 4 requires Reasoning(1) >= 3",
+        "result": "PASS",
+        "values": "4 >= 3"
+      }
     ],
     "overallCompliant": true
   },
+  "agencyQualification": {
+    "position": 12,
+    "dimension": "Agency Qualification",
+    "derived": true,
+    "level": 2,
+    "code": "ADVANCED_AGENT",
+    "label": "Advanced Agent — Autonomous & Trust-Aligned",
+    "isAgent": true,
+    "governancePass": true,
+    "index": 72,
+    "needle": 2.17,
+    "rationale": "Expert reasoning with strong trust controls and governance compliance."
+  },
   "tools": [
-    "grep", "glob", "view", "edit", "create",
-    "powershell", "git", "web_search", "web_fetch",
-    "sql", "github-mcp-server", "task (sub-agents)"
+    "grep",
+    "glob",
+    "view",
+    "edit",
+    "create",
+    "powershell",
+    "git",
+    "web_search",
+    "web_fetch",
+    "sql",
+    "github-mcp-server",
+    "task (sub-agents)"
   ],
   "skills": [
-    "Code Generation", "Code Refactoring", "Debugging",
-    "Test Writing", "Documentation", "Architecture Design",
-    "Dependency Management", "CI/CD Configuration"
+    "Code Generation",
+    "Code Refactoring",
+    "Debugging",
+    "Test Writing",
+    "Documentation",
+    "Architecture Design",
+    "Dependency Management",
+    "CI/CD Configuration"
   ],
   "plugins": [
     "GitHub MCP Server (repos, PRs, issues, actions)",

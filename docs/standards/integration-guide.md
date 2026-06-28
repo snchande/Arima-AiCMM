@@ -1,16 +1,16 @@
 # Standards Integration Guide
 
-How a-CMM Agent Cards integrate with major agent communication protocols.
+How AiCMM Agent Cards integrate with major agent communication protocols.
 
 ---
 
 ## Overview
 
-a-CMM Agent Cards are designed to be **embeddable capability metadata** that enriches any agent protocol with structured, comparable, governance-aware capability descriptions.
+AiCMM Agent Cards are designed to be **embeddable capability metadata** that enriches any agent protocol with structured, comparable, governance-aware capability descriptions.
 
 ```mermaid
 graph LR
-    Card["a-CMM Agent Card"] --> A2A["Google A2A"]
+    Card["AiCMM Agent Card"] --> A2A["Google A2A"]
     Card --> MCP["Anthropic MCP"]
     Card --> OAI["OpenAI Functions"]
     Card --> Custom["Custom Protocols"]
@@ -29,9 +29,9 @@ graph LR
 
 Google's A2A protocol enables agents to discover, communicate with, and delegate tasks to other agents. Each agent publishes an **Agent Card** at `/.well-known/agent.json` for discovery.
 
-### How a-CMM Integrates
+### How AiCMM Integrates
 
-a-CMM capability profiles embed as an `extensions.aicmm` field in the A2A Agent Card:
+AiCMM capability profiles embed as an `extensions.aicmm` field in the A2A Agent Card:
 
 ```json
 {
@@ -104,12 +104,12 @@ a-CMM capability profiles embed as an `extensions.aicmm` field in the A2A Agent 
 
 | Benefit | Description |
 |---------|-------------|
-| **Informed Delegation** | An orchestrator can check if a target agent's a-CMM profile meets the task requirements before delegating |
+| **Informed Delegation** | An orchestrator can check if a target agent's AiCMM profile meets the task requirements before delegating |
 | **Governance Routing** | Tasks requiring high domain alignment can be routed only to compliant agents |
 | **Capability Matching** | Match task requirements to agent strengths using dimensional scores |
 | **Risk Assessment** | Autonomy vs. Alignment gap reveals governance risk before delegation |
 
-### A2A Task Routing with a-CMM
+### A2A Task Routing with AiCMM
 
 ```mermaid
 sequenceDiagram
@@ -119,7 +119,7 @@ sequenceDiagram
     participant AgentB as Agent B
 
     Orchestrator->>Registry: discover agents for "code review"
-    Registry-->>Orchestrator: [Agent A, Agent B] with a-CMM profiles
+    Registry-->>Orchestrator: [Agent A, Agent B] with AiCMM profiles
 
     Note over Orchestrator: Agent A: reasoning=4, domainAlignment=4<br/>Agent B: reasoning=2, domainAlignment=2
 
@@ -136,9 +136,9 @@ sequenceDiagram
 
 MCP enables AI models to connect to external tools, data sources, and services through a standardized protocol. Servers expose tools; clients (AI models) consume them.
 
-### How a-CMM Integrates
+### How AiCMM Integrates
 
-a-CMM metadata annotates MCP server manifests to describe the capability requirements and governance posture:
+AiCMM metadata annotates MCP server manifests to describe the capability requirements and governance posture:
 
 ```json
 {
@@ -204,15 +204,15 @@ a-CMM metadata annotates MCP server manifests to describe the capability require
 | Benefit | Description |
 |---------|-------------|
 | **Tool Gating** | High-risk tools require minimum capability scores from the calling agent |
-| **Audit Trail** | a-CMM profile of both server and client recorded for compliance |
+| **Audit Trail** | AiCMM profile of both server and client recorded for compliance |
 | **Progressive Access** | As an agent matures, it unlocks higher-risk tool access |
 | **Client Matching** | Servers can advertise which level of agent they're designed for |
 
-### MCP Tool Selection with a-CMM
+### MCP Tool Selection with AiCMM
 
 ```mermaid
 flowchart TD
-    Client["AI Agent<br/>a-CMM: [4,4,4,3,5,3,0,4,3,4,2,4]"] --> Request["Request: modify_schema"]
+    Client["AI Agent<br/>AiCMM: [4,4,4,3,5,3,0,4,3,4,2,4]"] --> Request["Request: modify_schema"]
     Request --> Check{"Agent meets<br/>minimum profile?<br/>reasoning>=4, alignment>=4"}
     Check -->|Yes| Execute["Execute tool"]
     Check -->|No| Deny["Deny access<br/>Suggest alternatives"]
@@ -223,9 +223,9 @@ flowchart TD
 
 ## OpenAI Function Calling
 
-### How a-CMM Integrates
+### How AiCMM Integrates
 
-For OpenAI-compatible function calling, a-CMM metadata can be embedded in function definitions to guide routing and capability-aware selection:
+For OpenAI-compatible function calling, AiCMM metadata can be embedded in function definitions to guide routing and capability-aware selection:
 
 ```json
 {
@@ -263,7 +263,7 @@ For OpenAI-compatible function calling, a-CMM metadata can be embedded in functi
 
 ## Custom Protocol Integration
 
-For any protocol, a-CMM provides a standard JSON block that can be embedded:
+For any protocol, AiCMM provides a standard JSON block that can be embedded:
 
 ### Minimal Embedding (Compact)
 
@@ -327,7 +327,7 @@ The array order is always: `[autonomy, reasoning, memory, learning, toolUse, col
 
 ## Governance Decision Matrix
 
-How a-CMM scores inform routing and access decisions across all protocols:
+How AiCMM scores inform routing and access decisions across all protocols:
 
 | Scenario | Required Scores | Gate Type |
 |----------|----------------|-----------|
@@ -343,13 +343,13 @@ How a-CMM scores inform routing and access decisions across all protocols:
 
 ## Implementation Checklist
 
-For protocol implementers who want to incorporate a-CMM:
+For protocol implementers who want to incorporate AiCMM:
 
-1. **Add a-CMM extension field** to your agent/tool metadata schema
+1. **Add AiCMM extension field** to your agent/tool metadata schema
 2. **Validate profiles** against `agent-card.schema.json` on ingestion
 3. **Implement capability matching** — compare task requirements to agent profiles
 4. **Add governance checks** — enforce the 7 Level 0 governance rules during routing and execution
-5. **Log a-CMM metadata** in audit trails for compliance
+5. **Log AiCMM metadata** in audit trails for compliance
 6. **Expose profiles in discovery** — allow clients to filter agents by capability
 7. **Support progressive access** — unlock features as agents mature
 
@@ -357,7 +357,7 @@ For protocol implementers who want to incorporate a-CMM:
 
 ## Resources
 
-- [a-CMM Agent Card JSON Schema](../schemas/agent-card.schema.json)
+- [AiCMM Agent Card JSON Schema](../schemas/agent-card.schema.json)
 - [Agent Card Template](../templates/agent-card-template.md)
 - [Full Framework Specification](../docs/articles/overview-medium.md)
 - [Google A2A Protocol](https://github.com/google/A2A)

@@ -32,6 +32,11 @@
       "description": "Get dimension definitions, positions, and scoring rubrics",
       "endpoint": "GET /api/dimensions",
       "requires": "aicmm-site running"
+    },
+    "get-agency-levels": {
+      "description": "Get the Agency Qualification ladder (derived 13th dimension, position 12): -2 to +5 classifying agents vs non-agents",
+      "endpoint": "GET /api/agency-levels",
+      "requires": "aicmm-site running"
     }
   },
   "cli": {

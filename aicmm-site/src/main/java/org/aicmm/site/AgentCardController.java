@@ -60,6 +60,7 @@ public class AgentCardController {
 
             Map<String, Object> governanceValidation = buildGovernanceValidation(cardObj);
             cardObj.set("governanceValidation", mapper.valueToTree(governanceValidation));
+            cardObj.set("agencyQualification", mapper.valueToTree(buildAgencyQualification(cardObj)));
 
             String name = cardObj.path("agent").path("name").asText().toLowerCase()
                     .replaceAll("[^a-z0-9]+", "-")
@@ -141,6 +142,7 @@ public class AgentCardController {
             response.put("maturityLevel", maturityLevel);
             response.put("dimensionCount", count);
             response.put("governanceValidation", buildGovernanceValidation(card));
+            response.put("agencyQualification", buildAgencyQualification(card));
             ctx.json(response);
         } catch (Exception e) {
             ctx.status(400).json(Map.of("error", e.getMessage()));
@@ -231,6 +233,30 @@ public class AgentCardController {
             }
         }
 
+        // Agency Qualification Layer — derived 13th dimension (position 12)
+        Map<String, Object> agencyLayer = new LinkedHashMap<>();
+        agencyLayer.put("position", 12);
+        agencyLayer.put("dimension", "Agency Qualification");
+        agencyLayer.put("derived", true);
+        agencyLayer.put("scale", "-2..5");
+        agencyLayer.put("description", "Derived classification appended after the 12 core dimensions, "
+                + "indicating whether a system is an agent and how agentic it is.");
+        agencyLayer.put("ladder", buildAgencyLadder());
+        response.put("agencyLayer", agencyLayer);
+
+        ctx.json(response);
+    }
+
+    /** GET /api/agency-levels — the Agency Qualification ladder definitions. */
+    public void getAgencyLevels(Context ctx) {
+        ctx.contentType("application/json");
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("position", 12);
+        response.put("dimension", "Agency Qualification");
+        response.put("derived", true);
+        response.put("scale", "-2..5");
+        response.put("threshold", "Agent (level >= 0) requires Autonomy >= 2 and Reasoning >= 2");
+        response.put("ladder", buildAgencyLadder());
         ctx.json(response);
     }
 
@@ -250,6 +276,7 @@ public class AgentCardController {
             response.put("checks", schemaChecks);
             response.put("rules", governance.get("rules"));
             response.put("rulesChecked", governance.get("rulesChecked"));
+            response.put("agencyQualification", buildAgencyQualification(card));
             ctx.json(response);
         } catch (Exception e) {
             ctx.status(400).json(Map.of("error", e.getMessage()));
@@ -355,7 +382,7 @@ public class AgentCardController {
             html.append("<thead><tr>");
             html.append("<th>Agent</th><th>Vendor</th><th>Category</th>");
             html.append("<th>AUT</th><th>REA</th><th>MEM</th><th>LRN</th><th>TUL</th><th>COL</th><th>EMB</th><th>EXP</th><th>SAF</th><th>INT</th><th>CST</th><th>DOM</th>");
-            html.append("<th>Total</th><th>Avg</th>");
+            html.append("<th>Total</th><th>Avg</th><th>Agency</th>");
             html.append("</tr></thead><tbody>");
 
             for (Map<String, Object> card : cards) {
@@ -388,6 +415,17 @@ public class AgentCardController {
                 double avg = scored > 0 ? total / (double) scored : 0;
                 html.append("<td class='total-cell'><strong>").append(total).append("</strong></td>");
                 html.append("<td>").append(String.format("%.1f", avg)).append("</td>");
+                Map<String, Object> agency = agencyForProfile(profile);
+                int aqLevel = ((Number) agency.getOrDefault("level", 0)).intValue();
+                boolean aqIsAgent = Boolean.TRUE.equals(agency.get("isAgent"));
+                int aqIndex = ((Number) agency.getOrDefault("index", 0)).intValue();
+                double aqNeedle = ((Number) agency.getOrDefault("needle", (double) aqLevel)).doubleValue();
+                html.append("<td class='agency-cell ").append(aqIsAgent ? "agency-agent" : "agency-nonagent")
+                        .append("' title='").append(escapeHtml(String.valueOf(agency.get("label"))))
+                        .append(" · Index ").append(aqIndex).append("/100'>")
+                        .append("<span class='agency-cell-level'>").append(aqLevel >= 0 ? "+" + aqLevel : String.valueOf(aqLevel)).append("</span>")
+                        .append(renderAgencyStripMini(aqLevel, aqNeedle))
+                        .append("</td>");
                 html.append("</tr>");
             }
 
@@ -422,7 +460,7 @@ public class AgentCardController {
     public void createCardForm(Context ctx) {
         StringBuilder html = new StringBuilder();
         html.append("<h1>Create Agent Card</h1>");
-        html.append("<p class='subtitle'>Point to an AI agent or tool to generate its a-CMM Agent Card</p>");
+        html.append("<p class='subtitle'>Point to an AI agent or tool to generate its AiCMM Agent Card</p>");
 
         html.append("<div class='create-card-form'>");
         html.append("<form id='agent-card-form'>");
@@ -475,7 +513,7 @@ public class AgentCardController {
 
         // Scoring
         html.append("<fieldset class='form-section'>");
-        html.append("<legend>a-CMM Level 0 Scores (0-5)</legend>");
+        html.append("<legend>AiCMM Level 0 Scores (0-5)</legend>");
         html.append("<p class='form-help'>Score each dimension based on observable evidence. Positions are fixed (0-11) for consistent radar chart comparison.</p>");
         html.append("<div class='score-inputs'>");
         html.append("<h4 class='score-group-label'>Cognitive Core (Positions 0-3)</h4>");
@@ -540,6 +578,7 @@ public class AgentCardController {
         html.append("<div class='radar-chart' id='preview-radar'></div>");
         html.append("<pre class='json-view' id='preview-json'><code></code></pre>");
         html.append("</div>");
+        html.append("<div id='preview-agency'></div>");
         html.append("<div class='preview-actions'>");
         html.append("<button class='btn btn-primary' onclick='downloadCard()'>Download JSON</button>");
         html.append("<button class='btn btn-secondary' onclick='copyCard()'>Copy to Clipboard</button>");
@@ -564,6 +603,9 @@ public class AgentCardController {
         try {
             String json = Files.readString(cardFile);
             JsonNode node = mapper.readTree(json);
+            if (node instanceof ObjectNode obj && node.has("capabilityProfile") && !node.has("agencyQualification")) {
+                obj.set("agencyQualification", mapper.valueToTree(buildAgencyQualification(node)));
+            }
             String prettyJson = mapper.writeValueAsString(node);
 
             StringBuilder html = new StringBuilder();
@@ -673,6 +715,29 @@ public class AgentCardController {
                 html.append("</section>");
             }
 
+            // Agency Qualification Layer — derived 13th dimension (position 12)
+            if (node.has("agencyQualification")) {
+                JsonNode aq = node.get("agencyQualification");
+                int level = aq.path("level").asInt(0);
+                boolean isAgent = aq.path("isAgent").asBoolean(level >= 0);
+                String aqLabel = aq.path("label").asText("");
+                int index = aq.path("index").asInt(0);
+                double needle = aq.path("needle").asDouble(level);
+                html.append("<section class='card-section'>");
+                html.append("<h2>Agency Qualification <span class='dim-position'>Position 12 · Derived</span></h2>");
+                html.append("<p class='section-subtitle'>A derived barometer over the 12 core dimensions: the colored band is the strict agency level; the needle is the weighted Agency Index, showing momentum toward the next level.</p>");
+                html.append("<div class='agency-strip-wrap agency-").append(isAgent ? "agent" : "nonagent").append("'>");
+                html.append(renderAgencyStrip(level, needle, index, isAgent, aqLabel));
+                html.append("<div class='agency-strip-meta'>");
+                html.append("<span class='agency-flag'>").append(isAgent ? "AGENT" : "NON-AGENT").append("</span>");
+                html.append("<span class='agency-index'>Agency Index <strong>").append(index).append("</strong>/100</span>");
+                html.append("</div></div>");
+                if (aq.has("rationale")) {
+                    html.append("<p class='agency-rationale'>").append(escapeHtml(aq.path("rationale").asText(""))).append("</p>");
+                }
+                html.append("</section>");
+            }
+
             // Tools, Skills, Plugins & MCPs
             renderCapabilitiesSection(html, node);
 
@@ -699,7 +764,7 @@ public class AgentCardController {
                         html.append("</p>");
                     }
                     if (a2a.has("embedding")) {
-                        html.append("<p><strong>How to embed:</strong> Place a-CMM profile at <code>")
+                        html.append("<p><strong>How to embed:</strong> Place AiCMM profile at <code>")
                                 .append(escapeHtml(a2a.get("embedding").path("location").asText()))
                                 .append("</code></p>");
                     }
@@ -1078,6 +1143,231 @@ public class AgentCardController {
         result.put("constraint", detail);
         result.put("result", passed ? "PASS" : "FAIL");
         return result;
+    }
+
+    /**
+     * Agency Qualification Layer — the derived 13th dimension (position 12).
+     * Interprets the twelve 0-5 scores to classify how agentic a system is, on a
+     * signed ladder from -2 (scripted non-agent) to +5 (humanoid agent). The twelve
+     * core dimensions are never modified; this is a post-evaluation classification.
+     */
+    private Map<String, Object> buildAgencyQualification(JsonNode card) {
+        JsonNode profile = card.path("capabilityProfile");
+        int a = getScore(profile, "autonomy");
+        int r = getScore(profile, "reasoning");
+        int m = getScore(profile, "memory");
+        int l = getScore(profile, "learning");
+        int em = getScore(profile, "embodiment");
+        int x = getScore(profile, "explainability");
+        int s = getScore(profile, "safety");
+
+        boolean govPass = Boolean.TRUE.equals(buildGovernanceValidation(card).get("valid"));
+        int minCore = Math.min(Math.min(a, r), Math.min(m, l));
+        boolean trustOk = govPass && s >= 3 && x >= 3;
+
+        double avg12 = (a + r + m + l
+                + getScore(profile, "toolUse") + getScore(profile, "collaboration") + em
+                + x + s + getScore(profile, "interoperability")
+                + getScore(profile, "costEfficiency") + getScore(profile, "domainAlignment")) / 12.0;
+        double avgExEm = (avg12 * 12.0 - em) / 11.0;
+
+        int level;
+        String rationale;
+        if (a < 2 || r < 2) {
+            if (r >= 1) {
+                level = -1;
+                rationale = "Fails the agent threshold (Autonomy >= 2 and Reasoning >= 2): reactive, "
+                        + "AI-driven responses with no self-directed goals.";
+            } else {
+                level = -2;
+                rationale = "Fails the agent threshold with no reasoning (Reasoning = 0): a deterministic, "
+                        + "pre-scripted automation.";
+            }
+        } else if (!trustOk) {
+            level = 0;
+            rationale = "Clears the cognitive thresholds but is not yet trustworthy (governance "
+                    + (govPass ? "passes" : "fails") + ", Safety=" + s + ", Explainability=" + x + ").";
+        } else if (em >= 5 && minCore >= 5 && avg12 >= 4.8) {
+            level = 5;
+            rationale = "Full embodiment mastery atop human-level cognition — indistinguishable from a human.";
+        } else if (minCore >= 5 && avgExEm >= 4.5) {
+            level = 4;
+            rationale = "Masters the full cognitive core (>=5) with broad, robust, governed capability.";
+        } else if (avg12 >= 4.0 && r >= 4 && a >= 4 && m >= 4) {
+            level = 3;
+            rationale = "State-of-the-art across cognitive core and trust dimensions (avg "
+                    + String.format("%.1f", avg12) + ").";
+        } else if (r >= 4 && s >= 3 && x >= 3 && avg12 >= 3.0) {
+            level = 2;
+            rationale = "Expert reasoning with strong trust controls and governance compliance.";
+        } else {
+            level = 1;
+            rationale = "Balanced, governed agent that clears the cognitive thresholds within a bounded domain.";
+        }
+
+        Map<String, Object> ladderEntry = agencyLadderEntry(level);
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("position", 12);
+        result.put("dimension", "Agency Qualification");
+        result.put("derived", true);
+        result.put("level", level);
+        result.put("code", ladderEntry.get("code"));
+        result.put("label", ladderEntry.get("label"));
+        result.put("isAgent", level >= 0);
+        result.put("governancePass", govPass);
+        result.put("index", agencyIndexFor(profile));
+        result.put("needle", agencyNeedle(level, avg12));
+        result.put("rationale", rationale);
+        return result;
+    }
+
+    /** Per-dimension weights for the continuous Agency Index barometer (positions 0-11); sums to 1.0. */
+    private static final double[] AGENCY_INDEX_WEIGHTS = {
+            0.20, 0.18, 0.10, 0.08, 0.12, 0.07, 0.02, 0.07, 0.07, 0.03, 0.02, 0.04
+    };
+    private static final String[] AGENCY_DIM_ORDER = {
+            "autonomy", "reasoning", "memory", "learning", "toolUse", "collaboration",
+            "embodiment", "explainability", "safety", "interoperability", "costEfficiency", "domainAlignment"
+    };
+    private static final double[][] AGENCY_NEEDLE_BANDS = {
+            {1.2, 2.5}, {2.0, 3.0}, {3.0, 4.0}, {4.0, 4.5}, {4.5, 4.9}, {4.9, 5.01}
+    };
+
+    /** Weighted 0-100 Agency Index barometer reading derived from the twelve scores. */
+    private int agencyIndexFor(JsonNode profile) {
+        double acc = 0;
+        for (int i = 0; i < AGENCY_DIM_ORDER.length; i++) {
+            acc += AGENCY_INDEX_WEIGHTS[i] * getScore(profile, AGENCY_DIM_ORDER[i]);
+        }
+        return (int) Math.round(100.0 * acc / 5.0);
+    }
+
+    /** Continuous needle position on the signed -2..+5 ladder for the given level and average. */
+    private double agencyNeedle(int level, double avg12) {
+        if (level < 0) {
+            return level + 0.5;
+        }
+        double[] band = AGENCY_NEEDLE_BANDS[level];
+        double f = (avg12 - band[0]) / (band[1] - band[0]);
+        f = Math.max(0.0, Math.min(0.96, f));
+        return Math.round((level + f) * 100.0) / 100.0;
+    }
+
+    /** Hex colors for ladder levels -2..+5, used by the barometer strip. */
+    private static final String[] AGENCY_ZONE_COLORS = {
+            "#b91c1c", "#ea580c", "#d97706", "#65a30d", "#059669", "#0891b2", "#6d28d9", "#be185d"
+    };
+    private static final String[] AGENCY_ZONE_LABELS = {
+            "Scripted", "Reactive", "Proto", "Basic", "Advanced", "Generalized", "Human-Level", "Humanoid"
+    };
+
+    /** Renders the Agency Barometer as a horizontal ladder strip (static SVG, signed -2..+5). */
+    private String renderAgencyStrip(int level, double needle, int index, boolean isAgent, String label) {
+        int w = 520, h = 78, pad = 16, top = 30, bh = 20;
+        double lo = -2, hi = 5;
+        java.util.function.DoubleUnaryOperator x =
+                v -> pad + ((v - lo) / (hi - lo)) * (w - 2 * pad);
+        StringBuilder s = new StringBuilder();
+        s.append("<svg class='agency-strip' width='").append(w).append("' height='").append(h)
+                .append("' viewBox='0 0 ").append(w).append(" ").append(h).append("' xmlns='http://www.w3.org/2000/svg'>");
+        for (int v = -2; v <= 5; v++) {
+            double x0 = x.applyAsDouble(v), x1 = x.applyAsDouble(v + 1);
+            String color = AGENCY_ZONE_COLORS[v + 2];
+            double op = (v == level) ? 1.0 : 0.45;
+            s.append("<rect x='").append(fmt(x0)).append("' y='").append(top).append("' width='")
+                    .append(fmt(x1 - x0)).append("' height='").append(bh).append("' fill='").append(color)
+                    .append("' opacity='").append(op).append("'/>");
+            s.append("<text x='").append(fmt((x0 + x1) / 2)).append("' y='").append(top + bh + 13)
+                    .append("' font-size='8' fill='#475569' text-anchor='middle'>")
+                    .append(v >= 0 ? "+" + v : v).append("</text>");
+        }
+        // agent threshold marker at 0
+        double xz = x.applyAsDouble(0);
+        s.append("<line x1='").append(fmt(xz)).append("' y1='").append(top - 4).append("' x2='").append(fmt(xz))
+                .append("' y2='").append(top + bh + 4).append("' stroke='#0f172a' stroke-width='1.5' stroke-dasharray='3 2'/>");
+        // needle
+        double nx = x.applyAsDouble(needle);
+        s.append("<polygon points='").append(fmt(nx)).append(",").append(top - 1).append(" ")
+                .append(fmt(nx - 6)).append(",").append(top - 12).append(" ")
+                .append(fmt(nx + 6)).append(",").append(top - 12).append("' fill='#0f172a'/>");
+        // caption
+        String zoneLabel = (label != null && !label.isEmpty()) ? label : AGENCY_ZONE_LABELS[level + 2];
+        s.append("<text x='").append(pad).append("' y='16' font-size='12' font-weight='700' fill='")
+                .append(AGENCY_ZONE_COLORS[level + 2]).append("'>")
+                .append(level >= 0 ? "+" + level : level).append(" · ").append(escapeHtml(zoneLabel)).append("</text>");
+        s.append("</svg>");
+        return s.toString();
+    }
+
+    private static String fmt(double v) {
+        return String.format(java.util.Locale.US, "%.1f", v);
+    }
+
+    /** Compact barometer strip for the catalog table cell (no labels, just zones + needle). */
+    private String renderAgencyStripMini(int level, double needle) {
+        int w = 120, h = 16;
+        double lo = -2, hi = 5;
+        java.util.function.DoubleUnaryOperator x = v -> ((v - lo) / (hi - lo)) * w;
+        StringBuilder s = new StringBuilder();
+        s.append("<svg class='agency-strip-mini' width='").append(w).append("' height='").append(h)
+                .append("' viewBox='0 0 ").append(w).append(" ").append(h).append("' xmlns='http://www.w3.org/2000/svg'>");
+        for (int v = -2; v <= 5; v++) {
+            double x0 = x.applyAsDouble(v), x1 = x.applyAsDouble(v + 1);
+            double op = (v == level) ? 1.0 : 0.4;
+            s.append("<rect x='").append(fmt(x0)).append("' y='4' width='").append(fmt(x1 - x0))
+                    .append("' height='8' fill='").append(AGENCY_ZONE_COLORS[v + 2]).append("' opacity='").append(op).append("'/>");
+        }
+        double nx = x.applyAsDouble(needle);
+        s.append("<polygon points='").append(fmt(nx)).append(",3 ").append(fmt(nx - 4)).append(",0 ")
+                .append(fmt(nx + 4)).append(",0' fill='#0f172a'/>");
+        s.append("</svg>");
+        return s.toString();
+    }
+
+    /** The full Agency Qualification ladder, from -2 (non-agent) to +5 (humanoid agent). */
+    private List<Map<String, Object>> buildAgencyLadder() {
+        return List.of(
+                agencyLevel(-2, "SCRIPTED_AUTOMATION", "Non-Agent — Scripted Automation", false,
+                        "Deterministic, pre-scripted tool with no autonomy and no reasoning (e.g. RPA macro, ETL pipeline)."),
+                agencyLevel(-1, "REACTIVE_ASSISTANT", "Non-Agent — Reactive Assistant", false,
+                        "AI-driven but purely reactive: answers only on direct input (e.g. FAQ bot, early Siri/Alexa, basic Q&A LLM)."),
+                agencyLevel(0, "PROTO_AGENT", "Proto-Agent — Emerging Agency", true,
+                        "Meets minimal autonomy/reasoning thresholds but is brittle and not yet trustworthy (e.g. AutoGPT)."),
+                agencyLevel(1, "BASIC_AGENT", "Basic Agent — Qualified", true,
+                        "A fully qualified agent with a balanced, moderate capability profile that passes governance."),
+                agencyLevel(2, "ADVANCED_AGENT", "Advanced Agent — Autonomous & Trust-Aligned", true,
+                        "Expert reasoning with strong trust controls (e.g. Copilot CLI, MedAssist Pro, Tesla FSD)."),
+                agencyLevel(3, "GENERALIZED_AGENT", "Generalized Agent — Cutting-Edge", true,
+                        "State-of-the-art autonomous agent with world models, long-term memory, and multi-agent coordination."),
+                agencyLevel(4, "HUMAN_LEVEL_AGENT", "Human-Level Agent", true,
+                        "Human-level general intelligence: masters the full cognitive core with broad, governed capability."),
+                agencyLevel(5, "HUMANOID_AGENT", "Humanoid Agent — Indistinguishable from Human", true,
+                        "Indistinguishable from a human in look, feel, and appearance — full embodiment with synthetic skin, touch, and taste."));
+    }
+
+    private Map<String, Object> agencyLevel(int level, String code, String label, boolean isAgent, String description) {
+        Map<String, Object> entry = new LinkedHashMap<>();
+        entry.put("level", level);
+        entry.put("code", code);
+        entry.put("label", label);
+        entry.put("isAgent", isAgent);
+        entry.put("description", description);
+        return entry;
+    }
+
+    private Map<String, Object> agencyLadderEntry(int level) {
+        for (Map<String, Object> entry : buildAgencyLadder()) {
+            if (Integer.valueOf(level).equals(entry.get("level"))) {
+                return entry;
+            }
+        }
+        return agencyLevel(level, "UNKNOWN", "Unknown", level >= 0, "");
+    }
+
+    private Map<String, Object> agencyForProfile(Map<String, Object> profile) {
+        ObjectNode card = mapper.createObjectNode();
+        card.set("capabilityProfile", mapper.valueToTree(profile == null ? Map.of() : profile));
+        return buildAgencyQualification(card);
     }
 
     private double averageCardScore(Map<String, Object> card) {
