@@ -41,23 +41,45 @@ body {
     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
-.nav-brand a {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--primary);
+.nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
     text-decoration: none;
+    flex-shrink: 0;
+}
+
+.brand-logo {
+    width: 38px;
+    height: 38px;
+    border-radius: 9px;
+    box-shadow: 0 2px 6px rgba(37,99,235,0.25);
+}
+
+.brand-text { display: flex; flex-direction: column; line-height: 1.1; }
+
+.brand-name {
+    font-size: 1.3rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    background: linear-gradient(90deg, #2563eb, #f59e0b);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
 }
 
 .nav-subtitle {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: var(--text-muted);
-    margin-left: 0.5rem;
+    white-space: nowrap;
 }
 
 .nav-links {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: 1.1rem;
+    flex-wrap: nowrap;
+    overflow-x: auto;
 }
 
 .nav-links a {
@@ -65,6 +87,7 @@ body {
     color: var(--text-muted);
     font-size: 0.9rem;
     font-weight: 500;
+    white-space: nowrap;
     padding: 0.25rem 0;
     border-bottom: 2px solid transparent;
     transition: all 0.2s;

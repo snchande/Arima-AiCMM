@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "type": "command",
+        "bash": "JAR=$(ls aicmm-site/target/aicmm-site-*-shaded.jar 2>/dev/null || ls aicmm-site/target/aicmm-site-*.jar 2>/dev/null | head -1); if ! (echo > /dev/tcp/localhost/8080) 2>/dev/null; then [ -n \"$JAR\" ] && nohup java -jar \"$JAR\" >/dev/null 2>&1 & fi; (command -v xdg-open >/dev/null && xdg-open http://localhost:8080 || open http://localhost:8080) >/dev/null 2>&1; true",
+        "powershell": "scripts\\start-aicmm.ps1",
+        "cwd": ".",
+        "timeoutSec": 30
+      }
+    ]
+  }
+}

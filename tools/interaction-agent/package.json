@@ -1,0 +1,9 @@
+{
+  "name": "aicmm-interact",
+  "version": "0.1.0",
+  "description": "AiCMM Interact — local human-in-the-loop UI for AiCMM. Renders any question (choices/images/text), captures submit, returns JSON. No runtime dependencies.",
+  "bin": { "aicmm-interact": "server.js" },
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=18" },
+  "license": "MIT"
+}

@@ -196,14 +196,19 @@ public class DocumentationController {
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
                     <title>%s</title>
                     <link rel="stylesheet" href="/css/style.css">
+                    <link rel="icon" href="/img/favicon.ico" sizes="any">
+                    <link rel="icon" type="image/svg+xml" href="/img/aicmm-icon.svg">
                     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
                 </head>
                 <body>
                     <nav class="navbar">
-                        <div class="nav-brand">
-                            <a href="/">🤖 AiCMM</a>
-                            <span class="nav-subtitle">Agent Capability Maturity Model</span>
-                        </div>
+                        <a class="nav-brand" href="/">
+                            <img class="brand-logo" src="/img/aicmm-icon.svg" alt="AiCMM logo">
+                            <span class="brand-text">
+                                <span class="brand-name">AiCMM</span>
+                                <span class="nav-subtitle">Agent Capability Maturity Model</span>
+                            </span>
+                        </a>
                         <div class="nav-links">
                             <a href="/" class="%s">Home</a>
                             <a href="/framework" class="%s">Framework</a>
