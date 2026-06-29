@@ -1462,6 +1462,7 @@ public class AgentCardController {
                     <link rel="icon" type="image/svg+xml" href="/img/aicmm-icon.svg">
                     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
                     <script>mermaid.initialize({startOnLoad: true, theme: 'neutral'});</script>
+                    <link rel="stylesheet" href="/css/faa.css">
                 </head>
                 <body>
                     <nav class="navbar">
@@ -1498,6 +1499,7 @@ public class AgentCardController {
                         </p>
                     </footer>
                     <script src="/js/app.js"></script>
+                    <script src="/js/faa.js"></script>
                 </body>
                 </html>
                 """.formatted(
