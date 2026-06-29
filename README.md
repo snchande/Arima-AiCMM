@@ -192,6 +192,19 @@ You don't need to score by hand. Clone the repo, point your favorite agentic CLI
 > Create an AiCMM Agent Card for our product. Brochure: ./mybot-brochure.pdf
 ```
 
+Sample prompts (work in Copilot CLI, Claude Code, Gemini CLI):
+
+```text
+# Brochure / docs → Agent Card
+> @aicmm Create an AiCMM Agent Card from ./mybot-brochure.pdf and save to examples/
+> @aicmm Build a card for the agent at https://acme.ai/product
+
+# Agent Footprint: radar fingerprint + Agency level/index
+> @aicmm Score examples/mybot-agent-card.json and show the radar fingerprint
+> @aicmm What Agency level and Index does mybot reach, and which dimensions cap it?
+> @aicmm Validate governance and list any failing rules
+```
+
 Behind the scenes the CLI uses: the **`aicmm`** agent + **create-agent-card / score-agent / validate-governance** skills (`.copilot/`), and the **aicmm** MCP server (`.mcp.json`). It writes `examples/<name>-agent-card.json`, then the site renders the **radar fingerprint** and **Agency footprint**. See [`docs/guides/user-guide.md`](docs/guides/user-guide.md). MCP/skills also work in Claude Code (`CLAUDE.md`) and Gemini CLI (`GEMINI.md`).
 
 ### Use as a Library (Programmatic Agent Cards)

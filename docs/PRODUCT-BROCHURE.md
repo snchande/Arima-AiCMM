@@ -551,6 +551,23 @@ Agents are invoked by mentioning them in your CLI prompt. They work across **Git
 > @aicmm Register this agent card: { "name": "My Agent", ... }
 ```
 
+#### From a Brochure/Docs → Agent Card + Footprint
+
+Feed any product brochure, README, or API page and let the CLI score all 12 dimensions, run governance, and produce the radar fingerprint and Agency footprint:
+
+```
+# 1. Build the card from a brochure (PDF, URL, or pasted text)
+> @aicmm Create an AiCMM Agent Card from this brochure: ./mybot-brochure.pdf
+> @aicmm Build a card for the agent at https://acme.ai/product; save to examples/
+
+# 2. Produce the Agent Footprint (radar + Agency level + index)
+> @aicmm Score examples/mybot-agent-card.json and show the radar fingerprint
+> @aicmm What Agency level and Agency Index does mybot reach, and why?
+
+# 3. Close gaps to the next Agency level
+> @aicmm Which dimensions block mybot from BASIC_AGENT, and what evidence raises them?
+```
+
 #### @aicmm-contributor — Development Help
 
 ```
