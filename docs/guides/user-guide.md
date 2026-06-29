@@ -206,6 +206,11 @@ The `aicmm-project-agent` is registered at `~/.copilot/agents/aicmm-project-agen
 > Create an agent card for Claude Sonnet 4
 > Compare Copilot CLI vs ChatGPT on the reasoning dimension
 > Which agents in the catalog score highest on tool use?
+
+# Brochure → Agent Card → Footprint (radar + Agency)
+> @aicmm Create an AiCMM Agent Card from ./mybot-brochure.pdf and save to examples/
+> @aicmm Score examples/mybot-agent-card.json; show the radar fingerprint
+> @aicmm What Agency level + Index does mybot reach, and which dimensions cap it?
 ```
 
 ### Claude CLI (claude.ai/code)
