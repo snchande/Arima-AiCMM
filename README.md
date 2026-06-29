@@ -288,6 +288,14 @@ Edit `prompt.json` to define the question (`single` image cards, `multi`-select,
 ### Auto-start on Copilot CLI launch
 A `sessionStart` hook (`.github/hooks/aicmm-startup.json`) runs `scripts/start-aicmm.ps1`, which (1) installs the repo's agents & skills into `~/.copilot` via `scripts/setup-agents.ps1` so **`@aicmm`** is immediately discoverable, and (2) starts the AiCMM site on http://localhost:8080 (only if not already running) and opens it. Clone the repo and just run `copilot` — `@aicmm` is ready and the site comes up automatically. To set up agents without launching the CLI, run `scripts/setup-agents.ps1` manually.
 
+### FAA — Floating Agentic Assistance
+Every site page carries a floating AiCMM assistant button (bottom-right). Click it for a slide-in, **page-aware** helper:
+- **Agentic when a CLI is present** — bridges to a local LLM CLI (GitHub Copilot today; Claude Code / Gemini if installed) for live, tool-using answers.
+- **Offline fallback** — with no CLI, a built-in knowledge base still answers about dimensions, governance, the Agency ladder, and creating/scoring cards.
+- **Settings (⚙)** — pick the default CLI/provider, switch models, and set temperature (where the CLI supports it). Preferences persist to `~/.aicmm/faa-settings.json`.
+
+Endpoints: `POST /api/assist`, `GET /api/assist/providers`, `GET`/`POST /api/assist/settings`. Adding a new CLI is a one-line `CliSpec` — a call for contributions.
+
 ## How to Classify an Agent
 
 Classification follows a structured process:

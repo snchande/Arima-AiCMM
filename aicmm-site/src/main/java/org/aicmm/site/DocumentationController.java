@@ -199,6 +199,7 @@ public class DocumentationController {
                     <link rel="icon" href="/img/favicon.ico" sizes="any">
                     <link rel="icon" type="image/svg+xml" href="/img/aicmm-icon.svg">
                     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+                    <link rel="stylesheet" href="/css/faa.css">
                 </head>
                 <body>
                     <nav class="navbar">
@@ -236,7 +237,7 @@ public class DocumentationController {
                         </p>
                     </footer>
                     <script src="/js/app.js"></script>
-                    <script>
+                    <script src="/js/faa.js"></script>
                         mermaid.initialize({startOnLoad: false, theme: 'neutral', securityLevel: 'loose'});
                         document.addEventListener('DOMContentLoaded', function() {
                             var elements = document.querySelectorAll('.mermaid');

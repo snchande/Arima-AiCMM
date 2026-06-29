@@ -2,6 +2,7 @@ package org.aicmm.site;
 
 import io.javalin.Javalin;
 import io.javalin.http.staticfiles.Location;
+import org.aicmm.site.faa.AssistController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +45,7 @@ public class AicmmSite {
         MarkdownRenderer renderer = new MarkdownRenderer();
         DocumentationController docsController = new DocumentationController(docsPath, projectRoot, renderer);
         AgentCardController cardController = new AgentCardController(examplesPath, schemasPath);
+        AssistController assistController = new AssistController();
 
         Javalin app = Javalin.create(config -> {
             config.staticFiles.add("/static", Location.CLASSPATH);
@@ -80,6 +82,10 @@ public class AicmmSite {
         app.get("/api/dimensions", cardController::getDimensions);
         app.get("/api/agency-levels", cardController::getAgencyLevels);
         app.post("/api/validate", cardController::validateCard);
+        app.post("/api/assist", assistController::assist);
+        app.get("/api/assist/providers", assistController::providers);
+        app.get("/api/assist/settings", assistController::getSettings);
+        app.post("/api/assist/settings", assistController::saveSettings);
 
         app.start(port);
         log.info("AiCMM Site running at http://localhost:{}", port);
