@@ -1,4 +1,8 @@
-# AiCMM — Agent Capability Maturity Model
+<p align="center">
+  <img src="docs/AiCMM-Logo.png" alt="AiCMM logo" width="180">
+</p>
+
+<h1 align="center">AiCMM — Agent Capability Maturity Model</h1>
 
 <p align="center">
   <strong>A unified, multi-dimensional framework for classifying AI agent capabilities</strong>
@@ -162,10 +166,30 @@ AiCMM/
 
 ## How to Use
 
+### Quick Start (seamless)
+
+```bash
+git clone https://github.com/snchande/Arima-AiCMM.git
+cd Arima-AiCMM
+copilot            # @aicmm + skills auto-install, the site builds & starts on :8080
+```
+
+First `copilot` launch installs the agents/skills, checks for Java, builds the jar, and opens http://localhost:8080. Then type `@aicmm` in Copilot.
+
 ### Prerequisites
 
-- **Java 17** or later
-- **Maven 3.8+**
+- **Java 17+** — required to run the site/CLI. If missing, startup auto-installs via `winget` on Windows; else install manually:
+  - Windows: `winget install Microsoft.OpenJDK.21` · macOS: `brew install openjdk@21` · Linux: `sudo apt install openjdk-21-jdk` · or <https://learn.microsoft.com/java/openjdk/download>
+- **Maven 3.8+** — only to build from source. **Git** — to clone.
+- **An agentic CLI (optional)** — for `@aicmm`. Don't have one? See below.
+
+### No Copilot/LLM CLI? You can still use AiCMM
+
+`@aicmm` needs an agentic CLI, but the framework works without one:
+
+- **GitHub Copilot CLI** (recommended): `npm install -g @github/copilot` then run `copilot` — auto-starts everything. (Others: Claude Code → `CLAUDE.md`, Gemini CLI → `GEMINI.md`.)
+- **No CLI at all** — use the **web UI + REST API**: `mvn clean install` then `java -jar aicmm-site/target/aicmm-site-0.1.0-SNAPSHOT.jar` → http://localhost:8080 (Create Card form, Catalog, validate/score via `/api/*`).
+- **Programmatic** — add `aicmm-core` to your build and create cards in Java (see *Use as a Library*).
 
 ### Build the Project
 
@@ -262,7 +286,7 @@ node server.js          # opens http://localhost:8099
 Edit `prompt.json` to define the question (`single` image cards, `multi`-select, or `text`). On Submit it writes `response.json` (`{choice}` / `{choices}` / `{text}`) and exits. Use via the **aicmm-interact** agent and **collect-user-choice** skill. See `tools/interaction-agent/README.md`.
 
 ### Auto-start on Copilot CLI launch
-A `sessionStart` hook (`.github/hooks/aicmm-startup.json`) runs `scripts/start-aicmm.ps1`, which starts the AiCMM site on http://localhost:8080 (only if not already running) and opens it. Clone the repo and just run `copilot` — the site comes up automatically.
+A `sessionStart` hook (`.github/hooks/aicmm-startup.json`) runs `scripts/start-aicmm.ps1`, which (1) installs the repo's agents & skills into `~/.copilot` via `scripts/setup-agents.ps1` so **`@aicmm`** is immediately discoverable, and (2) starts the AiCMM site on http://localhost:8080 (only if not already running) and opens it. Clone the repo and just run `copilot` — `@aicmm` is ready and the site comes up automatically. To set up agents without launching the CLI, run `scripts/setup-agents.ps1` manually.
 
 ## How to Classify an Agent
 
@@ -328,8 +352,8 @@ The easiest path is to ask an agentic CLI (Copilot, Claude, Gemini) to create th
 java -jar aicmm-cli/target/aicmm-cli-0.1.0-SNAPSHOT.jar --mcp
 
 # Or create/validate/score a card via the site REST API
-curl -X POST http://localhost:8080/api/agent-cards -H "Content-Type: application/json" -d @examples/my-agent-card.json
-curl -X POST http://localhost:8080/api/validate -d @examples/my-agent-card.json
+curl -X POST http://localhost:8080/api/agent-cards -H "Content-Type: application/json" -d @examples/copilot-cli-agent-card.json
+curl -X POST http://localhost:8080/api/validate -H "Content-Type: application/json" -d @examples/copilot-cli-agent-card.json
 curl http://localhost:8080/api/agency-levels
 ```
 
@@ -460,7 +484,7 @@ You are free to use, modify, and distribute this framework in both open-source a
 
 ## Author
 
-**Suresh Chande** — Principal Product Manager, Microsoft
+**Suresh Chande**
 
 - [LinkedIn](https://www.linkedin.com/in/sureshchande)
 - [Medium](https://medium.com/@sureshchande)
