@@ -4,7 +4,7 @@
     "sessionStart": [
       {
         "type": "command",
-        "bash": "JAR=$(ls aicmm-site/target/aicmm-site-*-shaded.jar 2>/dev/null || ls aicmm-site/target/aicmm-site-*.jar 2>/dev/null | head -1); if ! (echo > /dev/tcp/localhost/8080) 2>/dev/null; then [ -n \"$JAR\" ] && nohup java -jar \"$JAR\" >/dev/null 2>&1 & fi; (command -v xdg-open >/dev/null && xdg-open http://localhost:8080 || open http://localhost:8080) >/dev/null 2>&1; true",
+        "bash": "D=\"$HOME/.copilot\"; for k in agents skills; do mkdir -p \"$D/$k\"; [ -d \".copilot/$k\" ] && cp -f .copilot/$k/*.md \"$D/$k/\" 2>/dev/null; done; if ! command -v java >/dev/null 2>&1; then echo 'AiCMM needs Java 17+. Install: macOS \"brew install openjdk@21\" | Linux \"sudo apt install openjdk-21-jdk\". @aicmm is installed; reopen Copilot to start the site.'; exit 0; fi; JAR=$(ls aicmm-site/target/aicmm-site-*-shaded.jar 2>/dev/null || ls aicmm-site/target/aicmm-site-*.jar 2>/dev/null | head -1); if [ -z \"$JAR\" ] && command -v mvn >/dev/null 2>&1; then mvn -q clean package -DskipTests >/dev/null 2>&1; JAR=$(ls aicmm-site/target/aicmm-site-*.jar 2>/dev/null | head -1); fi; if ! (echo > /dev/tcp/localhost/8080) 2>/dev/null; then [ -n \"$JAR\" ] && nohup java -jar \"$JAR\" >/dev/null 2>&1 & fi; (command -v xdg-open >/dev/null && xdg-open http://localhost:8080 || open http://localhost:8080) >/dev/null 2>&1; true",
         "powershell": "scripts\\start-aicmm.ps1",
         "cwd": ".",
         "timeoutSec": 30
