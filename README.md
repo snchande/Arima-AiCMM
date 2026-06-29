@@ -139,6 +139,12 @@ AiCMM/
 ├── schemas/
 │   └── agent-card.schema.json         # JSON Schema for Agent Cards
 │
+├── tools/
+│   └── interaction-agent/             # AiCMM Interact — local human-in-the-loop UI
+│       ├── server.js                  # Zero-dependency picker server (node server.js)
+│       ├── prompt.json                # Question spec (choices/images/text)
+│       └── README.md                  # Schema + usage
+│
 ├── examples/
 │   ├── copilot-cli-agent-card.json            # Example: GitHub Copilot CLI scored
 │   ├── medassist-pro-agent-card.json          # Example: Healthcare hybrid (Level 0 + Level 1)
@@ -165,20 +171,30 @@ AiCMM/
 
 ```bash
 git clone https://github.com/snchande/Arima-AiCMM.git
-cd AiCMM
+cd Arima-AiCMM
 mvn clean install
 ```
 
 ### Run the Documentation Site
 
 ```bash
-java -jar aicmm-site/target/aicmm-site-0.1.0-SNAPSHOT.jar --port 8090
-# → Open http://localhost:8090
+java -jar aicmm-site/target/aicmm-site-0.1.0-SNAPSHOT.jar
+# → Open http://localhost:8080
 ```
 
-The site renders all Markdown documentation with Mermaid diagram support, provides an interactive Agent Card browser with radar charts, and links to the original articles.
+The site renders all docs with Mermaid diagrams, an interactive **Catalog** with radar charts and Agency barometers, a live **Create Card** form, and the **Brochure**, **Guide**, **Framework**, **Architecture**, and **Schema** pages. If you open this repo with the Copilot CLI, the site auto-starts (see *Auto-start* below).
 
-### Use as a Library
+### Rate Your Agent with Any Copilot / LLM CLI
+
+You don't need to score by hand. Clone the repo, point your favorite agentic CLI (GitHub Copilot CLI, Claude Code, Gemini CLI) at it, feed your agent's docs — a **product brochure**, README, or API page — and ask it to build a card. The repo ships in-repo agents and skills plus an MCP server, so the CLI does the scoring, governance check, radar, fingerprint, and Agency scaling for you:
+
+```text
+> Create an AiCMM Agent Card for our product. Brochure: ./mybot-brochure.pdf
+```
+
+Behind the scenes the CLI uses: the **`aicmm`** agent + **create-agent-card / score-agent / validate-governance** skills (`.copilot/`), and the **aicmm** MCP server (`.mcp.json`). It writes `examples/<name>-agent-card.json`, then the site renders the **radar fingerprint** and **Agency footprint**. See [`docs/guides/user-guide.md`](docs/guides/user-guide.md). MCP/skills also work in Claude Code (`CLAUDE.md`) and Gemini CLI (`GEMINI.md`).
+
+### Use as a Library (Programmatic Agent Cards)
 
 Add the core module to your project:
 
@@ -220,6 +236,20 @@ AgentCard card = new AgentCard("My Agent", "1.0", profile, AgentCategory.DIGITAL
 ```
 
 ---
+
+## AiCMM Interact (Human-in-the-Loop UI)
+
+`tools/interaction-agent/` is a zero-dependency local server that lets the CLI/agent ask you visual questions in the browser and read your answer back. Clone and run — no install:
+
+```bash
+cd tools/interaction-agent
+node server.js          # opens http://localhost:8099
+```
+
+Edit `prompt.json` to define the question (`single` image cards, `multi`-select, or `text`). On Submit it writes `response.json` (`{choice}` / `{choices}` / `{text}`) and exits. Use via the **aicmm-interact** agent and **collect-user-choice** skill. See `tools/interaction-agent/README.md`.
+
+### Auto-start on Copilot CLI launch
+A `sessionStart` hook (`.github/hooks/aicmm-startup.json`) runs `scripts/start-aicmm.ps1`, which starts the AiCMM site on http://localhost:8080 (only if not already running) and opens it. Clone the repo and just run `copilot` — the site comes up automatically.
 
 ## How to Classify an Agent
 
@@ -276,18 +306,21 @@ See the next section ↓
 
 An **Agent Card** is the machine-readable output of the classification process. It follows the [JSON Schema](schemas/agent-card.schema.json).
 
-### Using the CLI (coming soon)
+### Using a Copilot / LLM CLI, MCP, or REST API
+
+The easiest path is to ask an agentic CLI (Copilot, Claude, Gemini) to create the card from your docs — see *Rate Your Agent with Any Copilot / LLM CLI* above. Under the hood it can use either the MCP server or the REST API:
 
 ```bash
-# Interactive classification
-java -jar aicmm-cli/target/aicmm-cli.jar classify --interactive
+# Start the MCP stdio server (configured in .mcp.json; site provides the API)
+java -jar aicmm-cli/target/aicmm-cli-0.1.0-SNAPSHOT.jar --mcp
 
-# Inspect an agent endpoint
-java -jar aicmm-cli/target/aicmm-cli.jar inspect --url https://agent.example.com/.well-known/agent
-
-# Validate an existing card
-java -jar aicmm-cli/target/aicmm-cli.jar validate --card my-agent-card.json
+# Or create/validate/score a card via the site REST API
+curl -X POST http://localhost:8080/api/agent-cards -H "Content-Type: application/json" -d @examples/my-agent-card.json
+curl -X POST http://localhost:8080/api/validate -d @examples/my-agent-card.json
+curl http://localhost:8080/api/agency-levels
 ```
+
+MCP tools: `aicmm_create_card`, `aicmm_score_card`, `aicmm_validate_card`, `aicmm_inspect_agent`, `aicmm_get_dimensions`, `aicmm_get_agency_levels`. The five cards in [`examples/`](examples/) (Copilot CLI, MedAssist, AutoNav, FinGuard, SmartFactory) are the catalog source and live templates.
 
 ### Manual Creation
 
@@ -350,6 +383,22 @@ Agent Cards are designed to be embedded as capability metadata in agent communic
   "aicmm": { "$ref": "./my-agent-card.json" }
 }
 ```
+
+---
+
+## Documentation & Deep Dives
+
+Keep this README light — for details, browse the site (http://localhost:8080) or these docs:
+
+| Topic | Site page | Source |
+|-------|-----------|--------|
+| Framework & dimensions | `/framework` | [docs/specifications](docs/specifications/) |
+| Architecture & diagrams | `/architecture` | [docs/architecture](docs/architecture/), [docs/diagrams](docs/diagrams/) |
+| Agent catalog (radars + Agency) | `/catalog` | [examples/](examples/) |
+| Create a card (live form) | `/create-card` | [.copilot/skills](.copilot/skills/) |
+| Brochure & user guide | `/brochure`, `/user-guide` | [docs/guides](docs/guides/) |
+| JSON Schema | `/schema` | [schemas/](schemas/) |
+| Branding / icon | — | [docs/branding](docs/branding/) |
 
 ---
 

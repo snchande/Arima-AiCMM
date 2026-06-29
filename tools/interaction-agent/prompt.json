@@ -1,0 +1,15 @@
+{
+  "title": "AiCMM Icon — Pick Your Favorite",
+  "subtitle": "Click a tile, then Submit. Your choice is sent back to the agent.",
+  "type": "single",
+  "submitLabel": "Submit choice",
+  "assetsDir": "../../docs/branding",
+  "options": [
+    { "id": "A", "label": "A. Signature Radar + Orbit", "desc": "12-dim radar polygon, agency orbital ring, glowing core. Flagship.", "image": "variant-A.png" },
+    { "id": "B", "label": "B. Minimal Radar", "desc": "Clean 12-dim profile on maturity rings.", "image": "variant-B.png" },
+    { "id": "C2", "label": "C. Ai Ring", "desc": "Monogram 'Ai' inside a 12-node maturity ring.", "image": "variant-C2.png" },
+    { "id": "E", "label": "E. Hex Agent + Orbit", "desc": "Hexagon core, inner radar, orbital agency ring.", "image": "variant-E.png" },
+    { "id": "F", "label": "F. Maturity Bars", "desc": "Radar with rising 0->5 growth bars.", "image": "variant-F.png" },
+    { "id": "D", "label": "D. Light Theme", "desc": "Radar on a light badge for docs/favicons.", "image": "variant-D.png" }
+  ]
+}
