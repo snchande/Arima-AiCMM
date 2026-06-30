@@ -1,0 +1,14 @@
+{
+  "name": "aicmm-faa-copilot-bridge",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Node bridge that drives the GitHub Copilot CLI via @github/copilot-sdk (JSON-RPC) for the AiCMM FAA. Reads a JSON request on stdin and writes the assistant reply to stdout. Avoids fragile argv/stdin prompt quoting and the interactive CLI's sessionStart browser hook.",
+  "main": "copilot-bridge.mjs",
+  "dependencies": {
+    "@github/copilot-sdk": "1.0.4"
+  },
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  }
+}

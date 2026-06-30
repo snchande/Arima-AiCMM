@@ -6,8 +6,16 @@ import org.aicmm.site.faa.AssistController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
+import java.util.Map;
 
 /**
  * AiCMM Documentation Site - local web server that renders all framework
@@ -19,6 +27,8 @@ public class AicmmSite {
 
     private static final Logger log = LoggerFactory.getLogger(AicmmSite.class);
     private static final int DEFAULT_PORT = 8080;
+    /** Shared secret used to ask a running instance to shut down so a new one can take over. */
+    private static final String ADMIN_TOKEN = envOr("AICMM_ADMIN_TOKEN", "aicmm-secret-restart");
 
     public static void main(String[] args) {
         int port = DEFAULT_PORT;
@@ -45,7 +55,7 @@ public class AicmmSite {
         MarkdownRenderer renderer = new MarkdownRenderer();
         DocumentationController docsController = new DocumentationController(docsPath, projectRoot, renderer);
         AgentCardController cardController = new AgentCardController(examplesPath, schemasPath);
-        AssistController assistController = new AssistController();
+        AssistController assistController = new AssistController(projectRoot);
 
         Javalin app = Javalin.create(config -> {
             config.staticFiles.add("/static", Location.CLASSPATH);
@@ -87,9 +97,66 @@ public class AicmmSite {
         app.get("/api/assist/settings", assistController::getSettings);
         app.post("/api/assist/settings", assistController::saveSettings);
 
+        // Secret-protected shutdown so a freshly launched instance can replace this one.
+        app.post("/api/admin/shutdown", ctx -> {
+            String token = ctx.header("X-AiCMM-Token");
+            if (token == null) token = ctx.queryParam("token");
+            if (!ADMIN_TOKEN.equals(token)) { ctx.status(403).json(Map.of("error", "forbidden")); return; }
+            ctx.json(Map.of("status", "shutting down"));
+            log.info("Received authenticated shutdown request — stopping.");
+            new Thread(() -> {
+                try { Thread.sleep(300); } catch (InterruptedException ignored) {}
+                app.stop();
+                System.exit(0);
+            }, "aicmm-shutdown").start();
+        });
+
+        // Easy restart: if something is already on this port, ask it to step aside first.
+        takeOverPort(port);
+
         app.start(port);
         log.info("AiCMM Site running at http://localhost:{}", port);
         log.info("Press Ctrl+C to stop.");
+    }
+
+    private static String envOr(String key, String def) {
+        String v = System.getenv(key);
+        return (v == null || v.isBlank()) ? def : v;
+    }
+
+    private static boolean portInUse(int port) {
+        try (Socket s = new Socket()) {
+            s.connect(new InetSocketAddress("127.0.0.1", port), 300);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /** If a server already holds {@code port}, send the secret shutdown code and wait for it to free. */
+    private static void takeOverPort(int port) {
+        if (!portInUse(port)) return;
+        log.info("Port {} is busy — asking the running AiCMM instance to shut down...", port);
+        try {
+            HttpClient http = HttpClient.newHttpClient();
+            HttpRequest req = HttpRequest.newBuilder()
+                    .uri(URI.create("http://localhost:" + port + "/api/admin/shutdown"))
+                    .header("X-AiCMM-Token", ADMIN_TOKEN)
+                    .timeout(Duration.ofSeconds(5))
+                    .POST(HttpRequest.BodyPublishers.noBody())
+                    .build();
+            http.send(req, HttpResponse.BodyHandlers.ofString());
+        } catch (Exception e) {
+            log.warn("Shutdown request failed ({}). A non-AiCMM process may hold the port.", e.getMessage());
+        }
+        for (int i = 0; i < 40 && portInUse(port); i++) {
+            try { Thread.sleep(250); } catch (InterruptedException ignored) {}
+        }
+        if (portInUse(port)) {
+            log.warn("Port {} is still in use; startup may fail to bind.", port);
+        } else {
+            log.info("Previous instance stopped — taking over port {}.", port);
+        }
     }
 
     private static Path resolveProjectRoot() {

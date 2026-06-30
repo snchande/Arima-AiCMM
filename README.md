@@ -292,9 +292,23 @@ A `sessionStart` hook (`.github/hooks/aicmm-startup.json`) runs `scripts/start-a
 Every site page carries a floating AiCMM assistant button (bottom-right). Click it for a slide-in, **page-aware** helper:
 - **Agentic when a CLI is present** — bridges to a local LLM CLI (GitHub Copilot today; Claude Code / Gemini if installed) for live, tool-using answers.
 - **Offline fallback** — with no CLI, a built-in knowledge base still answers about dimensions, governance, the Agency ladder, and creating/scoring cards.
+- **Two modes** — **Assist** answers questions about the page; **Develop & Extend** runs the CLI in the repo root so it can edit code/docs, rebuild, restart, and open PRs — turning the site into a contribution hub for developers and non-developers (code, docs, or agent ratings).
+- **Integrity gate** — before opening any PR, contribute mode runs `scripts/run-foundational-tests.ps1`, which locks the 7 governance rules, the agent threshold, the Agency ladder (−2..+5), and the 12-dimension structure. A PR is only proposed when the gate passes, and the test summary is pasted into the PR description so nothing foundational breaks.
+- **Pin & auto-tuck (📌)** — the panel quietly tucks away when you click outside it, unless you pin it open.
 - **Settings (⚙)** — pick the default CLI/provider, switch models, and set temperature (where the CLI supports it). Preferences persist to `~/.aicmm/faa-settings.json`.
 
-Endpoints: `POST /api/assist`, `GET /api/assist/providers`, `GET`/`POST /api/assist/settings`. Adding a new CLI is a one-line `CliSpec` — a call for contributions.
+Endpoints: `POST /api/assist` (accepts `mode` + `history`), `GET /api/assist/providers`, `GET`/`POST /api/assist/settings`. Adding a new CLI is a one-line `CliSpec` — a call for contributions.
+
+### One-command restart (secret takeover)
+Restart the site cleanly even after code/static changes:
+
+```bash
+scripts/restart-aicmm.ps1            # secret-shutdown old server → rebuild jar → start
+scripts/restart-aicmm.ps1 -NoBuild   # skip the rebuild, just restart
+```
+
+The script sends a secret code (`X-AiCMM-Token`, default `aicmm-secret-restart`, override via `AICMM_ADMIN_TOKEN`) to `POST /api/admin/shutdown` so the running instance exits and releases the jar lock; it then rebuilds and relaunches. On boot the server also runs a `takeOverPort()` guard against any straggler still holding the port.
+
 
 ## How to Classify an Agent
 

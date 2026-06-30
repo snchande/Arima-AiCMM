@@ -19,7 +19,7 @@ public class OfflineAssistProvider implements AssistProvider {
     @Override public boolean supportsTemperature() { return false; }
 
     @Override
-    public String ask(String primer, String page, String question, String model, Double temperature) {
+    public String ask(String primer, String page, String question, Tuning tuning) {
         String q = question == null ? "" : question.toLowerCase(Locale.ROOT);
         StringBuilder sb = new StringBuilder();
 
