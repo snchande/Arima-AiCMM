@@ -60,6 +60,20 @@ java -jar aicmm-cli/target/aicmm-cli.jar validate --card my-agent-card.json
 
 ---
 
+## FAA — The Floating Assistant
+
+Every page carries a floating **AiCMM Assistant** (bottom-right). Open or close it any time with **Alt+A** (or click the button); press **Esc** to close it when it isn't pinned.
+
+- **Ask about the page** — it knows the 12 dimensions, the 7 governance rules, the Agency ladder, and how to create/score cards. With a local LLM CLI installed (GitHub Copilot, or Claude Code / Gemini) it answers agentically; otherwise a built-in knowledge base still helps offline.
+- **Let it fill the form** — on **Create Card**, ask *"fill this for a fictional scheduling agent"* and watch it **type** each field in live and ramp the 12 score sliders, then refresh the radar. It can do this on any page that has a form.
+- **Reword on the spot** — *"reword this heading to …"* updates the visible text immediately so you can preview wording before saving.
+- **Pin (📌)** to keep it open (upright, highlighted when pinned; tilted/grey when not). It auto-tucks away when you click elsewhere.
+- **Assistant Engine (⚙)** — choose which CLI/provider powers it, pick a model, adjust the generation tuning the CLI supports, and enable **power-user mode** to reveal **Develop & Extend** (edit code/docs, rebuild, restart, and open PRs from the browser). Settings persist to `~/.aicmm/faa-settings.json`.
+
+> GitHub Copilot is driven through the official `@github/copilot-sdk`, so filling forms and longer requests work reliably and no extra browser tab is opened.
+
+---
+
 ## Creating Agent Cards
 
 ### Method 1: Web UI (Create Card Page)

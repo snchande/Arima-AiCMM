@@ -1,5 +1,26 @@
 # AiCMM Release Notes
 
+## v0.3.0 — FAA Floating Agentic Assistance (2026-06-29)
+
+### Overview
+
+Adds **FAA (Floating Agentic Assistance)** — a page-aware floating assistant on every AiCMM site page that bridges to a local LLM CLI (with an offline knowledge-base fallback) and can act directly on the page you are viewing.
+
+### Highlights
+
+- **Open from anywhere** — click the floating button or press **Alt+A** (Esc closes it when unpinned). Pin to keep it open; it auto-tucks when you click away.
+- **GitHub Copilot via the official SDK** — the Copilot provider is driven through **`@github/copilot-sdk`** (JSON-RPC) using a Node bridge in `aicmm-site/faa-bridge/`. The prompt is delivered over stdin as JSON, eliminating Windows command-line quoting failures and the extra browser tab that the interactive CLI used to open on every request. Claude Code / Gemini remain supported via the generic CLI runner.
+- **Acts on the page** — ask it to **fill a form** and it *types* into each field live, character-by-character, moving focus field to field (and sets the 12 score sliders + radar on Create Card); ask it to **reword** any visible text or **reload** after a saved source change.
+- **Assist & Develop modes** — Assist answers page questions; **Develop & Extend** (revealed in **power-user mode**) lets the CLI edit code/docs, rebuild, restart, and open PRs, turning the site into a contribution hub.
+- **Assistant Engine settings (⚙)** — choose the provider, model, and capability-aware generation tuning, and toggle power-user mode; preferences persist to `~/.aicmm/faa-settings.json`.
+- **Contribution integrity gate** — before any PR, `scripts/run-foundational-tests.ps1` (with `GovernanceRulesTest` + `FrameworkInvariantsTest`) locks the 7 governance rules, the agent threshold, the Agency ladder (−2..+5), and the 12-dimension structure; the test summary is pasted into the PR body.
+
+### Fixed
+- Assistant Engine Save/Cancel and the power-user toggle now work (the `[hidden]` attribute was being overridden by `display:flex`).
+- No more browser tab opening per FAA command.
+
+---
+
 ## v0.2.0 — Level 0 / Level 1 Architecture (2026-05-24)
 
 ### Overview

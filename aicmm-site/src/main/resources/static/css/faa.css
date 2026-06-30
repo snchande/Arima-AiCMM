@@ -34,6 +34,14 @@
 /* The [hidden] attribute must win over the display:flex above, otherwise toggling
    #faa-body / #faa-settings via .hidden does nothing (Save/Cancel appear dead). */
 #aicmm-panel [hidden] { display:none !important; }
+
+/* Highlight the field FAA is currently typing into, so focus visibly moves field-to-field. */
+.aicmm-typing {
+  outline:2px solid #ff7a1a !important; outline-offset:1px;
+  box-shadow:0 0 0 3px rgba(255,122,26,.25) !important;
+  border-color:#ff7a1a !important;
+  transition:outline-color .15s ease, box-shadow .15s ease;
+}
 .faa-msg { padding:10px 12px; border-radius:10px; font-size:.9rem; line-height:1.5; max-width:92%; white-space:pre-wrap; }
 .faa-msg.user { background:#2563eb; color:#fff; align-self:flex-end; }
 .faa-msg.bot { background:#13203a; border:1px solid #1b2a4a; align-self:flex-start; }

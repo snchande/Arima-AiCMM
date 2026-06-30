@@ -453,6 +453,13 @@ Mermaid diagrams showing system design and data flow.
 ### 📖 User Guide (`/user-guide`)
 Step-by-step instructions for all operations.
 
+### 🤖 FAA — Floating Agentic Assistance (every page)
+A page-aware AiCMM assistant floats on every page. Toggle it with **Alt+A** or the bottom-right button.
+- **Agentic with a local LLM CLI** — GitHub Copilot (driven via the official `@github/copilot-sdk`), or Claude Code / Gemini; falls back to an offline knowledge base when no CLI is present.
+- **Acts on the page** — fills forms by *typing* into each field live (and ramps the 12 score sliders + radar on Create Card), rewords visible text on request, and can reload after a saved change.
+- **Assist & Develop modes** — answer questions, or (in power-user mode) edit code/docs, rebuild, restart, and open PRs straight from the browser — a contribution hub for developers and non-developers.
+- **Assistant Engine (⚙)** — choose provider, model, and supported generation tuning; preferences persist to `~/.aicmm/faa-settings.json`.
+
 ---
 
 ## MCP Integration
