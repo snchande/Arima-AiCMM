@@ -31,14 +31,24 @@ public interface AssistProvider {
     /** Whether the CLI honours a temperature setting. */
     boolean supportsTemperature();
 
+    /** Whether the CLI honours a top-p (nucleus sampling) setting. */
+    default boolean supportsTopP() { return false; }
+
+    /** Whether the CLI honours a max-output-tokens setting. */
+    default boolean supportsMaxTokens() { return false; }
+
     /**
      * Answer a page-contextual question.
      *
-     * @param primer      system primer describing AiCMM + the current page
-     * @param page        current page key
-     * @param question    user question
-     * @param model       selected model (nullable → provider default)
-     * @param temperature selected temperature (nullable → provider default)
+     * @param primer   system primer describing AiCMM + the current page
+     * @param page     current page key
+     * @param question user question
+     * @param tuning   generation controls (model / temperature / top-p / max tokens); any field may be null
      */
-    String ask(String primer, String page, String question, String model, Double temperature) throws Exception;
+    String ask(String primer, String page, String question, Tuning tuning) throws Exception;
+
+    /** Generation controls applied to a request. Any field may be {@code null} (= provider default). */
+    record Tuning(String model, Double temperature, Double topP, Integer maxTokens) {
+        public static final Tuning NONE = new Tuning(null, null, null, null);
+    }
 }

@@ -28,9 +28,8 @@ public class AssistController {
             String mode = str(req.get("mode"), "assist");
             String history = str(req.get("history"), "");
             String provider = emptyToNull(str(req.get("provider"), ""));
-            String model = emptyToNull(str(req.get("model"), ""));
-            Double temp = req.get("temperature") instanceof Number n ? n.doubleValue() : null;
-            ctx.json(service.answer(page, question, mode, history, provider, model, temp));
+            String formFields = emptyToNull(str(req.get("formFields"), ""));
+            ctx.json(service.answer(page, question, mode, history, provider, formFields));
         } catch (Exception e) {
             ctx.status(500).json(Map.of("error", "Assistant error: " + e.getMessage()));
         }

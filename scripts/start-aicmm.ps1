@@ -46,5 +46,5 @@ if (-not $listening) {
         return
     }
 }
-Start-Process $url
+if (-not $env:AICMM_FAA) { Start-Process $url }  # skip browser when launched by FAA
 "AiCMM site at $url"

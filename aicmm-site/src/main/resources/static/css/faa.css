@@ -31,6 +31,9 @@
 .faa-head .ic:hover { color:#e9eefb; }
 .faa-head .pin { margin-left:auto; }
 .faa-body { flex:1; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:10px; }
+/* The [hidden] attribute must win over the display:flex above, otherwise toggling
+   #faa-body / #faa-settings via .hidden does nothing (Save/Cancel appear dead). */
+#aicmm-panel [hidden] { display:none !important; }
 .faa-msg { padding:10px 12px; border-radius:10px; font-size:.9rem; line-height:1.5; max-width:92%; white-space:pre-wrap; }
 .faa-msg.user { background:#2563eb; color:#fff; align-self:flex-end; }
 .faa-msg.bot { background:#13203a; border:1px solid #1b2a4a; align-self:flex-start; }
@@ -44,7 +47,10 @@
 .faa-chips button:hover { border-color:#2563eb; }
 .faa-by { font-size:.68rem; color:#6d82a8; align-self:flex-start; margin-top:-4px; }
 
-.faa-head .ic.pin.on { color:#ff7a1a; }
+/* pin: tilted + greyed when unpinned, upright + accent when pinned */
+.faa-head .ic.pin { color:#5b6b88; transform:rotate(45deg); transition:transform .15s ease, color .15s ease; }
+.faa-head .ic.pin:hover { color:#9fb4d8; }
+.faa-head .ic.pin.on { color:#ff7a1a; transform:rotate(0deg); }
 
 /* mode toggle */
 .faa-modes { display:flex; gap:6px; padding:8px 12px; border-bottom:1px solid #1b2a4a; }
@@ -80,5 +86,15 @@
 .faa-settings .set-actions button.ghost { background:transparent; border:1px solid #1b2a4a; color:#bcd; }
 .faa-settings .set-note { font-size:.72rem; color:#6d82a8; line-height:1.5; }
 .faa-settings .set-note code { background:#05080f; padding:2px 5px; border-radius:5px; color:#9ad; }
+.faa-settings .set-sub { font-size:.78rem; color:#8aa0c8; line-height:1.5; margin-top:-8px; }
+.faa-settings .tune-row { display:flex; align-items:center; gap:10px; }
+.faa-settings .tune-row .tlbl { flex:0 0 130px; font-size:.78rem; color:#bcd; }
+.faa-settings .tune-row input[type=range] { flex:1; width:auto; }
+.faa-settings .tune-row input[type=number] { flex:1; background:#05080f; border:1px solid #1b2a4a; color:#e9eefb; border-radius:7px; padding:6px 8px; }
+.faa-settings .tune-row .tval { flex:0 0 40px; text-align:right; font-size:.78rem; color:#9fb4d8; font-variant-numeric:tabular-nums; }
+.faa-settings .tune-row.off { opacity:.45; }
+.faa-settings .set-hint { font-size:.72rem; color:#6d82a8; line-height:1.4; }
+.faa-settings .set-toggle { display:flex; align-items:center; gap:9px; font-size:.84rem; color:#dbe6fb; cursor:pointer; }
+.faa-settings .set-toggle input { width:16px; height:16px; accent-color:#ff7a1a; }
 
 @media (max-width:768px){ #aicmm-panel{ width:90%; } }

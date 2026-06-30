@@ -8,6 +8,9 @@ public class FaaSettings {
     public String provider = "auto";   // "auto" → first available CLI, else offline
     public String model = "";          // empty → provider default
     public Double temperature = null;  // null → provider default
+    public Double topP = null;         // null → provider default (nucleus sampling)
+    public Integer maxTokens = null;   // null → provider default (max output tokens)
+    public boolean powerUser = false;  // reveals Develop & Extend mode + developer tools
 
     public FaaSettings() {}
 }

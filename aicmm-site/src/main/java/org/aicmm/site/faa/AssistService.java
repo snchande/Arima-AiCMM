@@ -37,7 +37,12 @@ public class AssistService {
         this.projectRoot = projectRoot;
         // Offline first (always available), then every built-in CLI (launched in the repo root).
         providers.add(offline);
-        for (CliSpec spec : CliSpec.builtins()) providers.add(new CliAssistProvider(spec, projectRoot));
+        for (CliSpec spec : CliSpec.builtins()) {
+            // GitHub Copilot is driven via the @github/copilot-sdk bridge (reliable, no argv
+            // quoting, no browser-opening sessionStart hook); other CLIs use the generic spec runner.
+            if ("copilot".equals(spec.id())) providers.add(new CopilotSdkAssistProvider(spec, projectRoot));
+            else providers.add(new CliAssistProvider(spec, projectRoot));
+        }
         this.settingsFile = Paths.get(System.getProperty("user.home"), ".aicmm", "faa-settings.json");
         this.settings = load();
     }
@@ -85,6 +90,52 @@ public class AssistService {
             """.formatted(root, page);
     }
 
+    /**
+     * Page Action Protocol — appended to every primer so the assistant can change the page the
+     * user is looking at in real time (fill forms, reword visible text, or reload after a
+     * persistent source edit). {@code fillableFields} is a JSON description of the current page's
+     * form fields supplied by the client, or null/blank when the page has none.
+     */
+    private String pageActionProtocol(String fillableFields) {
+        String fields = (fillableFields != null && !fillableFields.isBlank())
+                ? fillableFields
+                : "(none detected on this page)";
+        return """
+            PAGE ACTION PROTOCOL — you can update the page the user is viewing in real time by emitting
+            fenced blocks in your reply. The web UI parses and applies them instantly, then hides the raw
+            blocks. Keep prose short and always confirm in one line what you changed. In every block emit
+            STANDARD JSON (double-quoted keys and string values); the single quotes in the examples below
+            are only to keep this prompt readable.
+
+            1) Fill form fields — emit exactly one block:
+            ```aicmm-fill
+            { 'fields': { '<field-name-or-id>': '<value>' }, 'scores': { 'autonomy': 0, 'reasoning': 0 } }
+            ```
+            Use ONLY keys listed in FILLABLE FIELDS below. Include 'scores' (each 0-5) only when score-*
+            fields are present. For select fields use one of the listed options.
+
+            2) Reword / edit visible text — emit one block of find->replace pairs against text that is
+            currently on the page:
+            ```aicmm-edit
+            [ { 'find': '<exact existing visible text>', 'replace': '<new text>' } ]
+            ```
+            This updates the live DOM only (a preview the user can see immediately).
+
+            3) Reload — ONLY after you have edited the page's SOURCE files (Develop mode) so the change is
+            persistent, emit a block containing just:
+            ```aicmm-reload
+            ```
+            to refresh the page so the user sees the saved change.
+
+            Rules: prefer aicmm-fill / aicmm-edit for anything the user can see right now. NEVER open a
+            browser tab or create files merely to fill a form or reword on-screen text. Only touch source
+            files (then aicmm-reload) when the user wants the change to persist.
+
+            FILLABLE FIELDS for the current page:
+            %s
+            """.formatted(fields);
+    }
+
     // ---- settings persistence ----
     private FaaSettings load() {
         try {
@@ -129,22 +180,23 @@ public class AssistService {
 
     // ---- answer ----
     public Map<String, Object> answer(String page, String question, String mode, String history,
-                                      String overrideProvider, String overrideModel, Double overrideTemp) throws Exception {
+                                      String overrideProvider, String fillableFields) throws Exception {
         AssistProvider p = active(overrideProvider);
-        String model = (overrideModel != null && !overrideModel.isBlank()) ? overrideModel : emptyToNull(settings.model);
-        Double temp = overrideTemp != null ? overrideTemp : settings.temperature;
         boolean develop = "develop".equalsIgnoreCase(mode);
-        String primer = develop ? developPrimer(page) : PRIMER;
+        String base = develop ? developPrimer(page) : PRIMER;
+        String primer = base + "\n\n" + pageActionProtocol(fillableFields);
+        AssistProvider.Tuning tuning = new AssistProvider.Tuning(
+                emptyToNull(settings.model), settings.temperature, settings.topP, settings.maxTokens);
         String userContent = (history != null && !history.isBlank())
                 ? "Conversation so far:\n" + history + "\n\nLatest: " + question
                 : question;
         String answer;
         boolean fellBack = false;
         try {
-            answer = p.ask(primer, page, userContent, model, temp);
+            answer = p.ask(primer, page, userContent, tuning);
         } catch (Exception e) {
             // CLI failed at runtime → fall back to offline so the user always gets help.
-            answer = offline.ask(primer, page, question, null, null)
+            answer = offline.ask(primer, page, question, AssistProvider.Tuning.NONE)
                     + "\n\n_(" + p.label() + " failed: " + e.getMessage() + ")_";
             p = offline; fellBack = true;
         }
@@ -169,6 +221,8 @@ public class AssistService {
             m.put("agentic", p.agentic());
             m.put("models", p.models());
             m.put("supportsTemperature", p.supportsTemperature());
+            m.put("supportsTopP", p.supportsTopP());
+            m.put("supportsMaxTokens", p.supportsMaxTokens());
             list.add(m);
         }
         AssistProvider act = active(null);

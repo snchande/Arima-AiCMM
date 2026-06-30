@@ -27,6 +27,8 @@ public class CliAssistProvider implements AssistProvider {
     @Override public boolean agentic() { return true; }
     @Override public List<String> models() { return spec.models(); }
     @Override public boolean supportsTemperature() { return spec.supportsTemperature(); }
+    @Override public boolean supportsTopP() { return spec.supportsTopP(); }
+    @Override public boolean supportsMaxTokens() { return spec.supportsMaxTokens(); }
 
     @Override
     public boolean available() {
@@ -44,18 +46,30 @@ public class CliAssistProvider implements AssistProvider {
     }
 
     @Override
-    public String ask(String primer, String page, String question, String model, Double temperature) throws Exception {
+    public String ask(String primer, String page, String question, Tuning tuning) throws Exception {
+        Tuning t = tuning != null ? tuning : Tuning.NONE;
         String prompt = primer + "\n\nCurrent page: " + page + "\nUser question: " + question;
+        // Windows ProcessBuilder mangles a single argument that contains straight double quotes
+        // (a long-standing JDK quoting limitation), which makes the CLI see split tokens. Newlines
+        // and backticks are safe; only " is problematic. Normalise it to a typographic quote so the
+        // whole prompt survives as one argv element. The model still emits valid JSON in its reply.
+        String safePrompt = prompt.replace('"', '\u2019');
         List<String> cmd = new ArrayList<>();
         cmd.add(spec.binary());
         cmd.addAll(spec.baseArgs());
-        if (model != null && !model.isBlank() && spec.modelFlag() != null) {
-            cmd.add(spec.modelFlag()); cmd.add(model);
+        if (t.model() != null && !t.model().isBlank() && spec.modelFlag() != null) {
+            cmd.add(spec.modelFlag()); cmd.add(t.model());
         }
-        if (temperature != null && spec.supportsTemperature()) {
-            cmd.add(spec.temperatureFlag()); cmd.add(String.valueOf(temperature));
+        if (t.temperature() != null && spec.supportsTemperature()) {
+            cmd.add(spec.temperatureFlag()); cmd.add(String.valueOf(t.temperature()));
         }
-        cmd.add(spec.promptFlag()); cmd.add(prompt);
+        if (t.topP() != null && spec.supportsTopP()) {
+            cmd.add(spec.topPFlag()); cmd.add(String.valueOf(t.topP()));
+        }
+        if (t.maxTokens() != null && spec.supportsMaxTokens()) {
+            cmd.add(spec.maxTokensFlag()); cmd.add(String.valueOf(t.maxTokens()));
+        }
+        cmd.add(spec.promptFlag()); cmd.add(safePrompt);
 
         Process p = new ProcessBuilder(cmd)
                 .directory(workingDir != null ? workingDir.toFile() : null)
