@@ -108,34 +108,101 @@
     return lines.join('\n');
   }
 
-  function setFieldValue(key, value){
-    var el = document.querySelector('[name="'+(window.CSS&&CSS.escape?CSS.escape(key):key)+'"]') || document.getElementById(key);
-    if (!el || inWidget(el)) return false;
-    var tag = el.tagName.toLowerCase();
-    if (tag==='select'){
-      var matched=false;
-      Array.prototype.forEach.call(el.options, function(o){ if(o.value==value || o.textContent.trim()==String(value)){ el.value=o.value; matched=true; } });
-      if(!matched) el.value=value;
-    } else if (el.type==='checkbox'){ el.checked = !!value && value!=='false';
-    } else { el.value = value; }
-    el.dispatchEvent(new Event('input', {bubbles:true}));
-    el.dispatchEvent(new Event('change', {bubbles:true}));
-    return true;
+  // ----- animated filling: type into each field like a human, field by field -----
+  var TYPE_MS = 32;        // per-character typing delay
+  var FIELD_GAP_MS = 260;  // pause between fields
+  var SCORE_STEP_MS = 130; // per-step delay when ramping a 0-5 slider
+  function wait(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+  function findField(key){
+    return document.querySelector('[name="'+(window.CSS&&CSS.escape?CSS.escape(key):key)+'"]') || document.getElementById(key);
   }
-  function setScore(dim, val){
-    var el = document.getElementById('score-'+dim); if(!el) return false;
-    var v = Math.max(0, Math.min(5, parseInt(val, 10) || 0));
-    el.value = v;
-    if (typeof window.updateScoreDisplay==='function'){ try{ window.updateScoreDisplay(el); }catch(e){} }
-    else { var d=document.getElementById('display-'+dim); if(d) d.textContent=v; }
+  function focusField(el){
+    try{ el.scrollIntoView({behavior:'smooth', block:'center'}); }catch(e){}
+    try{ el.focus({preventScroll:true}); }catch(e){ try{ el.focus(); }catch(_){} }
+    el.classList.add('aicmm-typing');
+  }
+  function blurField(el){ el.classList.remove('aicmm-typing'); }
+  function typeText(el, value){
+    value = String(value);
+    el.value = '';
     el.dispatchEvent(new Event('input', {bubbles:true}));
-    return true;
+    var i = 0;
+    return new Promise(function(resolve){
+      (function step(){
+        if (i >= value.length){
+          el.dispatchEvent(new Event('change', {bubbles:true}));
+          return resolve();
+        }
+        el.value = value.slice(0, ++i);
+        el.dispatchEvent(new Event('input', {bubbles:true}));
+        try{ el.setSelectionRange(el.value.length, el.value.length); }catch(e){}
+        setTimeout(step, TYPE_MS);
+      })();
+    });
+  }
+  function fillFieldAnimated(key, value){
+    var el = findField(key);
+    if (!el || inWidget(el)) return Promise.resolve(false);
+    var tag = el.tagName.toLowerCase();
+    focusField(el);
+    return wait(140).then(function(){
+      if (tag === 'select'){
+        var matched = false;
+        Array.prototype.forEach.call(el.options, function(o){ if(o.value==value || o.textContent.trim()==String(value)){ el.value=o.value; matched=true; } });
+        if (!matched) el.value = value;
+        el.dispatchEvent(new Event('input', {bubbles:true}));
+        el.dispatchEvent(new Event('change', {bubbles:true}));
+        return wait(120);
+      }
+      if (el.type === 'checkbox'){
+        el.checked = !!value && value!=='false';
+        el.dispatchEvent(new Event('change', {bubbles:true}));
+        return wait(120);
+      }
+      return typeText(el, value);
+    }).then(function(){ return wait(FIELD_GAP_MS); }).then(function(){ blurField(el); return true; });
+  }
+  function animateScore(dim, val){
+    var el = document.getElementById('score-'+dim);
+    if (!el) return Promise.resolve(false);
+    var target = Math.max(0, Math.min(5, parseInt(val, 10) || 0));
+    focusField(el);
+    return wait(140).then(function(){
+      return new Promise(function(resolve){
+        var cur = parseInt(el.value, 10) || 0;
+        var dir = target > cur ? 1 : -1;
+        (function ramp(){
+          if (cur === target) return resolve();
+          cur += dir; el.value = cur;
+          if (typeof window.updateScoreDisplay === 'function'){ try{ window.updateScoreDisplay(el); }catch(e){} }
+          else { var d=document.getElementById('display-'+dim); if(d) d.textContent=cur; }
+          el.dispatchEvent(new Event('input', {bubbles:true}));
+          setTimeout(ramp, SCORE_STEP_MS);
+        })();
+      });
+    }).then(function(){ return wait(FIELD_GAP_MS/2); }).then(function(){ blurField(el); return true; });
+  }
+  // Play the whole fill as a sequence so the user watches it "type" field by field.
+  function animateFill(obj){
+    var chain = Promise.resolve();
+    if (obj && obj.fields){
+      Object.keys(obj.fields).forEach(function(k){ chain = chain.then(function(){ return fillFieldAnimated(k, obj.fields[k]); }); });
+    }
+    if (obj && obj.scores){
+      Object.keys(obj.scores).forEach(function(k){ chain = chain.then(function(){ return animateScore(k, obj.scores[k]); }); });
+      chain = chain.then(function(){ if (typeof window.previewRadar==='function'){ try{ window.previewRadar(); }catch(e){} } });
+    }
+    return chain;
+  }
+  function countFillable(obj){
+    var n = 0;
+    if (obj && obj.fields){ Object.keys(obj.fields).forEach(function(k){ if(findField(k)) n++; }); }
+    if (obj && obj.scores){ Object.keys(obj.scores).forEach(function(k){ if(document.getElementById('score-'+k)) n++; }); }
+    return n;
   }
   function applyFill(obj){
-    var n=0;
-    if (obj && obj.fields){ Object.keys(obj.fields).forEach(function(k){ if(setFieldValue(k, obj.fields[k])) n++; }); }
-    if (obj && obj.scores){ Object.keys(obj.scores).forEach(function(k){ if(setScore(k, obj.scores[k])) n++; }); }
-    if (obj && obj.scores && typeof window.previewRadar==='function'){ try{ window.previewRadar(); }catch(e){} }
+    var n = countFillable(obj);
+    animateFill(obj);   // fire-and-forget: the typing plays out after we report the count
     return n;
   }
   // Live reword: replace text within individual text nodes (skips the FAA widget + script/style).

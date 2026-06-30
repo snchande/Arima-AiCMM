@@ -8,6 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **FAA (Floating Agentic Assistance)** — page-aware floating assistant on every site page; **Alt+A** toggles it (Esc closes when unpinned).
+- GitHub Copilot is driven through the official **`@github/copilot-sdk`** (JSON-RPC) via a Node bridge (`aicmm-site/faa-bridge/`), replacing fragile `copilot -p` shell-out — fixes Windows argv quote-mangling and stops the per-command browser pop.
+- **Page Action Protocol** — the assistant can fill forms (animated, character-by-character typing with focus moving field to field), reword visible text, and reload after a saved source edit (` ```aicmm-fill ` / ` ```aicmm-edit ` / ` ```aicmm-reload `).
+- **Assistant Engine** settings — provider selection, model picker, capability-aware generation tuning, and a power-user-mode toggle that reveals Develop & Extend; persisted to `~/.aicmm/faa-settings.json`.
+- **Contribution integrity gate** — `scripts/run-foundational-tests.ps1` plus `GovernanceRulesTest` and `FrameworkInvariantsTest` lock the 7 governance rules, agent threshold, Agency ladder (−2..+5), and 12-dimension structure before any PR.
+- One-command **secret-takeover restart** (`scripts/restart-aicmm.ps1`) that shuts down, rebuilds, and relaunches the site.
+
+### Fixed
+- Assistant Engine Save/Cancel and power-user toggle did nothing — the `[hidden]` attribute was overridden by `display:flex`; now authoritative inside the panel.
+- FAA no longer opens a browser tab per command (SDK runtime skips the `sessionStart` hook; `AICMM_FAA=1` also gates the launch scripts).
+
+### Initial scaffolding
 - Initial project structure with Maven multi-module setup
 - Framework documentation from original articles (LinkedIn, Medium)
 - Core module skeleton (`aicmm-core`) for domain models and scoring

@@ -2,7 +2,7 @@
   <img src="docs/AiCMM-Logo.png" alt="AiCMM logo" width="180">
 </p>
 
-<h1 align="center">AiCMM — Agent Capability Maturity Model</h1>
+<h1 align="center">AiCMM — Agentic Capability Maturity Model</h1>
 
 <p align="center">
   <strong>A unified, multi-dimensional framework for classifying AI agent capabilities</strong>
@@ -289,15 +289,16 @@ Edit `prompt.json` to define the question (`single` image cards, `multi`-select,
 A `sessionStart` hook (`.github/hooks/aicmm-startup.json`) runs `scripts/start-aicmm.ps1`, which (1) installs the repo's agents & skills into `~/.copilot` via `scripts/setup-agents.ps1` so **`@aicmm`** is immediately discoverable, and (2) starts the AiCMM site on http://localhost:8080 (only if not already running) and opens it. Clone the repo and just run `copilot` — `@aicmm` is ready and the site comes up automatically. To set up agents without launching the CLI, run `scripts/setup-agents.ps1` manually.
 
 ### FAA — Floating Agentic Assistance
-Every site page carries a floating AiCMM assistant button (bottom-right). Click it for a slide-in, **page-aware** helper:
-- **Agentic when a CLI is present** — bridges to a local LLM CLI (GitHub Copilot today; Claude Code / Gemini if installed) for live, tool-using answers.
+Every site page carries a floating AiCMM assistant button (bottom-right). Toggle it any time with **Alt+A** (Esc closes it when unpinned). Click it for a slide-in, **page-aware** helper:
+- **Agentic when a CLI is present** — bridges to a local LLM CLI for live, tool-using answers. **GitHub Copilot** is driven through the official **`@github/copilot-sdk`** (JSON-RPC) via a Node bridge in `aicmm-site/faa-bridge/`, so the prompt is delivered reliably (no Windows quoting issues) and no extra browser tab is opened. Claude Code / Gemini are supported via the generic CLI runner if installed.
 - **Offline fallback** — with no CLI, a built-in knowledge base still answers about dimensions, governance, the Agency ladder, and creating/scoring cards.
-- **Two modes** — **Assist** answers questions about the page; **Develop & Extend** runs the CLI in the repo root so it can edit code/docs, rebuild, restart, and open PRs — turning the site into a contribution hub for developers and non-developers (code, docs, or agent ratings).
+- **Page actions on every page** — ask it to **fill forms** (it *types* into each field live, character-by-character, moving focus field to field), **reword** any visible text, or **reload** after a saved source edit. On Create Card it also sets the 12 score sliders and refreshes the radar.
+- **Two modes** — **Assist** answers questions about the page; **Develop & Extend** (revealed in **power-user mode**) runs the CLI in the repo root so it can edit code/docs, rebuild, restart, and open PRs — turning the site into a contribution hub for developers and non-developers (code, docs, or agent ratings).
 - **Integrity gate** — before opening any PR, contribute mode runs `scripts/run-foundational-tests.ps1`, which locks the 7 governance rules, the agent threshold, the Agency ladder (−2..+5), and the 12-dimension structure. A PR is only proposed when the gate passes, and the test summary is pasted into the PR description so nothing foundational breaks.
-- **Pin & auto-tuck (📌)** — the panel quietly tucks away when you click outside it, unless you pin it open.
-- **Settings (⚙)** — pick the default CLI/provider, switch models, and set temperature (where the CLI supports it). Preferences persist to `~/.aicmm/faa-settings.json`.
+- **Pin & auto-tuck (📌)** — the panel quietly tucks away when you click outside it, unless you pin it open (the pin sits upright and accent-coloured when pinned, tilted/greyed when not).
+- **Assistant Engine (⚙)** — pick the default provider, switch models, and adjust the generation tuning each CLI actually supports (greyed out otherwise), and toggle power-user mode. Preferences persist to `~/.aicmm/faa-settings.json`.
 
-Endpoints: `POST /api/assist` (accepts `mode` + `history`), `GET /api/assist/providers`, `GET`/`POST /api/assist/settings`. Adding a new CLI is a one-line `CliSpec` — a call for contributions.
+Endpoints: `POST /api/assist` (accepts `mode`, `history`, `formFields`), `GET /api/assist/providers`, `GET`/`POST /api/assist/settings`. Adding a new CLI is a one-line `CliSpec` — a call for contributions.
 
 ### One-command restart (secret takeover)
 Restart the site cleanly even after code/static changes:

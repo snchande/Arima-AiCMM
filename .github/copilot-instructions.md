@@ -115,12 +115,18 @@ Classification algorithm: `minCore = min(autonomy, reasoning, memory, learning)`
 
 ## FAA — Floating Agentic Assistance (web UI)
 
-Every site page carries a floating AiCMM assistant (bottom-right). It bridges to a local LLM CLI when present (offline knowledge-base fallback otherwise). Two modes: **Assist** (page Q&A) and **Develop & Extend** (CLI runs in repo root to edit code/docs, rebuild, restart, open PRs). UX: pin/auto-tuck, settings (⚙) for provider/model/temperature persisted to `~/.aicmm/faa-settings.json`.
+Every site page carries a floating AiCMM assistant (bottom-right; toggle with **Alt+A**, Esc closes when unpinned). It bridges to a local LLM CLI when present (offline knowledge-base fallback otherwise). Two modes: **Assist** (page Q&A) and **Develop & Extend** (CLI runs in repo root to edit code/docs, rebuild, restart, open PRs) — the latter hidden unless **power-user mode** is enabled.
+
+**GitHub Copilot via SDK:** the `copilot` provider drives the Copilot runtime through `@github/copilot-sdk` (JSON-RPC) using the Node bridge in `aicmm-site/faa-bridge/`. The prompt travels as a stdin JSON message, avoiding Windows argv double-quote mangling and the browser-opening `sessionStart` hook. Claude/Gemini use the generic `CliAssistProvider`.
+
+**Page Action Protocol:** on any page the assistant can fill form fields (typed in live, character-by-character, focus moving field to field), reword visible text, and reload after a persistent source edit by emitting fenced ` ```aicmm-fill ` / ` ```aicmm-edit ` / ` ```aicmm-reload ` blocks that the UI applies live.
+
+**Assistant Engine (⚙):** pick the provider, model, and capability-aware generation tuning; toggle power-user mode. Persisted to `~/.aicmm/faa-settings.json`. Browser auto-open is suppressed when `AICMM_FAA=1` (set on FAA-spawned children) so it opens only on a real command-line launch.
 
 **Integrity gate (contributions):** before opening a PR, contribute mode runs `scripts/run-foundational-tests.ps1`, which locks the 7 governance rules, the agent threshold, the Agency ladder (-2..+5), and the 12-dimension structure (tests in `aicmm-core/src/test/.../scoring/GovernanceRulesTest.java` + `FrameworkInvariantsTest.java`). A PR is only proposed on PASS, and the printed summary block is pasted into the PR body.
 
-- Endpoints: `POST /api/assist` (body: `page`, `url`, `question`, `mode`, `history`), `GET /api/assist/providers`, `GET`/`POST /api/assist/settings`.
-- Backend: `org.aicmm.site.faa.*` — `AssistService` (mode-aware primers + history), `CliAssistProvider` (runs CLI with `.directory(repoRoot)`), `CliSpec.builtins()` (copilot/claude/gemini; add a CLI here), `OfflineAssistProvider`, `AssistController`.
+- Endpoints: `POST /api/assist` (body: `page`, `url`, `question`, `mode`, `history`, `formFields`), `GET /api/assist/providers`, `GET`/`POST /api/assist/settings`.
+- Backend: `org.aicmm.site.faa.*` — `AssistService` (mode-aware primers + page-action protocol + history), `CopilotSdkAssistProvider` (copilot via SDK bridge), `CliAssistProvider` (claude/gemini), `CliSpec.builtins()`, `OfflineAssistProvider`, `AssistController`.
 
 ## One-command restart (secret takeover)
 
