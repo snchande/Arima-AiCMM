@@ -147,9 +147,28 @@
     focusField(el);
     return wait(140).then(function(){
       if (tag === 'select'){
+        // Match case-insensitively against option value OR visible text. Also try a
+        // loose contains match so e.g. "Digital Assistant" maps to the "digital" option.
+        var want = String(value == null ? '' : value).trim().toLowerCase();
         var matched = false;
-        Array.prototype.forEach.call(el.options, function(o){ if(o.value==value || o.textContent.trim()==String(value)){ el.value=o.value; matched=true; } });
-        if (!matched) el.value = value;
+        Array.prototype.forEach.call(el.options, function(o){
+          if (matched || !o.value) return;
+          var ov = o.value.trim().toLowerCase(), ot = o.textContent.trim().toLowerCase();
+          if (ov === want || ot === want){ el.value = o.value; matched = true; }
+        });
+        if (!matched){
+          Array.prototype.forEach.call(el.options, function(o){
+            if (matched || !o.value || !want) return;
+            var ov = o.value.trim().toLowerCase(), ot = o.textContent.trim().toLowerCase();
+            if (want.indexOf(ov) >= 0 || ov.indexOf(want) >= 0 || want.indexOf(ot) >= 0){ el.value = o.value; matched = true; }
+          });
+        }
+        // If still unmatched, KEEP the current/default option — never set an unknown
+        // value, which would blank the dropdown (the reported "blank box" bug).
+        if (!matched && el.selectedIndex < 0){
+          var firstReal = Array.prototype.filter.call(el.options, function(o){ return o.value; })[0];
+          if (firstReal) el.value = firstReal.value;
+        }
         el.dispatchEvent(new Event('input', {bubbles:true}));
         el.dispatchEvent(new Event('change', {bubbles:true}));
         return wait(120);
