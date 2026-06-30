@@ -3,21 +3,24 @@ package org.aicmm.site.faa;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Bridges the AiCMM FAA to a local agentic LLM CLI described by a {@link CliSpec}.
- * Runs the CLI non-interactively (single prompt) and returns its output.
+ * Runs the CLI non-interactively (single prompt) and returns its output. The CLI is
+ * launched in the repository root so Develop &amp; Extend mode can read/edit project code.
  */
 public class CliAssistProvider implements AssistProvider {
 
     private final CliSpec spec;
+    private final Path workingDir;
     private Boolean availableCache;
     private long availableCheckedAt;
 
-    public CliAssistProvider(CliSpec spec) { this.spec = spec; }
+    public CliAssistProvider(CliSpec spec, Path workingDir) { this.spec = spec; this.workingDir = workingDir; }
 
     @Override public String id() { return spec.id(); }
     @Override public String label() { return spec.label(); }
@@ -54,7 +57,9 @@ public class CliAssistProvider implements AssistProvider {
         }
         cmd.add(spec.promptFlag()); cmd.add(prompt);
 
-        Process p = new ProcessBuilder(cmd).redirectErrorStream(true).start();
+        Process p = new ProcessBuilder(cmd)
+                .directory(workingDir != null ? workingDir.toFile() : null)
+                .redirectErrorStream(true).start();
         p.getOutputStream().close();
         StringBuilder out = new StringBuilder();
         try (BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8))) {

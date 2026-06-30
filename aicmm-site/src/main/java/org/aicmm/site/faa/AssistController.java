@@ -2,18 +2,21 @@ package org.aicmm.site.faa;
 
 import io.javalin.http.Context;
 
+import java.nio.file.Path;
 import java.util.Map;
 
 /**
  * HTTP endpoints for the AiCMM FAA assistant:
- *  - POST /api/assist                 → ask a page-aware question
+ *  - POST /api/assist                 → ask a page-aware question (supports mode + history)
  *  - GET  /api/assist/providers       → provider catalogue + current settings
  *  - GET  /api/assist/settings        → current settings
  *  - POST /api/assist/settings        → update settings (default CLI, model, temperature)
  */
 public class AssistController {
 
-    private final AssistService service = new AssistService();
+    private final AssistService service;
+
+    public AssistController(Path projectRoot) { this.service = new AssistService(projectRoot); }
 
     @SuppressWarnings("unchecked")
     public void assist(Context ctx) {
@@ -22,10 +25,12 @@ public class AssistController {
             String page = str(req.get("page"), "home");
             String question = str(req.get("question"), "").trim();
             if (question.isEmpty()) { ctx.status(400).json(Map.of("error", "Empty question")); return; }
+            String mode = str(req.get("mode"), "assist");
+            String history = str(req.get("history"), "");
             String provider = emptyToNull(str(req.get("provider"), ""));
             String model = emptyToNull(str(req.get("model"), ""));
             Double temp = req.get("temperature") instanceof Number n ? n.doubleValue() : null;
-            ctx.json(service.answer(page, question, provider, model, temp));
+            ctx.json(service.answer(page, question, mode, history, provider, model, temp));
         } catch (Exception e) {
             ctx.status(500).json(Map.of("error", "Assistant error: " + e.getMessage()));
         }

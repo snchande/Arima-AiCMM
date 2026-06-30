@@ -119,6 +119,24 @@ java -jar aicmm-cli/target/aicmm-cli-0.1.0-SNAPSHOT.jar --mcp
 curl -X POST http://localhost:8080/api/agent-cards -H "Content-Type: application/json" -d @examples/my-agent-card.json
 ```
 
+## FAA — Floating Agentic Assistance (web UI)
+
+Every site page carries a floating AiCMM assistant (bottom-right). It bridges to a local LLM CLI when present (offline knowledge-base fallback otherwise). Two modes: **Assist** (page Q&A) and **Develop & Extend** (CLI runs in repo root to edit code/docs, rebuild, restart, open PRs). UX: pin/auto-tuck, settings (⚙) for provider/model/temperature persisted to `~/.aicmm/faa-settings.json`.
+
+**Integrity gate (contributions):** before opening a PR, contribute mode runs `scripts/run-foundational-tests.ps1`, which locks the 7 governance rules, the agent threshold, the Agency ladder (-2..+5), and the 12-dimension structure (tests in `aicmm-core/src/test/.../scoring/GovernanceRulesTest.java` + `FrameworkInvariantsTest.java`). A PR is only proposed on PASS, and the printed summary block is pasted into the PR body.
+
+- Endpoints: `POST /api/assist` (body: `page`, `url`, `question`, `mode`, `history`), `GET /api/assist/providers`, `GET`/`POST /api/assist/settings`.
+- Backend: `org.aicmm.site.faa.*` — `AssistService` (mode-aware primers + history), `CliAssistProvider` (runs CLI with `.directory(repoRoot)`), `CliSpec.builtins()` (copilot/claude/gemini; add a CLI here), `OfflineAssistProvider`, `AssistController`.
+
+## One-command restart (secret takeover)
+
+```bash
+scripts/restart-aicmm.ps1            # secret-shutdown old → rebuild → start
+scripts/restart-aicmm.ps1 -NoBuild   # restart without rebuild
+```
+
+`POST /api/admin/shutdown` requires header `X-AiCMM-Token` (default `aicmm-secret-restart`, env `AICMM_ADMIN_TOKEN`). On boot `AicmmSite.takeOverPort()` also evicts any straggler on the port.
+
 ## Project Structure
 
 ```

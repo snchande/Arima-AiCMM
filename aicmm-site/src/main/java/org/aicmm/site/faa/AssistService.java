@@ -28,16 +28,61 @@ public class AssistService {
 
     private final ObjectMapper mapper = new ObjectMapper();
     private final Path settingsFile;
+    private final Path projectRoot;
     private final List<AssistProvider> providers = new ArrayList<>();
     private final OfflineAssistProvider offline = new OfflineAssistProvider();
     private FaaSettings settings;
 
-    public AssistService() {
-        // Offline first (always available), then every built-in CLI.
+    public AssistService(Path projectRoot) {
+        this.projectRoot = projectRoot;
+        // Offline first (always available), then every built-in CLI (launched in the repo root).
         providers.add(offline);
-        for (CliSpec spec : CliSpec.builtins()) providers.add(new CliAssistProvider(spec));
+        for (CliSpec spec : CliSpec.builtins()) providers.add(new CliAssistProvider(spec, projectRoot));
         this.settingsFile = Paths.get(System.getProperty("user.home"), ".aicmm", "faa-settings.json");
         this.settings = load();
+    }
+
+    /** Develop &amp; Extend primer — the CLI has full repo access to change code/docs and open PRs. */
+    private String developPrimer(String page) {
+        String root = projectRoot != null ? projectRoot.toString() : System.getProperty("user.dir");
+        return """
+            You are the AiCMM FAA Assistant, running via a local agentic CLI with FULL read/write access
+            to the AiCMM repository at %s. You help the user DEVELOP, EXTEND and CONTRIBUTE to AiCMM —
+            for developers AND non-developers.
+
+            You can: read/edit files; run shell commands; build with
+            `mvn -q -pl aicmm-site -am clean package -DskipTests`; and restart the site by running
+            `scripts/restart-aicmm.ps1` (or POST /api/admin/shutdown with header X-AiCMM-Token: aicmm-secret-restart,
+            then relaunch the jar — the server self-takes-over its port).
+
+            Contribution types you support:
+              - Code changes (Java in aicmm-*; site assets in aicmm-site/src/main/resources/static).
+              - Documentation (README.md, docs/, CLAUDE.md, GEMINI.md, .github/copilot-instructions.md).
+              - Rating agents / creating Agent Cards: write examples/<name>-agent-card.json and validate
+                via POST /api/validate. Great for non-developers.
+              - Tests under each module's src/test.
+
+            When changes are ready, you MUST protect the integrity of AiCMM before proposing them:
+              1. Run the foundational integrity gate: `scripts/run-foundational-tests.ps1`
+                 (use `-All` when you touched code outside aicmm-core). This locks the 7 governance
+                 rules, the agent threshold, the Agency ladder (-2..+5), and the 12-dimension structure.
+              2. If a change adds or alters framework behaviour, ADD or UPDATE tests under the relevant
+                 module's src/test FIRST, so the integrity suite still covers the invariants.
+              3. Only open a Pull Request when the gate prints `PASS` (exit 0). If it FAILS, do NOT open a
+                 PR — fix the regression or revert, and tell the user what broke.
+
+            Then OFFER to open a Pull Request: create a feature branch, commit with the trailer
+            'Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>', push, and run
+            `gh pr create`. ALWAYS paste the foundational-test summary block (the
+            `<!-- AICMM-FOUNDATIONAL-TESTS -->` ... `<!-- /AICMM-FOUNDATIONAL-TESTS -->` section printed
+            by the gate) into the PR description so reviewers can see the system stayed intact.
+            Summarize the diff and confirm before pushing. Never rewrite published history.
+
+            Be concrete and actually perform the steps with your tools, keeping the user informed.
+            AiCMM scores 12 dimensions (autonomy, reasoning, memory, learning, toolUse, collaboration,
+            embodiment, explainability, safety, interoperability, costEfficiency, domainAlignment) plus a
+            derived Agency Qualification Layer, validated by 7 governance rules. Current page: %s.
+            """.formatted(root, page);
     }
 
     // ---- settings persistence ----
@@ -83,18 +128,23 @@ public class AssistService {
     }
 
     // ---- answer ----
-    public Map<String, Object> answer(String page, String question, String overrideProvider,
-                                      String overrideModel, Double overrideTemp) throws Exception {
+    public Map<String, Object> answer(String page, String question, String mode, String history,
+                                      String overrideProvider, String overrideModel, Double overrideTemp) throws Exception {
         AssistProvider p = active(overrideProvider);
         String model = (overrideModel != null && !overrideModel.isBlank()) ? overrideModel : emptyToNull(settings.model);
         Double temp = overrideTemp != null ? overrideTemp : settings.temperature;
+        boolean develop = "develop".equalsIgnoreCase(mode);
+        String primer = develop ? developPrimer(page) : PRIMER;
+        String userContent = (history != null && !history.isBlank())
+                ? "Conversation so far:\n" + history + "\n\nLatest: " + question
+                : question;
         String answer;
         boolean fellBack = false;
         try {
-            answer = p.ask(PRIMER, page, question, model, temp);
+            answer = p.ask(primer, page, userContent, model, temp);
         } catch (Exception e) {
             // CLI failed at runtime → fall back to offline so the user always gets help.
-            answer = offline.ask(PRIMER, page, question, null, null)
+            answer = offline.ask(primer, page, question, null, null)
                     + "\n\n_(" + p.label() + " failed: " + e.getMessage() + ")_";
             p = offline; fellBack = true;
         }
@@ -103,6 +153,7 @@ public class AssistService {
         out.put("provider", p.id());
         out.put("providerLabel", p.label());
         out.put("agentic", p.agentic());
+        out.put("mode", develop ? "develop" : "assist");
         out.put("fellBack", fellBack);
         return out;
     }

@@ -1,6 +1,8 @@
 /* AiCMM FAA — Floating Agentic Assistance.
-   Page-aware help across the site. Uses a local LLM CLI (agentic) when available,
-   else a built-in offline knowledge base. Settings let you pick the CLI, model and temperature. */
+   Page-aware help across the site. Two modes:
+     • Assist  — explain pages, dimensions, governance, agency (offline-capable).
+     • Develop & Extend — the CLI has full repo access to change code/docs, restart, and open PRs.
+   Auto-tucks on outside click unless pinned. Settings pick the CLI, model and temperature. */
 (function () {
   var PAGES = {
     'home':        { title: 'Home',        tips: ['What is AiCMM?', 'Show me the 12 dimensions', 'How do I score an agent?'] },
@@ -14,6 +16,12 @@
     'user-guide':  { title: 'Guide',       tips: ['Walk me through creating my first card', 'CLI prompts to use'] },
     'release-notes':{title: 'Releases',    tips: ['What changed recently?'] }
   };
+  var CONTRIB = [
+    { label: '🛠 Make a code change', prompt: 'I want to make a code change to AiCMM. If anything is unclear, ask me what to change, then implement it, build with Maven, and restart the site.' },
+    { label: '📝 Improve documentation', prompt: 'Help me improve AiCMM documentation. Ask what to improve or where, then make the edit and show me the diff.' },
+    { label: '⭐ Rate an agent / create a card', prompt: 'Help me rate an agent and create an AiCMM Agent Card. Ask me for the agent details or a doc/URL, then write examples/<name>-agent-card.json and validate it.' },
+    { label: '🔀 Open a PR with my changes', prompt: 'Review my current local changes (git status and diff) and summarize them. Then create a feature branch, commit with the Copilot co-author trailer, push, and open a PR with gh — confirm with me before pushing.' }
+  ];
   function detectPage() {
     var a = document.querySelector('.nav-links a.active');
     if (a) { return (a.getAttribute('href') || '/').replace(/^\//, '') || 'home'; }
@@ -21,7 +29,10 @@
   }
   var pageKey = detectPage();
   var page = PAGES[pageKey] || { title: document.title, tips: ['How can AiCMM help on this page?'] };
-  var catalogue = null; // {providers, settings, active, activeAgentic}
+  var catalogue = null;
+  var pinned = localStorage.getItem('faa-pin') === '1';
+  var mode = localStorage.getItem('faa-mode') || 'assist';
+  var history = [];
 
   // ---- build widget ----
   var faa = document.createElement('button');
@@ -32,8 +43,11 @@
   panel.innerHTML =
     '<div class="faa-head"><img src="/img/aicmm-icon.svg">'+
       '<span class="t">AiCMM Assistant</span><span class="pg">· ' + page.title + '</span>'+
+      '<button class="ic pin" title="Pin (keep open)">&#128204;</button>'+
       '<button class="ic gear" title="Settings">&#9881;</button>'+
       '<button class="ic x" title="Close">&times;</button></div>'+
+    '<div class="faa-modes"><button data-m="assist" class="mbtn">Assist</button>'+
+      '<button data-m="develop" class="mbtn">Develop &amp; Extend</button></div>'+
     '<div class="faa-status" id="faa-status">Checking assistant…</div>'+
     '<div class="faa-body" id="faa-body"></div>'+
     '<div class="faa-settings" id="faa-settings" hidden></div>'+
@@ -44,14 +58,52 @@
   var body = panel.querySelector('#faa-body');
   var statusEl = panel.querySelector('#faa-status');
   var settingsEl = panel.querySelector('#faa-settings');
-
-  function add(text, cls){ var d=document.createElement('div'); d.className='faa-msg '+cls; d.textContent=text; body.appendChild(d); body.scrollTop=body.scrollHeight; return d; }
-  add('Hi! I understand the AiCMM platform and the "' + page.title + '" page. Ask anything or pick a suggestion.', 'bot');
-  var chips=document.createElement('div'); chips.className='faa-chips';
-  page.tips.forEach(function(t){ var b=document.createElement('button'); b.textContent=t; b.onclick=function(){ send(t); }; chips.appendChild(b); });
-  body.appendChild(chips);
+  var pinBtn = panel.querySelector('.pin');
 
   function esc(s){ var d=document.createElement('div'); d.textContent=s==null?'':s; return d.innerHTML; }
+  function add(text, cls){ var d=document.createElement('div'); d.className='faa-msg '+cls; d.textContent=text; body.appendChild(d); body.scrollTop=body.scrollHeight; return d; }
+
+  // ---- chips per mode ----
+  var chips;
+  function renderChips(){
+    if(chips) chips.remove();
+    chips=document.createElement('div'); chips.className='faa-chips';
+    var items = mode==='develop'
+      ? CONTRIB.map(function(c){ return {label:c.label, text:c.prompt}; })
+      : page.tips.map(function(t){ return {label:t, text:t}; });
+    items.forEach(function(it){ var b=document.createElement('button'); b.textContent=it.label; b.onclick=function(){ send(it.text); }; chips.appendChild(b); });
+    body.appendChild(chips);
+  }
+
+  add('Hi! I understand the AiCMM platform and the "' + page.title + '" page. Ask anything or pick a suggestion.', 'bot');
+  renderChips();
+
+  // ---- mode ----
+  function applyMode(){
+    panel.querySelectorAll('.mbtn').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-m')===mode); });
+    panel.classList.toggle('develop', mode==='develop');
+    renderChips();
+    renderStatus();
+  }
+  panel.querySelectorAll('.mbtn').forEach(function(b){
+    b.onclick=function(){
+      mode=b.getAttribute('data-m'); localStorage.setItem('faa-mode', mode); applyMode();
+      if(mode==='develop'){
+        var ag = catalogue && catalogue.activeAgentic;
+        add(ag ? 'Develop & Extend mode: I can edit code/docs, build, restart, and open PRs. Tell me what to change, or pick an action.'
+               : 'Develop & Extend needs an agentic CLI. Install one and pick it under ⚙ to let me edit code and open PRs.', 'tip');
+      } else { add('Assist mode: page-aware help. Ask me anything.', 'tip'); }
+    };
+  });
+
+  // ---- pin + auto-tuck ----
+  function applyPin(){ pinBtn.classList.toggle('on', pinned); pinBtn.title = pinned ? 'Unpin (auto-hide)' : 'Pin (keep open)'; }
+  pinBtn.onclick=function(){ pinned=!pinned; localStorage.setItem('faa-pin', pinned?'1':'0'); applyPin(); };
+  document.addEventListener('mousedown', function(e){
+    if(!panel.classList.contains('open') || pinned) return;
+    if(panel.contains(e.target) || faa.contains(e.target)) return;
+    toggle(false); // silently tuck away
+  });
 
   // ---- status + settings ----
   function renderStatus(){
@@ -59,12 +111,12 @@
     var act=null; catalogue.providers.forEach(function(p){ if(p.id===catalogue.active) act=p; });
     var label = act ? act.label : catalogue.active;
     var agentic = catalogue.activeAgentic;
+    var devNote = mode==='develop' ? (agentic?' · <em>can edit code &amp; open PRs</em>':' · <em>needs a CLI</em>') : '';
     statusEl.innerHTML = '<span class="dot '+(agentic?'on':'off')+'"></span>'+
-      (agentic ? 'Agentic · ' : 'Offline · ') + '<strong>'+esc(label)+'</strong>'+
+      (agentic ? 'Agentic · ' : 'Offline · ') + '<strong>'+esc(label)+'</strong>'+devNote+
       ' <button class="link" id="faa-pick">change</button>';
     var pick=statusEl.querySelector('#faa-pick'); if(pick) pick.onclick=openSettings;
   }
-
   function loadCatalogue(){
     return fetch('/api/assist/providers').then(function(r){return r.json();}).then(function(j){ catalogue=j; renderStatus(); }).catch(function(){ statusEl.textContent='Assistant status unavailable.'; });
   }
@@ -75,9 +127,7 @@
     var html = '<div class="set-h">Assistant settings</div>'+
       '<div class="set-sec"><div class="set-l">Default CLI / provider</div>';
     html += providerRow('auto','Auto — first available CLI, else offline', true, true, s.provider==='auto');
-    catalogue.providers.forEach(function(p){
-      html += providerRow(p.id, p.label, p.available, p.agentic, s.provider===p.id);
-    });
+    catalogue.providers.forEach(function(p){ html += providerRow(p.id, p.label, p.available, p.agentic, s.provider===p.id); });
     html += '</div>';
     html += '<div class="set-sec" id="set-model-sec"><div class="set-l">Model</div>'+
       '<select id="set-model"></select>'+
@@ -88,7 +138,6 @@
     html += '<div class="set-note">No CLI? Install one — e.g. <code>npm install -g @github/copilot</code> — then pick it here. Other CLIs are a call for contributions.</div>';
     settingsEl.innerHTML = html;
     body.hidden = true; settingsEl.hidden = false;
-
     settingsEl.querySelectorAll('input[name=faa-prov]').forEach(function(r){ r.onchange=refreshModelTemp; });
     settingsEl.querySelector('#set-cancel').onclick=closeSettings;
     settingsEl.querySelector('#set-save').onclick=saveSettings;
@@ -103,9 +152,7 @@
       '<input type="radio" name="faa-prov" value="'+id+'"'+(checked?' checked':'')+'>'+
       '<span class="pn">'+esc(label)+'</span>'+badge+tag+'</label>';
   }
-  function selectedProvider(){
-    var r=settingsEl.querySelector('input[name=faa-prov]:checked'); return r?r.value:'auto';
-  }
+  function selectedProvider(){ var r=settingsEl.querySelector('input[name=faa-prov]:checked'); return r?r.value:'auto'; }
   function providerById(id){ var f=null; (catalogue.providers||[]).forEach(function(p){ if(p.id===id) f=p; }); return f; }
   function refreshModelTemp(){
     var id=selectedProvider();
@@ -129,8 +176,7 @@
     var model = custom || sel.value || '';
     var p = id==='auto'?null:providerById(id);
     var temp = (p && p.supportsTemperature) ? parseFloat(settingsEl.querySelector('#set-temp').value) : null;
-    var payload={provider:id, model:model, temperature:temp};
-    fetch('/api/assist/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+    fetch('/api/assist/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({provider:id, model:model, temperature:temp})})
       .then(function(r){return r.json();}).then(function(){ return loadCatalogue(); })
       .then(function(){ closeSettings(); var act=providerById(catalogue.active); add('Settings saved — using '+(act?act.label:catalogue.active)+'.','tip'); });
   }
@@ -141,18 +187,24 @@
   panel.querySelector('.x').onclick=function(){ toggle(false); };
   panel.querySelector('.gear').onclick=function(){ if(settingsEl.hidden) openSettings(); else closeSettings(); };
 
+  function historyString(){
+    return history.slice(-8).map(function(h){ return (h.role==='user'?'User: ':'Assistant: ')+h.text; }).join('\n');
+  }
   function send(text){
     var inp=panel.querySelector('#faa-in');
     var msg=(text||inp.value).trim(); if(!msg) return;
     inp.value=''; if(!settingsEl.hidden) closeSettings(); add(msg,'user');
-    var sb=panel.querySelector('#faa-send'); sb.disabled=true; var w=add('Thinking…','tip');
+    var hist=historyString(); history.push({role:'user', text:msg});
+    var sb=panel.querySelector('#faa-send'); sb.disabled=true;
+    var w=add(mode==='develop'?'Working…':'Thinking…','tip');
     fetch('/api/assist',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({page:pageKey,url:location.pathname,question:msg})})
+      body:JSON.stringify({page:pageKey,url:location.pathname,question:msg,mode:mode,history:hist})})
       .then(function(r){return r.json();}).then(function(j){
         w.remove();
-        add(j.answer||j.error||'No response','bot');
+        var ans=j.answer||j.error||'No response';
+        add(ans,'bot'); history.push({role:'assistant', text:ans});
         if(j.provider){ var tag=document.createElement('div'); tag.className='faa-by';
-          tag.textContent=(j.agentic?'via ':'offline · ')+(j.providerLabel||j.provider)+(j.fellBack?' (fallback)':''); body.appendChild(tag); }
+          tag.textContent=(j.mode==='develop'?'develop · ':'')+(j.agentic?'via ':'offline · ')+(j.providerLabel||j.provider)+(j.fellBack?' (fallback)':''); body.appendChild(tag); }
         if(j.agentic===false && catalogue){ catalogue.active=j.provider; catalogue.activeAgentic=false; renderStatus(); }
       })
       .catch(function(e){ w.remove(); add('Assistant unavailable: '+e,'bot'); })
@@ -161,5 +213,6 @@
   panel.querySelector('#faa-send').onclick=function(){ send(); };
   panel.querySelector('#faa-in').addEventListener('keydown',function(e){ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();} });
 
+  applyPin(); applyMode();
   loadCatalogue();
 })();
