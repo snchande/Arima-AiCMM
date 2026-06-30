@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - One-command **secret-takeover restart** (`scripts/restart-aicmm.ps1`) that shuts down, rebuilds, and relaunches the site.
 
 ### Fixed
+- FAA auto-fill left the Create Card **Category** dropdown blank when the model returned a value outside `digital/embodied/hybrid`; select fills now match case-insensitively (with a loose fallback) and keep the default option instead of blanking the control.
 - Assistant Engine Save/Cancel and power-user toggle did nothing — the `[hidden]` attribute was overridden by `display:flex`; now authoritative inside the panel.
 - FAA no longer opens a browser tab per command (SDK runtime skips the `sessionStart` hook; `AICMM_FAA=1` also gates the launch scripts).
 
