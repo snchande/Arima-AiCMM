@@ -556,18 +556,8 @@ function renderAgencyBadge(agency) {
         "</div></div><p class='agency-rationale'>" + agency.rationale + "</p>";
 }
 
-function previewRadar() {
-    const profile = getFormScores();
-    const preview = document.getElementById('preview-area');
-    preview.style.display = 'block';
-
-    const radarEl = document.getElementById('preview-radar');
-    radarEl.setAttribute('data-profile', JSON.stringify(profile));
-    renderRadarChart(radarEl);
-    renderAgencyBadge(computeAgency(profile));
-}
-
-function generateCard() {
+// Builds the full Agent Card object from the current form state.
+function buildCardObject() {
     const form = document.getElementById('agent-card-form');
     const formData = new FormData(form);
 
@@ -607,8 +597,11 @@ function generateCard() {
             evidenceSources: formData.get('agentUrl') ? [formData.get('agentUrl')] : ["manual-input"]
         }
     };
+    return { card, profile, agency };
+}
 
-    // Show preview
+// Renders the preview area (radar, agency badge, and JSON) from a built card.
+function renderCardPreview(card, profile, agency) {
     const preview = document.getElementById('preview-area');
     preview.style.display = 'block';
 
@@ -618,10 +611,21 @@ function generateCard() {
     renderAgencyBadge(agency);
 
     const jsonEl = document.getElementById('preview-json');
-    jsonEl.querySelector('code').textContent = JSON.stringify(card, null, 2);
+    const codeEl = jsonEl && jsonEl.querySelector('code');
+    if (codeEl) codeEl.textContent = JSON.stringify(card, null, 2);
 
-    // Store for download
+    // Store for download / copy
     window._generatedCard = card;
+}
+
+function previewRadar() {
+    const { card, profile, agency } = buildCardObject();
+    renderCardPreview(card, profile, agency);
+}
+
+function generateCard() {
+    const { card, profile, agency } = buildCardObject();
+    renderCardPreview(card, profile, agency);
 }
 
 function downloadCard() {
