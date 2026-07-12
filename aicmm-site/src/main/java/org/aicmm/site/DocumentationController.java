@@ -110,7 +110,8 @@ public class DocumentationController {
             try {
                 String content = Files.readString(doc);
                 String html = renderer.render(content);
-                ctx.html(wrapInLayout("Classify by Prompting", html, "classify-by-prompting"));
+                ctx.html(wrapInLayout("Classify by Prompting", PROMPT_TOOLBAR + html + PROMPT_COPY_SCRIPT,
+                        "classify-by-prompting"));
             } catch (IOException e) {
                 ctx.status(500).result("Error: " + e.getMessage());
             }
@@ -118,6 +119,83 @@ public class DocumentationController {
             ctx.status(404).result("Guide not found");
         }
     }
+
+    /** Serves the companion PDF of the prompt-only classification guide as a download. */
+    public void classifyByPromptingPdf(Context ctx) {
+        Path pdf = docsPath.resolve("guides").resolve("classify-by-prompting.pdf");
+        if (pdf.toFile().exists()) {
+            try {
+                ctx.contentType("application/pdf");
+                ctx.header("Content-Disposition",
+                        "attachment; filename=\"aicmm-classify-by-prompting.pdf\"");
+                ctx.result(Files.readAllBytes(pdf));
+            } catch (IOException e) {
+                ctx.status(500).result("Error: " + e.getMessage());
+            }
+        } else {
+            ctx.status(404).result("PDF not found");
+        }
+    }
+
+    /** Action bar rendered above the prompt guide: copy the prompt + download the PDF. */
+    private static final String PROMPT_TOOLBAR = """
+            <div class="prompt-actions">
+                <button id="copy-prompt-btn" type="button" class="prompt-btn prompt-btn-primary">
+                    📋 Copy Prompt
+                </button>
+                <a href="/classify-by-prompting.pdf" class="prompt-btn prompt-btn-secondary"
+                   download="aicmm-classify-by-prompting.pdf">⬇ Download PDF</a>
+            </div>
+            <style>
+                .prompt-actions { display:flex; gap:.75rem; flex-wrap:wrap; align-items:center;
+                    margin:0 0 1.5rem; padding:.85rem 1rem; border:1px solid #e2e6ef;
+                    border-radius:10px; background:#f7f9fc; }
+                .prompt-btn { display:inline-flex; align-items:center; gap:.4rem; cursor:pointer;
+                    font:600 .95rem/1 system-ui,Segoe UI,Arial,sans-serif; text-decoration:none;
+                    padding:.6rem 1.05rem; border-radius:8px; border:1px solid transparent;
+                    transition:transform .05s ease, box-shadow .15s ease; }
+                .prompt-btn:active { transform:translateY(1px); }
+                .prompt-btn-primary { background:#3b5bdb; color:#fff; }
+                .prompt-btn-primary:hover { box-shadow:0 3px 10px rgba(59,91,219,.35); }
+                .prompt-btn-primary.copied { background:#2b8a3e; }
+                .prompt-btn-secondary { background:#fff; color:#3b5bdb; border-color:#c3ccf0; }
+                .prompt-btn-secondary:hover { box-shadow:0 3px 10px rgba(0,0,0,.08); }
+            </style>
+            """;
+
+    /** Copies the largest fenced code block (the classifier prompt) to the clipboard. */
+    private static final String PROMPT_COPY_SCRIPT = """
+            <script>
+            (function () {
+              var btn = document.getElementById('copy-prompt-btn');
+              if (!btn) return;
+              function promptText() {
+                var blocks = document.querySelectorAll('.content pre'), best = null;
+                blocks.forEach(function (b) {
+                  if (!best || b.innerText.length > best.innerText.length) best = b;
+                });
+                return best ? best.innerText : '';
+              }
+              btn.addEventListener('click', function () {
+                var text = promptText(), done = function () {
+                  btn.classList.add('copied');
+                  var label = btn.textContent; btn.textContent = '✅ Copied!';
+                  setTimeout(function () { btn.textContent = label; btn.classList.remove('copied'); }, 2000);
+                };
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                  navigator.clipboard.writeText(text).then(done, function () { fallback(text, done); });
+                } else { fallback(text, done); }
+              });
+              function fallback(text, done) {
+                var ta = document.createElement('textarea');
+                ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+                document.body.appendChild(ta); ta.select();
+                try { document.execCommand('copy'); done(); } catch (e) {}
+                document.body.removeChild(ta);
+              }
+            })();
+            </script>
+            """;
 
     public void brochure(Context ctx) {        Path brochureDoc = docsPath.resolve("PRODUCT-BROCHURE.md");
         if (brochureDoc.toFile().exists()) {
