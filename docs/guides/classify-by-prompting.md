@@ -6,6 +6,14 @@ Maturity Model** is a framework of fixed rules and definitions, so any agentic C
 produce a **full AiCMM Agent Card** — identical in shape and "look and feel" to the
 cards in the official catalog.
 
+> **Get this one-pager:** view it on the
+> [repo page](https://github.com/snchande/Arima-AiCMM/blob/main/docs/guides/classify-by-prompting.md)
+> — use the code block's **copy** button to grab the prompt — or download the
+> [**Markdown**](https://raw.githubusercontent.com/snchande/Arima-AiCMM/main/docs/guides/classify-by-prompting.md)
+> / [**PDF**](https://raw.githubusercontent.com/snchande/Arima-AiCMM/main/docs/guides/classify-by-prompting.pdf).
+> On the [AiCMM site](https://github.com/snchande/Arima-AiCMM) the
+> `/classify-by-prompting` page adds a one-click **Copy Prompt** button and a **Download PDF** link.
+
 **How to use it (under a minute):**
 
 1. **Download this page** (Markdown or PDF) and keep it handy — it *is* the prompt.

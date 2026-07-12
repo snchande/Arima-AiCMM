@@ -82,6 +82,7 @@ public class AicmmSite {
         app.get("/release-notes", docsController::releaseNotes);
         app.get("/user-guide", docsController::userGuide);
         app.get("/classify-by-prompting", docsController::classifyByPrompting);
+        app.get("/classify-by-prompting.pdf", docsController::classifyByPromptingPdf);
         app.get("/brochure", docsController::brochure);
         app.get("/api/docs", docsController::listDocs);
         app.get("/api/agent-cards", cardController::listCardsJson);
