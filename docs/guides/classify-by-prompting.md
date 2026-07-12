@@ -113,7 +113,7 @@ PART 2 — Agent Card JSON (schemaVersion "0.2.0"). Emit ONE JSON object with th
   governanceValidation { rules:[ { rule, constraint, result, values } ], overallCompliant }
   agencyQualification { position:12, dimension:"Agency Qualification", derived:true,
       level, code, label, isAgent, governancePass, index, needle, rationale }
-  tools[]   skills[]   plugins[]   mcps[]
+  tools[]   skills[]   plugins[]   mcps[]      (each a flat array of short strings)
   agentRelationships { delegatesTo[], usedBy[], dependsOn[] }
   assessmentMetadata { assessedBy, assessedDate, methodology:"AiCMM Level 0 v0.2 — evidence-based", evidenceSources[] }
 
