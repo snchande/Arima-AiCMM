@@ -67,6 +67,10 @@ Use Level 1 radar charts for domains such as Healthcare, Transportation, Finance
 - Autonomy >= 4 requires Domain Alignment >= 3
 - Autonomy >= 4 requires Reasoning >= 3
 
+## Prompt-Only Classification (no install)
+
+End users can classify a locally-built agent without cloning or building AiCMM: paste the self-contained prompt from `docs/guides/classify-by-prompting.md` (also `.pdf`, and the site page `/classify-by-prompting`) into any agentic CLI. The prompt embeds the 12 dimensions, the 0–5 scale, the 7 governance rules, and the Agency Qualification algorithm, and returns a full Agent Card. Keep this guide in sync with the framework when scoring/governance/agency logic changes.
+
 ## Key Skills (in-repo `.copilot/skills/`)
 
 - **create-agent-card** — Create full Agent Card from URL/description

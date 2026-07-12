@@ -1480,6 +1480,7 @@ public class AgentCardController {
                             <a href="/catalog" class="%s">Catalog</a>
                             <a href="/create-card" class="%s">Create Card</a>
                             <a href="/user-guide" class="%s">Guide</a>
+                            <a href="/classify-by-prompting" class="%s">Prompt Guide</a>
                             <a href="/release-notes" class="%s">Releases</a>
                             <a href="/schema" class="%s">Schema</a>
                             <div class="nav-external">
@@ -1510,6 +1511,7 @@ public class AgentCardController {
                 "catalog".equals(activePage) || "cards".equals(activePage) ? "active" : "",
                 "create".equals(activePage) ? "active" : "",
                 "user-guide".equals(activePage) ? "active" : "",
+                "classify-by-prompting".equals(activePage) ? "active" : "",
                 "release-notes".equals(activePage) ? "active" : "",
                 "schema".equals(activePage) ? "active" : "",
                 content
