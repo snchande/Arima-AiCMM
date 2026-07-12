@@ -457,6 +457,7 @@ Keep this README light — for details, browse the site (http://localhost:8080) 
 | Agent catalog (radars + Agency) | `/catalog` | [examples/](examples/) |
 | Create a card (live form) | `/create-card` | [.copilot/skills](.copilot/skills/) |
 | Brochure & user guide | `/brochure`, `/user-guide` | [docs/guides](docs/guides/) |
+| Classify by prompting (no install) | — | [docs/guides/classify-by-prompting.md](docs/guides/classify-by-prompting.md) ([PDF](docs/guides/classify-by-prompting.pdf)) |
 | JSON Schema | `/schema` | [schemas/](schemas/) |
 | Branding / icon | — | [docs/branding](docs/branding/) |
 
