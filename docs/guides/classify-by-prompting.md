@@ -101,19 +101,48 @@ Needle (continuous position on the -2..+5 ladder):
         f = clamp((avg12 - band[0]) / (band[1] - band[0]), 0, 0.96);  needle = level + f
 
 ============================================================
+BRANDING & AVATAR GUIDELINES — align to the creator's platform + agent
+------------------------------------------------------------
+The avatar and the TONE of every description MUST reflect the creator's branding,
+not a generic default. Treat any branding the creator supplies as authoritative:
+  - Brand & naming: use the exact agent name, vendor/platform name, and product
+    voice the creator provides (e.g. Arima platform products). Mirror their casing
+    and terminology; never rename or re-vendor the agent.
+  - Palette: visualTraits.palette = 2-4 HEX colors taken from the creator's brand
+    palette when given; otherwise pick a tasteful palette that fits the domain
+    (e.g. clinical greens for healthcare, trust blues for finance, industrial
+    ambers for manufacturing).
+  - Form & symbol: visualTraits.form and .symbol should evoke the product's domain
+    and any logo/motif the creator describes (e.g. "Shield with pulse line",
+    "Stethoscope around a neural network"). Keep them concrete and on-brand.
+  - Style & voice: visualTraits.style is a short adjective phrase for the visual
+    tone (e.g. "Clinical, trustworthy, calm authority"). The archetype (e.g.
+    "Vigilant Guardian", "Expert Craftsman") and tagline must match that voice.
+  - Tone of descriptions: write the description, tagline, personality traits,
+    strengths, and weaknesses in the creator's tone (professional/understated by
+    default) — consistent across PART 1 and the JSON. No hype; evidence-grounded.
+If the creator gives NO branding, infer restrained, domain-appropriate defaults and
+mark avatar confidence accordingly — never invent brand claims that aren't supported.
+
+============================================================
 OUTPUT — produce BOTH parts, in this order
 ------------------------------------------------------------
 PART 1 — Rendered Agent Card (human-readable, mirrors the AiCMM catalog card):
-  - Header: agent name, vendor, CATEGORY (digital | embodied | hybrid), one-line description.
-  - Avatar: archetype, tagline, 3-5 personality traits, top strengths, key limitations.
+  - Header: agent name, vendor/platform, CATEGORY (digital | embodied | hybrid), one-line description.
+  - Avatar: archetype, tagline, 3-5 personality traits, then Visual Identity
+    (form; palette as HEX swatches; symbol; style) and top strengths / key limitations —
+    all on-brand per the BRANDING guidelines above.
   - Level 0 — Universal Capability Fingerprint: the one-line fingerprint string, then a
     table (dimension | pos | score 0-5 | confidence | one-line evidence). Show total /60 and average /5.
   - Governance Validation: a table of all 7 rules (rule | constraint | PASS/FAIL/N/A | values) and overallCompliant.
   - Agency Qualification: level, code, label, isAgent, Agency Index (0-100), needle, and a one-line rationale.
+  - Footer: a reference line — "Assessed with the AiCMM (Agent Capability Maturity Model)
+    open-source framework — https://github.com/snchande/Arima-AiCMM".
 
 PART 2 — Agent Card JSON (schemaVersion "0.2.0"). Emit ONE JSON object with these keys:
   agent { name, version, vendor, description, category, url }
   avatar { archetype, tagline, personality[], visualTraits{ form, palette[], symbol, style }, strengths[], weaknesses[] }
+      (avatar + visualTraits + all descriptions follow the BRANDING guidelines above)
   capabilityProfile { _dimensionSchema:"level0-v0.2",
       <each of the 12 keys>: { position, score, confidence, evidence } }
   operationalConstraints { domain, safetyClass, approvalRequirements[], regulatoryFrameworks[] }
@@ -124,7 +153,8 @@ PART 2 — Agent Card JSON (schemaVersion "0.2.0"). Emit ONE JSON object with th
       level, code, label, isAgent, governancePass, index, needle, rationale }
   tools[]   skills[]   plugins[]   mcps[]      (each a flat array of short strings)
   agentRelationships { delegatesTo[], usedBy[], dependsOn[] }
-  assessmentMetadata { assessedBy, assessedDate, methodology:"AiCMM Level 0 v0.2 — evidence-based", evidenceSources[] }
+  assessmentMetadata { assessedBy, assessedDate, methodology:"AiCMM Level 0 v0.2 — evidence-based", evidenceSources[],
+      framework:{ name:"AiCMM — Agent Capability Maturity Model", repository:"https://github.com/snchande/Arima-AiCMM", license:"MIT" } }
 
 Set category to digital/embodied/hybrid based on whether the agent acts in the physical world.
 Omit a field only if truly unknown.
@@ -134,9 +164,11 @@ do not just print paths). Create an ./aicmm-report/ folder and write:
   1. aicmm-report/<agent-name>-agent-card.json   — the PART 2 JSON, pretty-printed.
      Also copy it to examples/<agent-name>-agent-card.json if run inside the AiCMM repo.
   2. aicmm-report/<agent-name>-agent-card.html    — a self-contained, styled HTML page
-     that renders PART 1: a hero header with the fingerprint string, an avatar block,
-     an SVG radar chart of the 12 scores, the dimension table, the governance table,
-     and an Agency Qualification gauge showing level/label/index/needle. Inline all
+     that renders PART 1: a hero header with the fingerprint string, an on-brand avatar
+     block (form, palette swatches, symbol, style), an SVG radar chart of the 12 scores,
+     the dimension table, the governance table, and an Agency Qualification gauge showing
+     level/label/index/needle. Use the avatar palette as the page's accent colors so the
+     card looks on-brand, and add the AiCMM framework reference in the footer. Inline all
      CSS/SVG (no external assets) so it opens offline.
   3. aicmm-report/<agent-name>-agent-card.pdf     — a PDF of the same card. Generate it
      however your environment allows: render the HTML to PDF (headless browser /
