@@ -104,8 +104,22 @@ public class DocumentationController {
         }
     }
 
-    public void brochure(Context ctx) {
-        Path brochureDoc = docsPath.resolve("PRODUCT-BROCHURE.md");
+    public void classifyByPrompting(Context ctx) {
+        Path doc = docsPath.resolve("guides").resolve("classify-by-prompting.md");
+        if (doc.toFile().exists()) {
+            try {
+                String content = Files.readString(doc);
+                String html = renderer.render(content);
+                ctx.html(wrapInLayout("Classify by Prompting", html, "classify-by-prompting"));
+            } catch (IOException e) {
+                ctx.status(500).result("Error: " + e.getMessage());
+            }
+        } else {
+            ctx.status(404).result("Guide not found");
+        }
+    }
+
+    public void brochure(Context ctx) {        Path brochureDoc = docsPath.resolve("PRODUCT-BROCHURE.md");
         if (brochureDoc.toFile().exists()) {
             try {
                 String content = Files.readString(brochureDoc);
@@ -218,6 +232,7 @@ public class DocumentationController {
                             <a href="/create-card" class="%s">Create Card</a>
                             <a href="/brochure" class="%s">Brochure</a>
                             <a href="/user-guide" class="%s">Guide</a>
+                            <a href="/classify-by-prompting" class="%s">Prompt Guide</a>
                             <a href="/release-notes" class="%s">Releases</a>
                             <a href="/schema" class="%s">Schema</a>
                             <div class="nav-external">
@@ -257,6 +272,7 @@ public class DocumentationController {
                 "create".equals(activePage) ? "active" : "",
                 "brochure".equals(activePage) ? "active" : "",
                 "user-guide".equals(activePage) ? "active" : "",
+                "classify-by-prompting".equals(activePage) ? "active" : "",
                 "release-notes".equals(activePage) ? "active" : "",
                 "schema".equals(activePage) ? "active" : "",
                 content
