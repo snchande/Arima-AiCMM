@@ -46,3 +46,9 @@ logs/
 # Virtual machine crash logs
 hs_err_pid*
 replay_pid*
+
+# Local-only artifact generators (produce docs/branding assets; not shipped to contributors)
+docs/generate-pdf.py
+docs/generate-whitepaper.py
+docs/branding/render.js
+docs/branding/variants.js
