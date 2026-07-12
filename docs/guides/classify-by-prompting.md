@@ -15,7 +15,8 @@ cards in the official catalog.
    tool list — or simply write *"Analyze the agent implemented in this repository."*
 4. The CLI returns a complete Agent Card: identity, avatar, the **12-dimension
    capability fingerprint**, governance validation, and the derived **Agency
-   Qualification** barometer — plus the machine-readable JSON.
+   Qualification** barometer — and **saves three deliverables to disk**: a styled
+   **HTML** card, a print-ready **PDF**, and the machine-readable **JSON**.
 
 ---
 
@@ -118,7 +119,22 @@ PART 2 — Agent Card JSON (schemaVersion "0.2.0"). Emit ONE JSON object with th
   assessmentMetadata { assessedBy, assessedDate, methodology:"AiCMM Level 0 v0.2 — evidence-based", evidenceSources[] }
 
 Set category to digital/embodied/hybrid based on whether the agent acts in the physical world.
-Omit a field only if truly unknown. Suggest saving the JSON as examples/<agent-name>-agent-card.json.
+Omit a field only if truly unknown.
+
+PART 3 — Save the deliverables to disk (do this yourself with your file/tools;
+do not just print paths). Create an ./aicmm-report/ folder and write:
+  1. aicmm-report/<agent-name>-agent-card.json   — the PART 2 JSON, pretty-printed.
+     Also copy it to examples/<agent-name>-agent-card.json if run inside the AiCMM repo.
+  2. aicmm-report/<agent-name>-agent-card.html    — a self-contained, styled HTML page
+     that renders PART 1: a hero header with the fingerprint string, an avatar block,
+     an SVG radar chart of the 12 scores, the dimension table, the governance table,
+     and an Agency Qualification gauge showing level/label/index/needle. Inline all
+     CSS/SVG (no external assets) so it opens offline.
+  3. aicmm-report/<agent-name>-agent-card.pdf     — a PDF of the same card. Generate it
+     however your environment allows: render the HTML to PDF (headless browser /
+     wkhtmltopdf / your PDF tool), or build it directly (e.g. Python fpdf2 /
+     reportlab). If no PDF path is available, say so and leave the HTML + JSON.
+After writing, OPEN the HTML page for the user and print the three saved file paths.
 
 ============================================================
 AGENT TO CLASSIFY
@@ -131,19 +147,48 @@ AGENT TO CLASSIFY
 
 ## What you get back
 
-A complete, evidence-based **Agent Card** — the same shape and sections AiCMM
-renders natively: identity + avatar, the 12-dimension **capability fingerprint**,
-a governance pass/fail table, and the **Agency Qualification** verdict (with the
-0–100 Agency Index) that tells you whether your system is a *scripted automation*,
-a *reactive assistant*, or a genuinely *qualified agent* (Basic → Humanoid) — plus
-the machine-readable JSON you can drop straight into the catalog.
+Three files in `./aicmm-report/`, plus the opened HTML card:
+
+| File | What it is |
+|------|------------|
+| `<agent>-agent-card.html` | A styled, self-contained card — hero + fingerprint, avatar, **SVG radar chart**, dimension table, governance table, and the **Agency Qualification** gauge. Opens offline. |
+| `<agent>-agent-card.pdf`  | A print-ready PDF of the same card, ready to share or attach to a review. |
+| `<agent>-agent-card.json` | The machine-readable Agent Card (schema `0.2.0`) you can drop straight into the catalog. |
+
+The card mirrors the exact shape and sections AiCMM renders natively: identity +
+avatar, the 12-dimension **capability fingerprint**, a governance pass/fail table,
+and the **Agency Qualification** verdict (with the 0–100 Agency Index) that tells
+you whether your system is a *scripted automation*, a *reactive assistant*, or a
+genuinely *qualified agent* (Basic → Humanoid).
 
 **Tips**
 - Point the CLI at real evidence (source files, prompts, eval logs) for higher-confidence scores.
 - Ask for **Level 1 domain scoring** (e.g. Healthcare, Finance) if you deploy in a regulated domain.
-- Save the JSON as `examples/<your-agent>-agent-card.json`, then validate it against
-  [`schemas/agent-card.schema.json`](../../schemas/agent-card.schema.json).
-- Want the interactive site, radar rendering, MCP server, and catalog? See the
-  [AiCMM repository](https://github.com/snchande/Arima-AiCMM).
+- Validate your JSON against [`schemas/agent-card.schema.json`](../../schemas/agent-card.schema.json).
 
-*AiCMM is open source (MIT). This prompt-only workflow requires no installation.*
+---
+
+## Go further — use the repo, or help shape AiCMM
+
+The prompt above is deliberately self-contained, but it is a *portable snapshot* of a
+living open-source framework. **Clone the [AiCMM repository](https://github.com/snchande/Arima-AiCMM)**
+when you want more than a one-shot classification:
+
+- **Deterministic scoring & validation** — the Java engine computes governance and the
+  Agency Qualification the same way every time (no LLM variance), via
+  `mvn` build, the CLI (`aicmm validate|score|classify`), and the REST API.
+- **Interactive site & catalog** — a web UI with live radar rendering, avatars, and a
+  searchable catalog of published cards (`java -jar aicmm-site/...`).
+- **MCP server** — expose AiCMM as tools to Copilot / Claude / Gemini (`--mcp`), so your
+  CLI calls the *real* scorer instead of approximating it.
+- **The full ruleset as source of truth** — the 12 dimensions, 7 governance rules, and the
+  Agency ladder are locked by tests in `aicmm-core`; read them to justify every score.
+
+**Help shape the project.** AiCMM is MIT-licensed and community-driven. Contributions are
+welcome — publish your Agent Card to the catalog (`examples/<agent>-agent-card.json`),
+propose a new **Level 1 domain**, refine dimension rubrics or governance rules, or improve
+the docs. See [`CONTRIBUTING.md`](../../CONTRIBUTING.md), open an issue, or send a PR. Your
+real-world classifications make the model sharper for everyone.
+
+*AiCMM is open source (MIT). This prompt-only workflow requires no installation — the
+repository is there when you want deterministic scoring, tooling, or a seat at the table.*
