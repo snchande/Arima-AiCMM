@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- **Classify by prompting (no install)** — new one-page guide ([docs/guides/classify-by-prompting.md](docs/guides/classify-by-prompting.md) + PDF) with a self-contained, copy-paste prompt that makes any agentic CLI (Copilot CLI, Claude Code, Gemini, Cursor) score a locally-built agent across all 12 dimensions, run the 7 governance rules, and derive the Agency Qualification level — no clone or build required.
+- **Classify by prompting (no install)** — new one-page guide ([docs/guides/classify-by-prompting.md](docs/guides/classify-by-prompting.md) + PDF, and site page `/classify-by-prompting`) with a complete, drop-in prompt that makes any agentic CLI (Copilot CLI, Claude Code, Gemini, Cursor) emit a **full AiCMM Agent Card** for a locally-built agent — identity, avatar, the 12-dimension capability fingerprint, the 7 governance rules, and the derived Agency Qualification barometer (level, code, 0–100 Agency Index, needle) — aligned to `schemas/agent-card.schema.json`. No clone or build required.
 - **FAA (Floating Agentic Assistance)** — page-aware floating assistant on every site page; **Alt+A** toggles it (Esc closes when unpinned).
 - GitHub Copilot is driven through the official **`@github/copilot-sdk`** (JSON-RPC) via a Node bridge (`aicmm-site/faa-bridge/`), replacing fragile `copilot -p` shell-out — fixes Windows argv quote-mangling and stops the per-command browser pop.
 - **Page Action Protocol** — the assistant can fill forms (animated, character-by-character typing with focus moving field to field), reword visible text, and reload after a saved source edit (` ```aicmm-fill ` / ` ```aicmm-edit ` / ` ```aicmm-reload `).
